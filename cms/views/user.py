@@ -1,32 +1,33 @@
 import secrets
-from sqlalchemy.orm import Query
 
-from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 from flask import request
-from flask_restful import Resource
 from flask_login import login_user, logout_user, login_required
+from flask_restful import Resource
+from sqlalchemy.orm import Query
+from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 
-from api.models.user import User as UserModel
+from cms.models.user import User as UserModel
 
 
-class User(Resource):
-    @login_required
-    def get(self):
-        # returns an user model
-        return {"status": "ok"}
+# class User(Resource):
+#     @login_required
+#     def get(self):
+#         # returns an user model
+#         return {"status": "ok"}
 
-    def post(self):
-        # modify an user
-        pass
+#     def post(self):
+#         # modify an user
+#         pass
 
-    def delete(self):
-        # delete an user
-        pass
+#     def delete(self):
+#         # delete an user
+#         pass
 
 
 class UserValidation(Resource):
+    """validate the user with the validation token"""
+
     def get(self, user_id):
-        """validate the user with the validation token"""
         user = UserModel.get(id=user_id)
         token = request.args["validation_token"]
 
@@ -42,7 +43,11 @@ class UserValidation(Resource):
         return {"status": "ok"}
 
 
-class UserCreation(Resource):
+class Users(Resource):
+    def get(self):
+        # returns all user
+        return {"status": "ok"}
+
     def put(self):
         """create an user"""
         data = request.get_json()
@@ -55,12 +60,6 @@ class UserCreation(Resource):
         user.create()
 
         return {"status": "ok", "user": user.as_dict()}
-
-
-class Users(Resource):
-    def get(self):
-        # returns all user
-        return {"status": "ok"}
 
 
 class UserLogin(Resource):

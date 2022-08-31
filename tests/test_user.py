@@ -1,21 +1,12 @@
-from cms import database
+from cms.database import database
 
 
 class Test_UserCreation:
-    # login should respond 403 / user is not validated
-
-    # def test_wrong_input(self, client):
-    # response = client.put("/create_user", json={})
-
-    # assert response.status_code == 400
-    # assert response.json["status"] == "error"
-    # assert response.json["message"] == "error"
-
     def login_user(self, client, username, password):
         return client.post("/login", json={"username": username, "password": password})
 
     def create_user(self, client, username, password):
-        response = client.put("/create_user", json={"username": username, "email": "a@b.c", "password": password})
+        response = client.put("/users", json={"username": username, "email": "a@b.c", "password": password})
         assert response.status_code == 200
         assert response.json["status"] == "ok"
 
@@ -105,7 +96,7 @@ class Test_UserCreation:
         user = self.create_user(client, username, password)
         self.validate_user(client, username)
 
-        response = self.login_user(client, "no the username", password)
+        response = self.login_user(client, "not the username", password)
         assert response.status_code == 400
         assert response.json["message"] == "User does not exists, or password is wrong"
 

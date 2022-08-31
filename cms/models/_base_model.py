@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer
 
 from sqlalchemy.orm import Query
 
-from cms import database
+from cms.database import database
 
 
 class BaseModel(declarative_base()):
