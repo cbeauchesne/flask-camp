@@ -6,6 +6,8 @@ from flask_login import LoginManager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
+from .views.healthcheck import HealthCheck
+
 
 class Application(Flask):
     def __init__(self, user_model):
@@ -30,6 +32,8 @@ class Application(Flask):
         self.after_request(after_request)
 
         database.connect()
+
+        self.add_resource(HealthCheck, "/healthcheck")
 
     def add_resource(self, *args, **kwargs):
         self._api.add_resource(*args, **kwargs)
