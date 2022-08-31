@@ -87,7 +87,7 @@ class Test_UserCreation:
         assert response.json["message"] == "Token doesn't match"
 
         response = self.login_user(client, username, password)
-        assert response.status_code == 403
+        assert response.status_code == 401
         assert response.json["message"] == "User is not validated"
 
         response = client.get(f"/validate_user/{user_id}", query_string={"validation_token": token})
@@ -106,9 +106,13 @@ class Test_UserCreation:
         self.validate_user(client, username)
 
         response = self.login_user(client, "no the username", password)
-        assert response.status_code == 403
+        assert response.status_code == 400
         assert response.json["message"] == "User does not exists, or password is wrong"
 
         response = self.login_user(client, username, "not the password")
-        assert response.status_code == 403
+        assert response.status_code == 400
         assert response.json["message"] == "User does not exists, or password is wrong"
+
+    def test_logout_errors(self, client):
+        response = client.get("/logout")
+        assert response.status_code == 401

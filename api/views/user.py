@@ -1,7 +1,7 @@
 import secrets
 from sqlalchemy.orm import Query
 
-from werkzeug.exceptions import BadRequest, Forbidden
+from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 from flask import request
 from flask_restful import Resource
 from flask_login import login_user, logout_user, login_required
@@ -72,13 +72,13 @@ class UserLogin(Resource):
         user = UserModel.get(username=username)
 
         if user is None:
-            raise Forbidden("User does not exists, or password is wrong")
+            raise BadRequest("User does not exists, or password is wrong")
 
         if user.validation_token is not None:
-            raise Forbidden("User is not validated")
+            raise Unauthorized("User is not validated")
 
         if not user.check_password(password):
-            raise Forbidden("User does not exists, or password is wrong")
+            raise BadRequest("User does not exists, or password is wrong")
 
         login_user(user)
 
@@ -86,7 +86,7 @@ class UserLogin(Resource):
 
 
 class UserLogout(Resource):
+    @login_required
     def get(self):
         logout_user()
-
         return {"status": "ok"}
