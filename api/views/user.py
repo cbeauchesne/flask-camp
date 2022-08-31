@@ -66,16 +66,19 @@ class Users(Resource):
 class UserLogin(Resource):
     def post(self):
         data = request.get_json()
-        user_id = data["user_id"]
+        username = data["username"]
         password = data["password"]
 
-        user = UserModel.get(id=user_id)
+        user = UserModel.get(username=username)
+
+        if user is None:
+            raise Forbidden("User does not exists, or password is wrong")
 
         if user.validation_token is not None:
             raise Forbidden("User is not validated")
 
         if not user.check_password(password):
-            raise Forbidden()
+            raise Forbidden("User does not exists, or password is wrong")
 
         login_user(user)
 

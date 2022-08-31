@@ -39,6 +39,4 @@ class BaseModel(declarative_base()):
 
     @classmethod
     def get(cls, **kwargs):
-        if kwargs["id"] != 1:
-            raise Exception(kwargs)
-        return cls.query().filter_by(id=1).first()
+        return cls.query().filter_by(**kwargs).first()
