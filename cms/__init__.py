@@ -46,10 +46,13 @@ class _DataBase:
         self.current_session = None
 
     def connect(self):
-        self._connection = create_engine("sqlite://", echo=True)
+        self._connection = create_engine("sqlite://")
 
     def get_session(self, autocommit=False):
         return Session(self._connection, autocommit=autocommit)
+
+    def execute(self, sql):
+        return self._connection.execute(sql)
 
 
 database = _DataBase()

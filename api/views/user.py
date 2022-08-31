@@ -1,5 +1,4 @@
 import secrets
-
 from sqlalchemy.orm import Query
 
 from werkzeug.exceptions import BadRequest, Forbidden
@@ -39,6 +38,7 @@ class UserValidation(Resource):
 
         user.validation_token = None
         user.update()
+
         return {"status": "ok"}
 
 
@@ -70,6 +70,9 @@ class UserLogin(Resource):
         password = data["password"]
 
         user = UserModel.get(id=user_id)
+
+        if user.validation_token is not None:
+            raise Forbidden("User is not validated")
 
         if not user.check_password(password):
             raise Forbidden()
