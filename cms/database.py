@@ -7,8 +7,8 @@ class _DataBase:
         self._connection = None
         self.current_session = None
 
-    def connect(self):
-        self._connection = create_engine("sqlite://")
+    def connect(self, echo=False):
+        self._connection = create_engine("sqlite://", echo=echo)
 
     def get_session(self, autocommit=False):
         return Session(self._connection, autocommit=autocommit)

@@ -9,21 +9,6 @@ from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 from cms.models.user import User as UserModel
 
 
-# class User(Resource):
-#     @login_required
-#     def get(self):
-#         # returns an user model
-#         return {"status": "ok"}
-
-#     def post(self):
-#         # modify an user
-#         pass
-
-#     def delete(self):
-#         # delete an user
-#         pass
-
-
 class UserValidation(Resource):
     """validate the user with the validation token"""
 
