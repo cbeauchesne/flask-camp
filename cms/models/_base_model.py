@@ -1,12 +1,11 @@
-from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, Integer
 
 from sqlalchemy.orm import Query
 
-from cms.database import database
+from cms import database
 
 
-class BaseModel(declarative_base()):
+class BaseModel(database.BaseModel):
     __abstract__ = True  # tells SQLAlchemy that this model should not be created in the database
 
     id = Column(Integer, primary_key=True, index=True)
@@ -15,17 +14,14 @@ class BaseModel(declarative_base()):
         if self.id is not None:
             raise ValueError(f"{self} should not have an ID")
 
-        # todo : context manager
-        session = database.current_session
-        session.add(self)
-        session.commit()
+        database.session.add(self)
+        database.session.commit()
 
         assert self.id is not None
 
     def update(self):
-        session = database.current_session
-        session.add(self)
-        session.commit()
+        database.session.add(self)
+        database.session.commit()
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.get_dict_columns()}
@@ -35,7 +31,7 @@ class BaseModel(declarative_base()):
 
     @classmethod
     def query(cls):
-        return Query(cls, session=database.current_session)
+        return Query(cls, session=database.session)
 
     @classmethod
     def get(cls, **kwargs):

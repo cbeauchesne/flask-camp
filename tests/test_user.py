@@ -1,4 +1,4 @@
-from cms.database import database
+from cms import database
 
 
 class Test_UserCreation:

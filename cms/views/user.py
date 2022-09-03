@@ -50,19 +50,21 @@ class Users(Resource):
 class UserLogin(Resource):
     def post(self):
         data = request.get_json()
+
         username = data["username"]
         password = data["password"]
 
         user = UserModel.get(username=username)
 
         if user is None:
+            print(f"User [{username}] doesn't exists")
+            raise BadRequest("User does not exists, or password is wrong")
+
+        if not user.check_password(password):
             raise BadRequest("User does not exists, or password is wrong")
 
         if user.validation_token is not None:
             raise Unauthorized("User is not validated")
-
-        if not user.check_password(password):
-            raise BadRequest("User does not exists, or password is wrong")
 
         login_user(user)
 

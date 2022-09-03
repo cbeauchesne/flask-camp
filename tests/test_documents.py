@@ -1,8 +1,15 @@
-from cms.database import database
+from tests.utils import BaseTest
 
 
-class Test_DocumentCreation:
+class Test_DocumentCreation(BaseTest):
+    def test_not_logged(self, client):
+        r = client.put("/documents", json={"document": {"namespace": "template", "value": "42"}})
+        assert r.status_code == 401
+
     def test_simple(self, client):
+        self.add_user()
+        self.login_user(client)
+
         r = client.put("/documents", json={"document": {"namespace": "template", "value": "42"}})
         assert r.status_code == 200
         assert r.json["status"] == "ok"

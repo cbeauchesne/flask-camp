@@ -1,3 +1,7 @@
-from api.core import create_app
+from cms.application import Application
 
-app = create_app()
+
+def create_app(**kwargs):
+    app = Application(**kwargs)
+
+    return app

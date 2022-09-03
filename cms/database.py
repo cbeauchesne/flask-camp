@@ -1,20 +1,18 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 
-class _DataBase:
-    def __init__(self):
-        self._connection = None
-        self.current_session = None
-
-    def connect(self, echo=False):
-        self._connection = create_engine("sqlite://", echo=echo)
-
-    def get_session(self, autocommit=False):
-        return Session(self._connection, autocommit=autocommit)
-
-    def execute(self, sql):
-        return self._connection.execute(sql)
+_engine = create_engine("sqlite://", echo=True)
+session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=_engine))
+BaseModel = declarative_base()
+BaseModel.query = session.query_property()
 
 
-database = _DataBase()
+def create_all():
+    BaseModel.metadata.drop_all(bind=_engine)
+    BaseModel.metadata.create_all(bind=_engine)
+
+
+def execute(sql):
+    return _engine.execute(sql)

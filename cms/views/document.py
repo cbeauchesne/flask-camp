@@ -2,9 +2,9 @@ import json
 
 from flask import request
 from flask_restful import Resource
+from flask_login import login_required
 
 from cms.models.document import Document, DocumentVersion
-from cms.database import database
 
 
 class Documents(Resource):
@@ -12,6 +12,7 @@ class Documents(Resource):
         # returns all documents
         return {"status": "ok", "documents": [], "count": 0}
 
+    @login_required
     def put(self):
         """create an document"""
         body = request.get_json()

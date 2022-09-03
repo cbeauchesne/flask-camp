@@ -1,11 +1,11 @@
 import pytest
 
-from api.core import create_app
+from cms.application import Application
 
 
 @pytest.fixture
 def client():
-    app = create_app(TESTING=True)
+    app = Application(TESTING=True, sql_echo=True)
     app.create_all()
 
     with app.test_client() as client:
