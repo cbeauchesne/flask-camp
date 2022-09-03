@@ -7,7 +7,7 @@ class Test_DocumentCreation(BaseTest):
         assert r.status_code == 401
 
     def test_simple(self, client):
-        self.add_user()
+        user = self.add_user()
         self.login_user(client)
 
         r = client.put("/documents", json={"document": {"namespace": "template", "value": "42"}})
@@ -19,8 +19,9 @@ class Test_DocumentCreation(BaseTest):
         print(document)
 
         assert document["comment"] == "creation"
+        # assert document["namespace"] == "template"
         assert str(document["data"]) == '{"value": "42"}'
         assert isinstance(document["id"], int)
-        assert document["timestamp"] is not None
+        assert isinstance(document["timestamp"], str)
         assert isinstance(document["version_id"], int)
-        # assert document["author_id"] is not None
+        assert document["author_id"] == user.id

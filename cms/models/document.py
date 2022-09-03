@@ -38,4 +38,5 @@ class DocumentVersion(BaseModel):
             "timestamp": self.timestamp.isoformat(),
             "comment": self.comment,
             "data": self.data,
+            "author_id": self.author_id,
         }

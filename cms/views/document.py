@@ -2,7 +2,7 @@ import json
 
 from flask import request
 from flask_restful import Resource
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from cms.models.document import Document, DocumentVersion
 
@@ -24,7 +24,9 @@ class Documents(Resource):
         document = Document(namespace=namespace)
         document.create()
 
-        version = DocumentVersion(document_id=document.id, comment=comment, data=json.dumps(data))
+        version = DocumentVersion(
+            document_id=document.id, author_id=current_user.id, comment=comment, data=json.dumps(data)
+        )
         version.create()
 
         return {"status": "ok", "document": version.as_dict()}

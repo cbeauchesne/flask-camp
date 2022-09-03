@@ -1,7 +1,8 @@
 from cms import database
+from tests.utils import BaseTest
 
 
-class Test_UserCreation:
+class Test_UserCreation(BaseTest):
     def login_user(self, client, username, password):
         return client.post("/login", json={"username": username, "password": password})
 
