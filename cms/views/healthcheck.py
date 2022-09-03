@@ -1,6 +1,6 @@
 from flask_restful import Resource
 
 
-class HealthCheck(Resource):
+class HealthCheckView(Resource):
     def get(self):
         return {"status": "ok"}
