@@ -7,7 +7,7 @@ from flask_login import login_required, current_user
 from cms.models.document import Document, DocumentVersion
 
 
-class Documents(Resource):
+class DocumentsView(Resource):
     def get(self):
         # returns all documents
         return {"status": "ok", "documents": [], "count": 0}
@@ -29,4 +29,10 @@ class Documents(Resource):
         )
         version.create()
 
+        return {"status": "ok", "document": version.as_dict()}
+
+
+class DocumentView(Resource):
+    def get(self, id):
+        version = DocumentVersion.query().filter_by(document_id=id).order_by(DocumentVersion.id.desc()).first()
         return {"status": "ok", "document": version.as_dict()}

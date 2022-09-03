@@ -7,7 +7,7 @@ from flask_restful import Api
 from . import database
 from .views.healthcheck import HealthCheck
 from .views.user import Users, UserValidation, UserLogin, UserLogout
-from .views.document import Documents
+from .views.document import DocumentsView, DocumentView
 
 
 class Application(Flask):
@@ -39,7 +39,8 @@ class Application(Flask):
         self.add_resource(UserLogin, "/login")
         self.add_resource(UserLogout, "/logout")
 
-        self.add_resource(Documents, "/documents")
+        self.add_resource(DocumentsView, "/documents")
+        self.add_resource(DocumentView, "/document/<int:id>")
 
     def add_resource(self, *args, **kwargs):
         self._api.add_resource(*args, **kwargs)
