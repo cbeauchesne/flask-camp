@@ -9,7 +9,7 @@ from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 from cms.models.user import User as UserModel
 
 
-class UserValidation(Resource):
+class UserValidationView(Resource):
     """validate the user with the validation token"""
 
     def get(self, user_id):
@@ -28,7 +28,7 @@ class UserValidation(Resource):
         return {"status": "ok"}
 
 
-class Users(Resource):
+class UsersView(Resource):
     def get(self):
         # returns all user
         return {"status": "ok"}
@@ -47,7 +47,7 @@ class Users(Resource):
         return {"status": "ok", "user": user.as_dict()}
 
 
-class UserLogin(Resource):
+class UserLoginView(Resource):
     def post(self):
         data = request.get_json()
 
@@ -71,7 +71,7 @@ class UserLogin(Resource):
         return {"status": "ok", "user": user.as_dict()}
 
 
-class UserLogout(Resource):
+class UserLogoutView(Resource):
     @login_required
     def get(self):
         logout_user()
