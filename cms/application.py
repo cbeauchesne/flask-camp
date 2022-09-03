@@ -5,7 +5,7 @@ from flask_login import LoginManager
 from flask_restful import Api
 
 from . import database
-from .views.healthcheck import HealthCheck
+from .views.healthcheck import HealthCheckView
 from .views.user import UsersView, UserValidationView, UserLoginView, UserLogoutView
 from .views.document import DocumentsView, DocumentView
 
@@ -32,7 +32,7 @@ class Application(Flask):
         def shutdownsession(exception=None):
             database.session.remove()
 
-        self.add_resource(HealthCheck, "/healthcheck")
+        self.add_resource(HealthCheckView, "/healthcheck")
 
         self.add_resource(UsersView, "/users")
         self.add_resource(UserValidationView, "/validate_user/<int:user_id>")
