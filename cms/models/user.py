@@ -26,10 +26,6 @@ class User(BaseModel):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    @classmethod
-    def get_dict_columns(cls):
-        return (cls.id, cls.username, cls.email)
-
     @property
     def is_authenticated(self):
         return self.id is not None
@@ -45,6 +41,14 @@ class User(BaseModel):
     def get_id(self):
         return str(self.id)
 
-    @classmethod
-    def get_dict_columns(cls):
-        return (cls.id, cls.username, cls.email, cls.ui_preferences)
+    def as_dict(self, include_personal_data=False):
+        result = {
+            "id": self.id,
+            "username": self.username,
+        }
+
+        if include_personal_data:
+            result["email"] = self.email
+            result["ui_preferences"] = self.ui_preferences
+
+        return result

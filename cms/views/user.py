@@ -44,7 +44,7 @@ class UsersView(Resource):
         user.validation_token = secrets.token_hex(UserModel.password_hash.type.length)
         user.create()
 
-        return {"status": "ok", "user": user.as_dict()}
+        return {"status": "ok", "user": user.as_dict(include_personal_data=True)}
 
 
 class UserLoginView(Resource):
@@ -68,7 +68,7 @@ class UserLoginView(Resource):
 
         login_user(user)
 
-        return {"status": "ok", "user": user.as_dict()}
+        return {"status": "ok", "user": user.as_dict(include_personal_data=True)}
 
 
 class UserLogoutView(Resource):

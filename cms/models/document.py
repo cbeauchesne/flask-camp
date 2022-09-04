@@ -1,10 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column
-from sqlalchemy import ForeignKey
-from sqlalchemy import Integer, String, DateTime
-from sqlalchemy import String
-
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 
 from cms.models import BaseModel
@@ -22,6 +18,7 @@ class DocumentVersion(BaseModel):
     document_id = Column(Integer, ForeignKey("document.id"), index=True)
 
     author_id = Column(Integer, ForeignKey("user.id"), index=True)
+    author = relationship("User")
     timestamp = Column(DateTime)
     comment = Column(String)
 
@@ -38,5 +35,5 @@ class DocumentVersion(BaseModel):
             "timestamp": self.timestamp.isoformat(),
             "comment": self.comment,
             "data": self.data,
-            "author_id": self.author_id,
+            "author": self.author.as_dict(),
         }

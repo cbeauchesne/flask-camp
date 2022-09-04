@@ -13,7 +13,7 @@ class Test_Document(BaseTest):
         assert isinstance(document["id"], int)
         assert isinstance(document["timestamp"], str)
         assert isinstance(document["version_id"], int)
-        assert document["author_id"] == author.id
+        assert document["author"]["id"] == author.id
 
     def test_creation(self, client):
         user = self.add_user()
