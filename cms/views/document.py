@@ -10,7 +10,11 @@ from cms.models.document import Document, DocumentVersion
 class DocumentsView(Resource):
     def get(self):
         # returns all documents
-        return {"status": "ok", "documents": [], "count": 0}
+        documents = DocumentVersion.query()
+        count = DocumentVersion.query().count()
+
+        documents = [document.as_dict() for document in documents]
+        return {"status": "ok", "documents": documents, "count": count}
 
     @login_required
     def put(self):
