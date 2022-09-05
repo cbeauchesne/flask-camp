@@ -1,11 +1,7 @@
 import secrets
 
+from sqlalchemy import Column, String, Text
 from werkzeug.security import generate_password_hash, check_password_hash
-
-from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy import Text
 
 from cms.models import BaseModel
 

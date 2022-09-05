@@ -36,30 +36,30 @@ def schema(filename):
 
 
 _validators = {}
-_store = {}
 
 
 def _init():
 
-    for dir in ("cms/schemas/",):
-        for root, _, files in os.walk(dir):
-            for f in files:
-                if f.endswith(".json"):
-                    filename = os.path.join(root, f)
-                    schema = json.load(open(filename))
-                    Draft7Validator.check_schema(schema)
+    store = {}
 
-                    if "$id" in schema:
-                        _store[schema["$id"]] = schema
+    for dir_name in ("cms/schemas/",):
+        for root, _, files in os.walk(dir_name):
+            for file in files:
+                if file.endswith(".json"):
+                    filename = os.path.join(root, file)
 
-            for f in files:
-                if f.endswith(".json"):
-                    filename = os.path.join(root, f)
-                    resolver = RefResolver(base_uri=schema["$id"], referrer=schema, store=_store)
-                    _validators[filename] = Draft7Validator(
-                        schema, resolver=resolver, format_checker=draft7_format_checker
-                    )
-                    print(f"Compiling schemas {filename}")
+                    with open(filename, encoding="utf8") as file:
+                        data = json.load(file)
+
+                    Draft7Validator.check_schema(data)
+
+                    data["$id"] = filename
+                    store[filename] = data
+
+    for filename, data in store.items():
+        resolver = RefResolver(base_uri=data["$id"], referrer=data, store=store)
+        print(f"Compiling schemas {filename}")
+        _validators[filename] = Draft7Validator(data, resolver=resolver, format_checker=draft7_format_checker)
 
 
 _init()

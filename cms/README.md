@@ -17,3 +17,18 @@ Build a wiki api with all common features, regardless of the content of document
   * [ ] all changes related to one document
   * [ ] all changes made by one user
 * [ ] follow list
+
+## Stack
+
+Do not re-invent the wheel as a golden rule. So it uses : 
+
+* Flask
+* Flask-restful
+* Flask_login
+* SQLAlchemy
+* jsonschema
+
+And on develpment side :
+
+* black
+* pylint

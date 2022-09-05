@@ -6,6 +6,7 @@ from flask_login import login_required, current_user
 from werkzeug.exceptions import NotFound
 
 from cms.models.document import Document, DocumentVersion
+from cms.schemas import schema
 
 
 class DocumentsView(Resource):

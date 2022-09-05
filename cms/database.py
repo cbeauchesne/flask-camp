@@ -5,18 +5,12 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 
-class FakeStream:
-    def write(self, *args, **kwargs):
-        pass
-
-
-def add_logger(stream):
-    _log_handler = logging.StreamHandler(stream)
-    _log_handler.setFormatter(logging.Formatter(fmt="%(asctime)s %(levelname)s %(message)s"))
-    _log_handler.setLevel(logging.INFO)
+def add_handler(handler):
+    handler.setFormatter(logging.Formatter(fmt="%(asctime)s %(levelname)s %(message)s"))
+    handler.setLevel(logging.INFO)
 
     _logger = logging.getLogger("sqlalchemy")
-    _logger.addHandler(_log_handler)
+    _logger.addHandler(handler)
     _logger.setLevel(logging.INFO)
 
 
@@ -29,7 +23,7 @@ def execute(sql):
     return _engine.execute(sql)
 
 
-add_logger(FakeStream())
+add_handler(logging.NullHandler())
 
 _engine = create_engine("sqlite://")
 session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=_engine))
