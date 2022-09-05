@@ -3,10 +3,9 @@ from tests.utils import BaseTest
 
 
 class Test_UserCreation(BaseTest):
-    def login_user(self, client, username, password):
-        return client.post("/login", json={"username": username, "password": password})
+    def test_typical_scenario(self, client):
+        username, password = "my user", "week password"
 
-    def create_user(self, client, username, password):
         response = client.put("/users", json={"username": username, "email": "a@b.c", "password": password})
         assert response.status_code == 200
         assert response.json["status"] == "ok"
@@ -19,9 +18,8 @@ class Test_UserCreation(BaseTest):
         assert user["username"] == username
         assert user["email"] == "a@b.c"
 
-        return user
+        user_id = user["id"]
 
-    def validate_user(self, client, username):
         users = database.execute(f"SELECT id, validation_token FROM user WHERE username='{username}'")
         user = [user for user in users][0]
 
@@ -30,14 +28,8 @@ class Test_UserCreation(BaseTest):
 
         assert token is not None
 
-        return client.get(f"/validate_user/{user_id}", query_string={"validation_token": token})
+        response = client.get(f"/validate_user/{user_id}", query_string={"validation_token": token})
 
-    def test_typical_scenario(self, client):
-        username, password = "my user", "week password"
-        user = self.create_user(client, username, password)
-        user_id = user["id"]
-
-        response = self.validate_user(client, username)
         assert response.status_code == 200
         assert response.json["status"] == "ok"
 
@@ -62,30 +54,25 @@ class Test_UserCreation(BaseTest):
 
     def test_errors_on_token_validation(self, client):
         username, password = "my user", "week password"
-        user = self.create_user(client, username, password)
-        user_id = user["id"]
+        user = self.add_user(username, password, validate_email=False)
 
-        users = database.execute(f"SELECT validation_token FROM user WHERE id={user_id}")
-        token = [user for user in users][0]["validation_token"]
-
-        response = client.get(f"/validate_user/{user_id}")
+        response = client.get(f"/validate_user/{user.id}")
         assert response.status_code == 400
         assert (
             response.json["message"] == "The browser (or proxy) sent a request that this server could not understand."
         )
 
-        response = client.get(f"/validate_user/{user_id}", query_string={"validation_token": "not the good token"})
+        response = client.get(f"/validate_user/{user.id}", query_string={"validation_token": "not the good token"})
         assert response.status_code == 400
         assert response.json["message"] == "Token doesn't match"
 
-        response = self.login_user(client, username, password)
-        assert response.status_code == 401
+        response = self.login_user(client, username, password, 401)
         assert response.json["message"] == "User is not validated"
 
-        response = client.get(f"/validate_user/{user_id}", query_string={"validation_token": token})
+        response = client.get(f"/validate_user/{user.id}", query_string={"validation_token": user.validation_token})
         assert response.status_code == 200
 
-        response = client.get(f"/validate_user/{user_id}", query_string={"validation_token": token})
+        response = client.get(f"/validate_user/{user.id}", query_string={"validation_token": user.validation_token})
         assert response.status_code == 400
         assert response.json["message"] == "User is still validated"
 
@@ -93,16 +80,13 @@ class Test_UserCreation(BaseTest):
         assert response.status_code == 200
 
     def test_login_errors(self, client):
-        username, password = "my user", "week password"
-        user = self.create_user(client, username, password)
-        self.validate_user(client, username)
+        password = "week password"
+        user = self.add_user("my user", password)
 
-        response = self.login_user(client, "not the username", password)
-        assert response.status_code == 400
+        response = self.login_user(client, "not the username", password, expected_status=400)
         assert response.json["message"] == "User does not exists, or password is wrong"
 
-        response = self.login_user(client, username, "not the password")
-        assert response.status_code == 400
+        response = self.login_user(client, user.username, "not the password", expected_status=400)
         assert response.json["message"] == "User does not exists, or password is wrong"
 
     def test_logout_errors(self, client):

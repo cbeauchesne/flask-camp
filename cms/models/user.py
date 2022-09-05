@@ -1,3 +1,5 @@
+import secrets
+
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from sqlalchemy import Column
@@ -52,3 +54,6 @@ class User(BaseModel):
             result["ui_preferences"] = self.ui_preferences
 
         return result
+
+    def set_validation_token(self):
+        self.validation_token = secrets.token_hex(self.__class__.password_hash.type.length)

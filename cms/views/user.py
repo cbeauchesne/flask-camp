@@ -1,5 +1,3 @@
-import secrets
-
 from flask import request
 from flask_login import login_user, logout_user, login_required
 from flask_restful import Resource
@@ -41,7 +39,7 @@ class UsersView(Resource):
         user = UserModel(**data)
         user.set_password(password)
 
-        user.validation_token = secrets.token_hex(UserModel.password_hash.type.length)
+        user.set_validation_token()
         user.create()
 
         return {"status": "ok", "user": user.as_dict(include_personal_data=True)}
