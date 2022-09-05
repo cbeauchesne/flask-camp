@@ -8,6 +8,7 @@ from . import database
 from .views.healthcheck import HealthCheckView
 from .views.user import UsersView, UserValidationView, UserLoginView, UserLogoutView
 from .views.document import DocumentsView, DocumentView
+from .views.changes import ChangesView
 
 
 class Application(Flask):
@@ -39,6 +40,8 @@ class Application(Flask):
 
         self.add_resource(DocumentsView, "/documents")
         self.add_resource(DocumentView, "/document/<int:id>")
+
+        self.add_resource(ChangesView, "/changes")
 
     def add_resource(self, *args, **kwargs):
         self._api.add_resource(*args, **kwargs)

@@ -13,6 +13,7 @@ class DocumentsView(Resource):
         documents = DocumentVersion.query()
         count = DocumentVersion.query().count()
 
+        # TODO : get only last version
         documents = [document.as_dict() for document in documents]
         return {"status": "ok", "documents": documents, "count": count}
 
