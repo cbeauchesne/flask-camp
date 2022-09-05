@@ -1,6 +1,6 @@
 ## Goals
 
-Build a wiki api with all common features, regardless of the content of documents
+Build a wiki API with all common features, regardless of the content of documents
 
 * basic user features
   * [x] create
@@ -13,11 +13,21 @@ Build a wiki api with all common features, regardless of the content of document
      * [ ] rate limiting on user login failures
 * [x] unique document type, shipping a namespace field.
 * [ ] get document list
+* [ ] Modify document
+  * [ ] manage edit conflict
 * [ ] document history
   * [ ] all changes
   * [ ] all changes related to one document
   * [ ] all changes made by one user
-* [ ] follow list
+* [ ] Moderator options
+  * protect/unprotect a document
+  * hide/unhide a document version
+  * block/unbloc an user
+* [ ] Admin options
+  * [ ] promote/unpromote an user to moderator
+* [ ] follow list: get all changes made to documents in the user's follow list
+* [ ] logs
+  * [ ] All admin/moderator actions
 
 ## Stack
 
