@@ -8,7 +8,7 @@ class Test_Document(BaseTest):
 
     def assert_document(self, document, author, comment="creation", data='{"value": "42"}'):
         assert document["comment"] == comment
-        # assert document["namespace"] == "template"
+        assert document["namespace"] == "template"
         assert str(document["data"]) == data
         assert isinstance(document["id"], int)
         assert isinstance(document["timestamp"], str)

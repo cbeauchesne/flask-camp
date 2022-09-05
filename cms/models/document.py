@@ -19,9 +19,11 @@ class DocumentVersion(BaseModel):
     __tablename__ = "document_version"
 
     document_id = Column(Integer, ForeignKey("document.id"), index=True)
+    document = relationship("Document")
 
     author_id = Column(Integer, ForeignKey("user.id"), index=True)
     author = relationship("User")
+
     timestamp = Column(DateTime)
     comment = Column(String)
 
@@ -33,7 +35,8 @@ class DocumentVersion(BaseModel):
 
     def as_dict(self):
         return {
-            "id": self.document_id,
+            "id": self.document.id,
+            "namespace": self.document.namespace,
             "version_id": self.id,
             "timestamp": self.timestamp.isoformat(),
             "comment": self.comment,
