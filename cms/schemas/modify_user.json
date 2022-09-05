@@ -1,0 +1,10 @@
+{
+  "description": "POST request to create an user",
+  "type": "object",
+  "properties": {
+    "password": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

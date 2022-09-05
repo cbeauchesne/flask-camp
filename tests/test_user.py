@@ -92,3 +92,16 @@ class Test_UserCreation(BaseTest):
     def test_logout_errors(self, client):
         response = client.get("/logout")
         assert response.status_code == 401
+
+
+class Test_UserModification(BaseTest):
+    def test_change_password(self, client):
+        user = self.add_user("username", "p1")
+        self.login_user(client, user.username, "p1")
+
+        r = client.post(f"/user/{user.id}", json={"password": "p2"})
+        assert r.status_code == 200, r.json
+
+        client.get("/logout")
+        self.login_user(client, user.username, "p1", expected_status=400)
+        self.login_user(client, user.username, "p2", expected_status=200)

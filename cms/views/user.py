@@ -1,9 +1,10 @@
 from flask import request
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from flask_restful import Resource
 from sqlalchemy.orm import Query
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 
+from cms import database
 from cms.models.user import User as UserModel
 from cms.schemas import schema
 
@@ -76,4 +77,18 @@ class UserLogoutView(Resource):
     @login_required
     def get(self):
         logout_user()
+
+        return {"status": "ok"}
+
+
+class UserView(Resource):
+    @login_required
+    @schema("cms/schemas/modify_user.json")
+    def post(self, id):
+        if id != current_user.id:
+            raise Unauthorized("You can't modify this user")
+
+        password = request.get_json()["password"]
+        current_user.set_password(password)
+        database.session.commit()
         return {"status": "ok"}

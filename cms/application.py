@@ -7,7 +7,7 @@ from flask_restful import Api
 from . import database
 from .models.user import User as UserModel
 from .views.healthcheck import HealthCheckView
-from .views.user import UsersView, UserValidationView, UserLoginView, UserLogoutView
+from .views.user import UsersView, UserValidationView, UserLoginView, UserLogoutView, UserView
 from .views.document import DocumentsView, DocumentView
 from .views.changes import ChangesView
 
@@ -33,6 +33,7 @@ class Application(Flask):
         self.add_resource(HealthCheckView, "/healthcheck")
 
         self.add_resource(UsersView, "/users")
+        self.add_resource(UserView, "/user/<int:id>")
         self.add_resource(UserValidationView, "/validate_user/<int:user_id>")
         self.add_resource(UserLoginView, "/login")
         self.add_resource(UserLogoutView, "/logout")
