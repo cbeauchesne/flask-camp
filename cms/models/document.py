@@ -11,6 +11,9 @@ class Document(BaseModel):
 
     namespace = Column(String, index=True)
 
+    def get_last_version(self):
+        return DocumentVersion.query().filter_by(document_id=self.id).order_by(DocumentVersion.id.desc()).first()
+
 
 class DocumentVersion(BaseModel):
     __tablename__ = "document_version"
