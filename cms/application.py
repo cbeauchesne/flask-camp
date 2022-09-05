@@ -14,8 +14,6 @@ class Application(Flask):
     def __init__(self, **kwargs):
         super().__init__(__name__)
 
-        sql_echo = kwargs.pop("sql_echo", False)
-
         self.config.from_object(kwargs)
 
         self._api = Api(self, catch_all_404s=True)

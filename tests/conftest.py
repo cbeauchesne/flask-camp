@@ -5,7 +5,7 @@ from cms.application import Application
 
 @pytest.fixture
 def client():
-    app = Application(TESTING=True, sql_echo=True)
+    app = Application(TESTING=True)
     app.create_all()
 
     with app.test_client() as client:

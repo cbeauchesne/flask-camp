@@ -1,5 +1,8 @@
 if __name__ == "__main__":
-    from api.core import create_app
+    from sys import stdout
+    from cms.application import Application
+    from cms import database
 
-    app = create_app(sql_echo=True)
+    database.add_logger(stdout)
+    app = Application()
     app.create_all()
