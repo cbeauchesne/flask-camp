@@ -5,6 +5,7 @@ from sqlalchemy.orm import Query
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 
 from cms.models.user import User as UserModel
+from cms.schemas import schema
 
 
 class UserValidationView(Resource):
@@ -31,6 +32,7 @@ class UsersView(Resource):
         # returns all user
         return {"status": "ok"}
 
+    @schema("cms/schemas/create_user.json")
     def put(self):
         """create an user"""
         data = request.get_json()

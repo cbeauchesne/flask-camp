@@ -7,7 +7,7 @@ class Test_UserCreation(BaseTest):
         username, password = "my user", "week password"
 
         response = client.put("/users", json={"username": username, "email": "a@b.c", "password": password})
-        assert response.status_code == 200
+        assert response.status_code == 200, response.json
         assert response.json["status"] == "ok"
 
         user = response.json["user"]
