@@ -18,6 +18,7 @@ class DocumentsView(Resource):
         documents = [document.get_last_version().as_dict() for document in documents]
         return {"status": "ok", "documents": documents, "count": count}
 
+    @schema("cms/schemas/create_document.json")
     @login_required
     def put(self):
         """create an document"""
@@ -47,6 +48,7 @@ class DocumentView(Resource):
 
         return {"status": "ok", "document": version.as_dict()}
 
+    @schema("cms/schemas/modify_document.json")
     def post(self, id):
         """add a new version to a document"""
         document = Document.get(id=id)

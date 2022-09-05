@@ -48,6 +48,7 @@ class UsersView(Resource):
 
 
 class UserLoginView(Resource):
+    @schema("cms/schemas/login_user.json")
     def post(self):
         data = request.get_json()
 

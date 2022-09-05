@@ -1,17 +1,14 @@
 {
-  "description": "PUT request to create an user",
+  "description": "POST request to login an user",
   "type": "object",
   "properties": {
     "username": {
-      "type": "string"
-    },
-    "email": {
       "type": "string"
     },
     "password": {
       "type": "string"
     }
   },
-  "required": ["username", "email", "password"],
+  "required": ["username", "password"],
   "additionalProperties": false
 }

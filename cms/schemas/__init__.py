@@ -54,12 +54,12 @@ def _init():
                     Draft7Validator.check_schema(data)
 
                     data["$id"] = filename
-                    store[filename] = data
+                    store[f"https://schemas/{filename}"] = data
 
     for filename, data in store.items():
-        resolver = RefResolver(base_uri=data["$id"], referrer=data, store=store)
-        print(f"Compiling schemas {filename}")
-        _validators[filename] = Draft7Validator(data, resolver=resolver, format_checker=draft7_format_checker)
+        resolver = RefResolver(base_uri="https://schemas/", referrer=data, store=store)
+        print(f"Compiling schemas {filename[16:]}")
+        _validators[filename[16:]] = Draft7Validator(data, resolver=resolver, format_checker=draft7_format_checker)
 
 
 _init()

@@ -51,6 +51,7 @@ class Test_Document(BaseTest):
         self.login_user(client)
 
         r = client.put("/documents", json={"document": {"namespace": "template", "value": "42"}})
+        assert r.status_code == 200, r.json
         first_version = r.json["document"]
         document_id = first_version["id"]
 
