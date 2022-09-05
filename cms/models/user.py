@@ -10,8 +10,10 @@ class User(BaseModel):
     __tablename__ = "user"
 
     username = Column(String(64), index=True, unique=True, nullable=False)
-    email = Column(String(120), index=True, unique=True, nullable=False)
     password_hash = Column(String(128), nullable=False)
+    email = Column(String(120), index=True, unique=True, nullable=True)
+
+    email_to_validate = Column(String(120), index=True, unique=True)
     validation_token = Column(String(32))
     ui_preferences = Column(Text)
 
@@ -30,7 +32,7 @@ class User(BaseModel):
 
     @property
     def is_active(self):
-        return self.is_authenticated and self.validation_token is None
+        return self.is_authenticated and self.email is not None
 
     @property
     def is_anonymous(self):

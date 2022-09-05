@@ -16,7 +16,7 @@ class Test_UserCreation(BaseTest):
         assert "id" in user
         assert "ui_preferences" in user
         assert user["username"] == username
-        assert user["email"] == "a@b.c"
+        assert user["email"] == None
 
         user_id = user["id"]
 

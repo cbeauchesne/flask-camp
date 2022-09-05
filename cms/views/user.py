@@ -23,6 +23,8 @@ class UserValidationView(Resource):
             raise BadRequest("Token doesn't match")
 
         user.validation_token = None
+        user.email = user.email_to_validate
+        user.email_to_validate = None
         user.update()
 
         return {"status": "ok"}
@@ -38,9 +40,8 @@ class UsersView(Resource):
         """create an user"""
         data = request.get_json()
 
-        password = data.pop("password")
-        user = UserModel(**data)
-        user.set_password(password)
+        user = UserModel(username=data["username"], email_to_validate=data["email"])
+        user.set_password(data["password"])
 
         user.set_validation_token()
         user.create()
@@ -63,6 +64,7 @@ class UserLoginView(Resource):
             raise BadRequest("User does not exists, or password is wrong")
 
         if not user.check_password(password):
+            print(f"Wrong password for user {user}")
             raise BadRequest("User does not exists, or password is wrong")
 
         if user.validation_token is not None:
@@ -88,7 +90,16 @@ class UserView(Resource):
         if id != current_user.id:
             raise Unauthorized("You can't modify this user")
 
-        password = request.get_json()["password"]
-        current_user.set_password(password)
+        data = request.get_json()
+        if "password" in data:
+            print(f"Update {current_user}'s password")
+            current_user.set_password(data["password"])
+
+        # if "email" in data:
+        #     print(f"Update {current_user}'s email")
+        #     current_user.email_to_validate = data["email"]
+        #     current_user.set_validation_token()
+
         database.session.commit()
+
         return {"status": "ok"}

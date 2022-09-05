@@ -8,9 +8,10 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] login
   * [x] logout
   * [ ] modify user
-     * [x] modify password
-     * [ ] modify email
-     * [ ] rate limiting on user login failures
+    * [x] modify password
+    * [ ] modify email
+  * [ ] rate limiting on user login failures
+  * [ ] password reset using validated email
 * [ ] rate limiting
 * [x] unique document type, shipping a namespace field.
 * [ ] document list
