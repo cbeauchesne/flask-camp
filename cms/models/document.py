@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
@@ -40,6 +41,6 @@ class DocumentVersion(BaseModel):
             "version_id": self.id,
             "timestamp": self.timestamp.isoformat(),
             "comment": self.comment,
-            "data": self.data,
+            "data": json.loads(self.data),
             "author": self.author.as_dict(),
         }

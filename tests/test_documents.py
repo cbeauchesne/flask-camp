@@ -1,3 +1,4 @@
+import json
 from tests.utils import BaseTest
 
 
@@ -9,7 +10,7 @@ class Test_Document(BaseTest):
     def assert_document(self, document, author, comment="creation", data='{"value": "42"}'):
         assert document["comment"] == comment
         assert document["namespace"] == "template"
-        assert str(document["data"]) == data
+        assert json.dumps(document["data"]) == data
         assert isinstance(document["id"], int)
         assert isinstance(document["timestamp"], str)
         assert isinstance(document["version_id"], int)
@@ -66,3 +67,25 @@ class Test_Document(BaseTest):
         assert r.json["status"] == "ok"
         assert r.json["count"] == 1
         assert r.json["documents"][0]["version_id"] == second_version["version_id"]
+
+
+class Test_DocumentChanges(BaseTest):
+    def test_simple(self, client):
+        user = self.add_user()
+        self.login_user(client)
+
+        doc1 = client.put("/documents", json={"document": {"namespace": "x", "value": "doc_1/v1"}}).json["document"]
+        doc2 = client.put("/documents", json={"document": {"namespace": "x", "value": "doc_2/v1"}}).json["document"]
+
+        client.post(f"/document/{doc1['id']}", json={"document": {"namespace": "x", "value": "doc_1/v2"}})
+        client.post(f"/document/{doc2['id']}", json={"document": {"namespace": "x", "value": "doc_2/v2"}})
+
+        r = client.get("/changes", query_string={"id": doc1["id"]})
+        assert r.status_code == 200, r.json
+        history = r.json
+        assert history["count"] == len(history["changes"]) == 2
+        assert history["changes"][0]["version_id"] > history["changes"][1]["version_id"]
+        assert history["changes"][0]["timestamp"] > history["changes"][1]["timestamp"]
+        assert history["changes"][0]["id"] == history["changes"][1]["id"] == doc1["id"]
+        assert history["changes"][0]["data"] == {"value": "doc_1/v2"}
+        assert history["changes"][1]["data"] == {"value": "doc_1/v1"}

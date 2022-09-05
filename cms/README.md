@@ -11,13 +11,17 @@ Build a wiki API with all common features, regardless of the content of document
      * [x] modify password
      * [ ] modify email
      * [ ] rate limiting on user login failures
+* [ ] rate limiting
 * [x] unique document type, shipping a namespace field.
-* [ ] get document list
-* [ ] Modify document
+* [ ] document list
+  * [x] get
+  * [ ] offset and limit feature
+* [ ] Modify
+  * [x] Modify document
   * [ ] manage edit conflict
 * [ ] document history
   * [ ] all changes
-  * [ ] all changes related to one document
+  * [x] all changes related to one document
   * [ ] all changes made by one user
 * [ ] Moderator options
   * protect/unprotect a document
@@ -28,6 +32,8 @@ Build a wiki API with all common features, regardless of the content of document
 * [ ] follow list: get all changes made to documents in the user's follow list
 * [ ] logs
   * [ ] All admin/moderator actions
+* [ ] user flag: any user can add any flag/value to any document
+
 
 ## Stack
 

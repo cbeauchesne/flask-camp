@@ -8,11 +8,20 @@ from cms.models.document import Document, DocumentVersion
 class ChangesView(Resource):
     def get(self):
         # returns all changes
-        versions = DocumentVersion.query()
-        count = DocumentVersion.query().count()
+        filters = {}
+
+        query = DocumentVersion.query()
+
+        if "id" in request.args:
+            filters["document_id"] = request.args.get("id", type=int)
+
+        if len(filters) != 0:
+            query = query.filter_by(**filters)
+
+        query = query.order_by(DocumentVersion.id.desc())
 
         return {
             "status": "ok",
-            "changes": [version.as_dict() for version in versions],  # todo : do not include fields
-            "count": count,
+            "count": query.count(),
+            "changes": [version.as_dict() for version in query],  # todo : do not include fields
         }
