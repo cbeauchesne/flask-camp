@@ -2,7 +2,7 @@
 
 Build a wiki API with all common features, regardless of the content of documents
 
-* basic user features
+* [ ] basic user features
   * [x] create
   * [x] validate email
   * [x] login
