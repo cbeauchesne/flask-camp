@@ -54,7 +54,10 @@ class Test_UserCreation(BaseTest):
 
     def test_errors_on_token_validation(self, client):
         username, password = "my user", "week password"
-        user = self.add_user(username, password, validate_email=False)
+        user = self.add_user(username=username, password=password, validate_email=False)
+
+        response = self.login_user(client, username, password, 401)
+        assert response.json["message"] == "User's email is not validated"
 
         response = client.get(f"/validate_user/{user.id}")
         assert response.status_code == 400
@@ -67,7 +70,7 @@ class Test_UserCreation(BaseTest):
         assert response.json["message"] == "Token doesn't match"
 
         response = self.login_user(client, username, password, 401)
-        assert response.json["message"] == "User is not validated"
+        assert response.json["message"] == "User's email is not validated"
 
         response = client.get(f"/validate_user/{user.id}", query_string={"validation_token": user.validation_token})
         assert response.status_code == 200
@@ -81,7 +84,7 @@ class Test_UserCreation(BaseTest):
 
     def test_login_errors(self, client):
         password = "week password"
-        user = self.add_user("my user", password)
+        user = self.add_user(password=password)
 
         response = self.login_user(client, "not the username", password, expected_status=400)
         assert response.json["message"] == "User does not exists, or password is wrong"
@@ -96,7 +99,7 @@ class Test_UserCreation(BaseTest):
 
 class Test_UserModification(BaseTest):
     def test_change_password(self, client):
-        user = self.add_user("username", "p1")
+        user = self.add_user(password="p1")
         self.login_user(client, user.username, "p1")
 
         r = client.post(f"/user/{user.id}", json={"password": "p2"})
@@ -105,3 +108,9 @@ class Test_UserModification(BaseTest):
         client.get("/logout")
         self.login_user(client, user.username, "p1", expected_status=400)
         self.login_user(client, user.username, "p2", expected_status=200)
+
+        r = client.post(f"/user/{user.id}", json={"email": "other@email.com"})
+        assert r.status_code == 200, r.json
+
+        r = self.login_user(client, user.username, "p2")
+        assert r.json["user"]["email"] == user.email  # not yet validated

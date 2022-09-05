@@ -9,7 +9,8 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] logout
   * [ ] modify user
     * [x] modify password
-    * [ ] modify email
+    * [x] modify email
+    * [ ] send email to validate email address
   * [ ] rate limiting on user login failures
   * [ ] password reset using validated email
 * [ ] rate limiting

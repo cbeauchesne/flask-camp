@@ -2,12 +2,15 @@ from cms.models.user import User
 
 
 class BaseTest:
-    def add_user(self, username="username", password="password", validate_email=True):
-        user = User(username=username, email="a@b.c")
+    def add_user(self, username="username", email="a@b.c", password="password", validate_email=True):
+        user = User(username=username)
         user.set_password(password)
 
         if not validate_email:
+            user.email_to_validate = email
             user.set_validation_token()
+        else:
+            user.email = email
 
         user.create()
 

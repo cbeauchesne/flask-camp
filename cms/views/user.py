@@ -44,6 +44,8 @@ class UsersView(Resource):
         user.set_password(data["password"])
 
         user.set_validation_token()
+        # TODO send an email
+
         user.create()
 
         return {"status": "ok", "user": user.as_dict(include_personal_data=True)}
@@ -67,8 +69,8 @@ class UserLoginView(Resource):
             print(f"Wrong password for user {user}")
             raise BadRequest("User does not exists, or password is wrong")
 
-        if user.validation_token is not None:
-            raise Unauthorized("User is not validated")
+        if user.email is None:
+            raise Unauthorized("User's email is not validated")
 
         login_user(user)
 
@@ -95,10 +97,11 @@ class UserView(Resource):
             print(f"Update {current_user}'s password")
             current_user.set_password(data["password"])
 
-        # if "email" in data:
-        #     print(f"Update {current_user}'s email")
-        #     current_user.email_to_validate = data["email"]
-        #     current_user.set_validation_token()
+        if "email" in data:
+            print(f"Update {current_user}'s email")
+            current_user.email_to_validate = data["email"]
+            current_user.set_validation_token()
+            # TODO send an email
 
         database.session.commit()
 
