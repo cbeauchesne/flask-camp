@@ -7,6 +7,7 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] validate email
   * [x] login
   * [x] logout
+  * [x] user name and email uniqueness
   * [ ] modify user
     * [x] modify password
     * [x] modify email
@@ -22,7 +23,7 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] Modify document
   * [ ] manage edit conflict
 * [ ] document history
-  * [ ] all changes
+  * [x] all changes
   * [x] all changes related to one document
   * [ ] all changes made by one user
 * [ ] Moderator options
@@ -34,8 +35,7 @@ Build a wiki API with all common features, regardless of the content of document
 * [ ] follow list: get all changes made to documents in the user's follow list
 * [ ] logs
   * [ ] All admin/moderator actions
-* [ ] user flag: any user can add any flag/value to any document
-
+* [ ] user flag: any user can add any flag/value to any documentx
 
 ## Stack
 

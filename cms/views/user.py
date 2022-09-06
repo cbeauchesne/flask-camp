@@ -1,6 +1,7 @@
 from flask import request
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_restful import Resource
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Query
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 
@@ -25,20 +26,28 @@ class UserValidationView(Resource):
         user.validation_token = None
         user.email = user.email_to_validate
         user.email_to_validate = None
-        user.update()
+
+        try:
+            user.update()
+        except IntegrityError as e:
+            error_info = e.orig.args
+            if error_info[0] == "UNIQUE constraint failed: user.email":
+                raise BadRequest("A user still exists with this email")
+            else:
+                raise BadRequest(error_info[0])
 
         return {"status": "ok"}
 
 
 class UsersView(Resource):
-    def get(self):
-        # returns all user
-        return {"status": "ok"}
-
     @schema("cms/schemas/create_user.json")
     def put(self):
         """create an user"""
         data = request.get_json()
+
+        if UserModel.get(email=data["email"]) is not None:
+            # there is a race condition here, but it's kind of inevitable
+            raise BadRequest("A user still exists with this email")
 
         user = UserModel(username=data["username"], email_to_validate=data["email"])
         user.set_password(data["password"])
@@ -46,7 +55,14 @@ class UsersView(Resource):
         user.set_validation_token()
         # TODO send an email
 
-        user.create()
+        try:
+            user.create()
+        except IntegrityError as e:
+            error_info = e.orig.args
+            if error_info[0] == "UNIQUE constraint failed: user.username":
+                raise BadRequest("A user still exists with this name")
+            else:
+                raise BadRequest(error_info[0])
 
         return {"status": "ok", "user": user.as_dict(include_personal_data=True)}
 
@@ -98,6 +114,9 @@ class UserView(Resource):
             current_user.set_password(data["password"])
 
         if "email" in data:
+            if UserModel.get(email=data["email"]) is not None:
+                raise BadRequest("A user still exists with this email")
+
             print(f"Update {current_user}'s email")
             current_user.email_to_validate = data["email"]
             current_user.set_validation_token()

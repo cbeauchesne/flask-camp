@@ -1,4 +1,3 @@
-from cms import database
 from tests.utils import BaseTest
 
 
@@ -18,24 +17,13 @@ class Test_UserCreation(BaseTest):
         assert user["username"] == username
         assert user["email"] == None
 
-        user_id = user["id"]
-
-        users = database.execute(f"SELECT id, validation_token FROM user WHERE username='{username}'")
-        user = [user for user in users][0]
-
-        token = user["validation_token"]
-        user_id = user["id"]
+        user_id, token = self.get_validation_token(username)
 
         assert token is not None
 
         response = client.get(f"/validate_user/{user_id}", query_string={"validation_token": token})
-
         assert response.status_code == 200
         assert response.json["status"] == "ok"
-
-        users = database.execute(f"SELECT validation_token FROM user WHERE username='{username}'")
-        token = [user for user in users][0]["validation_token"]
-        assert token is None
 
         response = self.login_user(client, username, password)
         assert response.status_code == 200
@@ -109,8 +97,57 @@ class Test_UserModification(BaseTest):
         self.login_user(client, user.username, "p1", expected_status=400)
         self.login_user(client, user.username, "p2", expected_status=200)
 
+    def test_change_email(self, client):
+        user = self.add_user()
+        self.login_user(client)
+
         r = client.post(f"/user/{user.id}", json={"email": "other@email.com"})
         assert r.status_code == 200, r.json
 
-        r = self.login_user(client, user.username, "p2")
+        client.get("/logout")
+
+        r = self.login_user(client)
         assert r.json["user"]["email"] == user.email  # not yet validated
+
+
+class Test_UserUniqueness(BaseTest):
+    def test_username(self, client):
+        user = self.add_user()
+
+        r = client.put("/users", json={"username": user.username, "email": "other@email.c", "password": "x"})
+        assert r.status_code == 400, r.json
+        assert r.json["message"] == "A user still exists with this name"
+
+    def test_email(self, client):
+        user = self.add_user()
+
+        r = client.put("/users", json={"username": "other user", "email": user.email, "password": "x"})
+        assert r.status_code == 400, r.json
+        assert r.json["message"] == "A user still exists with this email"
+
+        other_user = self.add_user(username="other user", email="other@email.c")
+
+        self.login_user(client)
+        r = client.post(f"/user/{user.id}", json={"email": other_user.email})
+        assert r.status_code == 400, r.json
+        assert r.json["message"] == "A user still exists with this email"
+
+        r = client.post(f"/user/{user.id}", json={"email": "mail@competition.fr"})
+        assert r.status_code == 200
+
+        client.get("/logout")
+
+        self.login_user(client, username=other_user.username)
+        r = client.post(f"/user/{other_user.id}", json={"email": "mail@competition.fr"})
+        assert r.status_code == 200
+        client.get("/logout")
+
+        user_id, token = self.get_validation_token(other_user.username)
+        r = client.get(f"/validate_user/{user_id}", query_string={"validation_token": token})
+        assert r.status_code == 200
+        assert r.json["status"] == "ok"
+
+        user_id, token = self.get_validation_token(user.username)
+        r = client.get(f"/validate_user/{user_id}", query_string={"validation_token": token})
+        assert r.status_code == 400, r.json
+        assert r.json["message"] == "A user still exists with this email"
