@@ -21,9 +21,6 @@ class BaseModel(database.BaseModel):
         database.session.add(self)  # pylint: disable=no-member
         database.session.commit()  # pylint: disable=no-member
 
-    def as_dict(self):
-        raise NotImplementedError()
-
     @classmethod
     def query(cls):
         return Query(cls, session=database.session)

@@ -3,9 +3,11 @@ from cms.models.user import User
 
 
 class BaseTest:
-    def add_user(self, username="username", email="a@b.c", password="password", validate_email=True):
+    def add_user(self, username="username", email=None, password="password", validate_email=True):
         user = User(username=username)
         user.set_password(password)
+
+        email = email if email else f"{username}@site.org"
 
         if not validate_email:
             user.email_to_validate = email

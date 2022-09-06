@@ -111,7 +111,7 @@ class Test_UserModification(BaseTest):
 
     def test_errors(self, client):
         user = self.add_user()
-        other_user = self.add_user("other user", email="b@c.fr")
+        other_user = self.add_user("other user")
         self.login_user(client)
 
         r = client.post(f"/user/{other_user.id}", json={"password": "p2"})
@@ -134,7 +134,7 @@ class Test_UserUniqueness(BaseTest):
         assert r.status_code == 400, r.json
         assert r.json["message"] == "A user still exists with this email"
 
-        other_user = self.add_user(username="other user", email="other@email.c")
+        other_user = self.add_user(username="other_user")
 
         self.login_user(client)
         r = client.post(f"/user/{user.id}", json={"email": other_user.email})

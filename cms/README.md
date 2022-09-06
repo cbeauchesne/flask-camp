@@ -22,10 +22,10 @@ Build a wiki API with all common features, regardless of the content of document
 * [ ] Modify
   * [x] Modify document
   * [ ] manage edit conflict
-* [ ] document history
+* [x] document history
   * [x] all changes
   * [x] all changes related to one document
-  * [ ] all changes made by one user
+  * [x] all changes made by one user
   * [x] offset and limit feature
 * [ ] Moderator options
   * protect/unprotect a document
