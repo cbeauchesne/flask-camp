@@ -68,6 +68,20 @@ class Test_Document(BaseTest):
         assert r.json["count"] == 1
         assert r.json["documents"][0]["version_id"] == second_version["version_id"]
 
+    def test_errors(self, client):
+        user = self.add_user()
+        self.login_user(client)
+
+        r = client.get(f"/document/1")
+        assert r.status_code == 404
+
+        r = client.post(f"/document/1", json={"document": {"namespace": "x", "value": "43"}})
+        assert r.status_code == 404
+
+        r = client.put("/documents", json={"document": {"value": "42"}})
+        assert r.status_code == 400, r.json
+        assert r.json["message"] == "'namespace' is a required property on instance ['document']"
+
 
 class Test_DocumentChanges(BaseTest):
     def test_simple(self, client):

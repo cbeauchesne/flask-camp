@@ -8,7 +8,7 @@ from jsonschema import Draft7Validator, RefResolver, draft7_format_checker
 
 def schema(filename):
     if filename not in _validators:
-        raise FileNotFoundError(f"{filename} does not exists")
+        raise FileNotFoundError(f"{filename} does not exists")  # pragma: no cover
 
     validator = _validators[filename]
 

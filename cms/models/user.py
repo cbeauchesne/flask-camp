@@ -34,10 +34,6 @@ class User(BaseModel):
     def is_active(self):
         return self.is_authenticated and self.email is not None
 
-    @property
-    def is_anonymous(self):
-        return not self.is_authenticated
-
     def get_id(self):
         return str(self.id)
 

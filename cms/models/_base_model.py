@@ -12,22 +12,17 @@ class BaseModel(database.BaseModel):
 
     def create(self):
         if self.id is not None:
-            raise ValueError(f"{self} should not have an ID")
+            raise ValueError(f"{self} should not have an ID")  # pragma: no cover
 
         database.session.add(self)  # pylint: disable=no-member
         database.session.commit()  # pylint: disable=no-member
-
-        assert self.id is not None
 
     def update(self):
         database.session.add(self)  # pylint: disable=no-member
         database.session.commit()  # pylint: disable=no-member
 
     def as_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.get_dict_columns()}
-
-    def get_dict_columns(self):
-        return self.__table__.columns
+        raise NotImplementedError()
 
     @classmethod
     def query(cls):

@@ -109,6 +109,15 @@ class Test_UserModification(BaseTest):
         r = self.login_user(client)
         assert r.json["user"]["email"] == user.email  # not yet validated
 
+    def test_errors(self, client):
+        user = self.add_user()
+        other_user = self.add_user("other user", email="b@c.fr")
+        self.login_user(client)
+
+        r = client.post(f"/user/{other_user.id}", json={"password": "p2"})
+        assert r.status_code == 401, r.json
+        assert r.json["message"] == "You can't modify this user"
+
 
 class Test_UserUniqueness(BaseTest):
     def test_username(self, client):
