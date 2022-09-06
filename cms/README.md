@@ -18,7 +18,7 @@ Build a wiki API with all common features, regardless of the content of document
 * [x] unique document type, shipping a namespace field.
 * [ ] document list
   * [x] get
-  * [ ] offset and limit feature
+  * [x] offset and limit feature
 * [ ] Modify
   * [x] Modify document
   * [ ] manage edit conflict
@@ -26,6 +26,7 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] all changes
   * [x] all changes related to one document
   * [ ] all changes made by one user
+  * [x] offset and limit feature
 * [ ] Moderator options
   * protect/unprotect a document
   * hide/unhide a document version

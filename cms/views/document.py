@@ -3,7 +3,7 @@ import json
 from flask import request
 from flask_restful import Resource
 from flask_login import login_required, current_user
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import NotFound, BadRequest
 
 from cms.models.document import Document, DocumentVersion
 from cms.schemas import schema
@@ -12,7 +12,14 @@ from cms.schemas import schema
 class DocumentsView(Resource):
     def get(self):
         # returns all documents
-        documents = Document.query()
+
+        limit = request.args.get("limit", default=30, type=int)
+        offset = request.args.get("offset", default=0, type=int)
+
+        if not 0 <= limit <= 100:
+            raise BadRequest("Limit can't be lower than 0 or higher than 100")
+
+        documents = Document.query().limit(limit).offset(offset)
         count = Document.query().count()
 
         documents = [document.get_last_version().as_dict() for document in documents]
