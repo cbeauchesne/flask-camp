@@ -25,7 +25,7 @@ class ChangesView(Resource):
             filters["document_id"] = document_id
 
         if user_id is not None:
-            filters["author_id"] = user_id
+            filters["user_id"] = user_id
 
         if len(filters) != 0:
             query = query.filter_by(**filters)

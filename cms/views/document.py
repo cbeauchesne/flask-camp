@@ -39,7 +39,7 @@ class DocumentsView(Resource):
         document.create()
 
         version = DocumentVersion(
-            document_id=document.id, author_id=current_user.id, comment=comment, data=json.dumps(data)
+            document_id=document.id, user_id=current_user.id, comment=comment, data=json.dumps(data)
         )
         version.create()
 
@@ -70,7 +70,7 @@ class DocumentView(Resource):
         namespace = data.pop("namespace", None)
 
         version = DocumentVersion(
-            document_id=document.id, author_id=current_user.id, comment=comment, data=json.dumps(data)
+            document_id=document.id, user_id=current_user.id, comment=comment, data=json.dumps(data)
         )
         version.create()
 

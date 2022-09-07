@@ -7,14 +7,14 @@ class Test_Document(BaseTest):
         r = client.put("/documents", json={"document": {"namespace": "template", "value": "42"}})
         assert r.status_code == 401
 
-    def assert_document(self, document, author, comment="creation", data='{"value": "42"}'):
+    def assert_document(self, document, user, comment="creation", data='{"value": "42"}'):
         assert document["comment"] == comment
         assert document["namespace"] == "template"
         assert json.dumps(document["data"]) == data
         assert isinstance(document["id"], int)
         assert isinstance(document["timestamp"], str)
         assert isinstance(document["version_id"], int)
-        assert document["author"]["id"] == author.id
+        assert document["user"]["id"] == user.id
 
     def test_creation(self, client):
         user = self.add_user()
