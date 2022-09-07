@@ -11,11 +11,12 @@ class Test_UserCreation(BaseTest):
 
         user = response.json["user"]
 
-        assert len(user) == 4, user
+        assert len(user) == 5, user
         assert "id" in user
         assert "ui_preferences" in user
         assert user["username"] == username
         assert user["email"] == None
+        assert user["roles"] == []
 
         user_id, token = self.get_validation_token(username)
 
@@ -31,11 +32,12 @@ class Test_UserCreation(BaseTest):
 
         user = response.json["user"]
 
-        assert len(user) == 4, user
+        assert len(user) == 5, user
         assert user["id"] == user_id
         assert user["ui_preferences"] == None
         assert user["username"] == username
         assert user["email"] == "a@b.c"
+        assert user["roles"] == []
 
         response = client.get("/logout")
         assert response.status_code == 200
@@ -83,6 +85,10 @@ class Test_UserCreation(BaseTest):
     def test_logout_errors(self, client):
         response = client.get("/logout")
         assert response.status_code == 401
+
+    def test_get_errors(self, client):
+        r = client.get(f"/user/1")
+        assert r.status_code == 404
 
 
 class Test_UserModification(BaseTest):

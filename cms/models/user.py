@@ -15,7 +15,10 @@ class User(BaseModel):
 
     email_to_validate = Column(String(120))
     validation_token = Column(String(32))
+
     ui_preferences = Column(Text)
+
+    roles = Column(Text, default="", nullable=False)
 
     def __repr__(self):
         return f"<User {self.username}>"
@@ -38,10 +41,7 @@ class User(BaseModel):
         return str(self.id)
 
     def as_dict(self, include_personal_data=False):
-        result = {
-            "id": self.id,
-            "username": self.username,
-        }
+        result = {"id": self.id, "username": self.username, "roles": [] if not self.roles else self.roles.split(",")}
 
         if include_personal_data:
             result["email"] = self.email
@@ -51,3 +51,7 @@ class User(BaseModel):
 
     def set_validation_token(self):
         self.validation_token = secrets.token_hex(self.__class__.password_hash.type.length)
+
+    def is_admin(self):
+        roles = [] if not self.roles else self.roles.split(",")
+        return "admin" in roles

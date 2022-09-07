@@ -32,7 +32,7 @@ Build a wiki API with all common features, regardless of the content of document
   * hide/unhide a document version
   * block/unbloc an user
 * [ ] Admin options
-  * [ ] promote/unpromote an user to moderator
+  * [x] promote/unpromote an user to any role
 * [ ] follow list: get all changes made to documents in the user's follow list
 * [ ] logs
   * [ ] All admin/moderator actions
