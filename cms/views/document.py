@@ -3,7 +3,7 @@ import json
 from flask import request
 from flask_restful import Resource
 from flask_login import login_required, current_user
-from werkzeug.exceptions import NotFound, BadRequest
+from werkzeug.exceptions import NotFound, BadRequest, Unauthorized
 
 from cms.models.document import Document, DocumentVersion
 from cms.schemas import schema
@@ -62,6 +62,9 @@ class DocumentView(Resource):
 
         if document is None:
             raise NotFound()
+
+        if document.protected and not current_user.is_moderator:
+            raise Unauthorized("The document is protected")
 
         body = request.get_json()
 

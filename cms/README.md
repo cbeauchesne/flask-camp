@@ -16,21 +16,23 @@ Build a wiki API with all common features, regardless of the content of document
   * [ ] password reset using validated email
 * [ ] rate limiting
 * [x] unique document type, shipping a namespace field.
+  * [x] document can be protected by moderators
 * [ ] document list
   * [x] get
   * [x] offset and limit feature
 * [ ] Modify
   * [x] Modify document
   * [ ] manage edit conflict
-* [x] document history
+* [ ] document history
   * [x] all changes
   * [x] all changes related to one document
   * [x] all changes made by one user
   * [x] offset and limit feature
+  * [ ] an item in the history can be hidden by moderators
 * [ ] Moderator options
-  * protect/unprotect a document
-  * hide/unhide a document version
-  * block/unbloc an user
+  * [x] protect/unprotect a document
+  * [ ] hide/unhide a document version
+  * [ ] block/unbloc an user
 * [ ] Admin options
   * [x] promote/unpromote an user to any role
 * [ ] follow list: get all changes made to documents in the user's follow list
@@ -52,3 +54,14 @@ And on develpment side :
 
 * black
 * pylint
+
+## Target archi 
+
+* Add/modify document
+  * update DB
+  * build document JSON
+  * update Elasticsearch with the serialized document
+* get document -> get in elastic search
+* get list of document -> get in elastic search
+* get list of document with filters -> get in elastic search
+

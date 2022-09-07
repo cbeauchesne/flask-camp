@@ -52,6 +52,12 @@ class User(BaseModel):
     def set_validation_token(self):
         self.validation_token = secrets.token_hex(self.__class__.password_hash.type.length)
 
+    @property
     def is_admin(self):
         roles = [] if not self.roles else self.roles.split(",")
         return "admin" in roles
+
+    @property
+    def is_moderator(self):
+        roles = [] if not self.roles else self.roles.split(",")
+        return "moderator" in roles

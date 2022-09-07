@@ -110,15 +110,16 @@ class UserView(Resource):
 
         return {
             "status": "ok",
-            "user": user.as_dict(include_personal_data=id == current_user.id or current_user.is_admin()),
+            "user": user.as_dict(include_personal_data=id == current_user.id or current_user.is_admin),
         }
 
     @login_required
     @schema("cms/schemas/modify_user.json")
     def post(self, id):
-        if id != current_user.id and not current_user.is_admin():
+        if id != current_user.id and not current_user.is_admin:
             raise Unauthorized("You can't modify this user")
-        # TODO log if current_user.is_admin()
+
+        # TODO log if current_user.is_admin
 
         data = request.get_json()
 
@@ -138,7 +139,7 @@ class UserView(Resource):
             user.set_validation_token()
             # TODO send an email
 
-        if "roles" in data and current_user.is_admin():
+        if "roles" in data and current_user.is_admin:
             user.roles = ",".join(data["roles"])
 
         database.session.commit()
