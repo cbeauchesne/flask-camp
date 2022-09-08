@@ -22,7 +22,7 @@ class Test_Protection(BaseTest):
 
         # try to protect a doc without being an moderator
         r = client.put(f"/protect/{document_id}")
-        assert r.status_code == 401
+        assert r.status_code == 403
         self.logout_user(client)
 
         # protect doc
@@ -36,11 +36,11 @@ class Test_Protection(BaseTest):
         # try to unprotect doc without being an moderator
         self.login_user(client, user.name)
         r = client.delete(f"/protect/{document_id}")
-        assert r.status_code == 401
+        assert r.status_code == 403
 
-        # try to edit doc  without being an moderator
+        # try to edit doc without being an moderator
         r = client.post(f"/document/{document_id}", json={"document": {"namespace": "x", "value": "42"}})
-        assert r.status_code == 401
+        assert r.status_code == 403
         self.logout_user(client)
 
         # edit protected doc

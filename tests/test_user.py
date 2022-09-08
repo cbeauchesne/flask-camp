@@ -11,9 +11,10 @@ class Test_UserCreation(BaseTest):
 
         user = response.json["user"]
 
-        assert len(user) == 5, user
+        assert len(user) == 6, user
         assert "id" in user
         assert "ui_preferences" in user
+        assert user["blocked"] == False
         assert user["name"] == name
         assert user["email"] == None
         assert user["roles"] == []
@@ -32,8 +33,9 @@ class Test_UserCreation(BaseTest):
 
         user = response.json["user"]
 
-        assert len(user) == 5, user
+        assert len(user) == 6, user
         assert user["id"] == user_id
+        assert user["blocked"] == False
         assert user["ui_preferences"] == None
         assert user["name"] == name
         assert user["email"] == "a@b.c"
@@ -56,7 +58,7 @@ class Test_UserCreation(BaseTest):
         )
 
         response = client.get(f"/validate_user/{user.id}", query_string={"validation_token": "not the good token"})
-        assert response.status_code == 400
+        assert response.status_code == 401
         assert response.json["message"] == "Token doesn't match"
 
         response = self.login_user(client, name, password, 401)
@@ -76,10 +78,10 @@ class Test_UserCreation(BaseTest):
         password = "week password"
         user = self.add_user(password=password)
 
-        response = self.login_user(client, "not the name", password, expected_status=400)
+        response = self.login_user(client, "not the name", password, expected_status=401)
         assert response.json["message"] == "User does not exists, or password is wrong"
 
-        response = self.login_user(client, user.name, "not the password", expected_status=400)
+        response = self.login_user(client, user.name, "not the password", expected_status=401)
         assert response.json["message"] == "User does not exists, or password is wrong"
 
     def test_logout_errors(self, client):
@@ -100,7 +102,7 @@ class Test_UserModification(BaseTest):
         assert r.status_code == 200, r.json
 
         client.get("/logout")
-        self.login_user(client, user.name, "p1", expected_status=400)
+        self.login_user(client, user.name, "p1", expected_status=401)
         self.login_user(client, user.name, "p2", expected_status=200)
 
     def test_change_email(self, client):
@@ -121,7 +123,7 @@ class Test_UserModification(BaseTest):
         self.login_user(client)
 
         r = client.post(f"/user/{other_user.id}", json={"password": "p2"})
-        assert r.status_code == 401, r.json
+        assert r.status_code == 403, r.json
         assert r.json["message"] == "You can't modify this user"
 
 

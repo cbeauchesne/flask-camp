@@ -5,7 +5,7 @@ from tests.utils import BaseTest
 class Test_Document(BaseTest):
     def test_creation_not_logged(self, client):
         r = client.put("/documents", json={"document": {"namespace": "template", "value": "42"}})
-        assert r.status_code == 401
+        assert r.status_code == 403
 
     def assert_document(self, document, user, comment="creation", data='{"value": "42"}'):
         assert document["comment"] == comment
