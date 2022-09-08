@@ -49,3 +49,24 @@ class Test_PasswordReset(BaseTest):
 
         r = self.post("/login", json={"name": user.name, "token": "not the token"})
         assert r.status_code == 401
+
+    def test_several_request(self):
+        user = self.add_user()
+
+        r = self.post("/reset_password", json={"email": user._email})
+        assert r.status_code == 200
+        token_1 = self.get_login_token(user.name)
+
+        r = self.post("/reset_password", json={"email": user._email})
+        assert r.status_code == 200
+        token_2 = self.get_login_token(user.name)
+
+        assert token_1 is not None
+        assert token_2 is not None
+        assert token_1 != token_2
+
+        r = self.post("/login", json={"name": user.name, "token": token_1})
+        assert r.status_code == 401
+
+        r = self.post("/login", json={"name": user.name, "token": token_2})
+        assert r.status_code == 200
