@@ -69,13 +69,13 @@ class Test_Document(BaseTest):
         assert r.json["documents"][0]["version_id"] == second_version["version_id"]
 
     def test_errors(self):
-        user = self.add_user()
+        self.add_user()
         self.login_user()
 
-        r = self.get(f"/document/1")
+        r = self.get("/document/1")
         assert r.status_code == 404
 
-        r = self.post(f"/document/1", json={"document": {"namespace": "x", "value": "43"}})
+        r = self.post("/document/1", json={"document": {"namespace": "x", "value": "43"}})
         assert r.status_code == 404
 
         r = self.put("/documents", json={"document": {"value": "42"}})

@@ -11,29 +11,31 @@ from cms.schemas import schema
 from cms.views.core import BaseResource
 
 
-class UserValidationView(BaseResource):
-    """validate the user with the validation token"""
+class EmailValidationView(BaseResource):
+    """validate the user email with the validation token"""
 
     @allow_anonymous
-    def get(self, user_id):
-        user = UserModel.get(id=user_id)
-        token = request.args["validation_token"]
+    @schema("cms/schemas/validate_email.json")
+    def post(self):
+        data = request.get_json()
+        user = UserModel.get(name=data["name"])
 
-        if user.validation_token is None:
-            raise BadRequest("User is still validated")
+        if user is None:
+            raise NotFound()
 
-        if token != user.validation_token:
+        if user.email_token is None:
+            raise BadRequest("There is no email to validate")
+
+        if data["token"] != user.email_token:
             raise Unauthorized("Token doesn't match")
 
-        user.validation_token = None
-        user.email = user.email_to_validate
-        user.email_to_validate = None
+        user.validate_email()
 
         try:
             user.update()
         except IntegrityError as e:
             error_info = e.orig.args
-            if error_info[0] == "UNIQUE constraint failed: user.email":
+            if error_info[0] == "UNIQUE constraint failed: user._email":
                 raise BadRequest("A user still exists with this email")
             else:
                 raise BadRequest(error_info[0])
@@ -48,15 +50,9 @@ class UsersView(BaseResource):
         """create an user"""
         data = request.get_json()
 
-        if UserModel.get(email=data["email"]) is not None:
-            # there is a race condition here, but it's kind of inevitable
-            raise BadRequest("A user still exists with this email")
-
-        user = UserModel(name=data["name"], email_to_validate=data["email"])
+        user = UserModel(name=data["name"])
         user.set_password(data["password"])
-
-        user.set_validation_token()
-        # TODO send an email
+        user.set_email(data["email"])
 
         try:
             user.create()
@@ -67,7 +63,7 @@ class UsersView(BaseResource):
             else:
                 raise BadRequest(error_info[0])
 
-        return {"status": "ok", "user": user.as_dict(include_personal_data=True)}
+        return {"status": "ok", "user": user.as_dict()}
 
 
 class UserLoginView(BaseResource):
@@ -89,7 +85,7 @@ class UserLoginView(BaseResource):
             print(f"Wrong password for user {user}")
             raise Unauthorized("User does not exists, or password is wrong")
 
-        if user.email is None:
+        if not user.email_is_validated:
             raise Unauthorized("User's email is not validated")
 
         login_user(user)
@@ -144,13 +140,7 @@ class UserView(BaseResource):
             user.set_password(data["password"])
 
         if "email" in data:
-            if user.get(email=data["email"]) is not None:
-                raise BadRequest("A user still exists with this email")
-
-            print(f"Update {current_user}'s email")
-            user.email_to_validate = data["email"]
-            user.set_validation_token()
-            # TODO send an email
+            user.set_email(data["email"])
 
         if "roles" in data and current_user.is_admin:
             user.roles = ",".join(data["roles"])

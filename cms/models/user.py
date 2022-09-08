@@ -1,6 +1,8 @@
 import secrets
 
-from sqlalchemy import Column, String, Text, Boolean
+from flask_login import current_user
+from sqlalchemy import Column, String, Text, Boolean, DateTime
+from werkzeug.exceptions import BadRequest, Forbidden
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from cms.models import BaseModel
@@ -11,10 +13,16 @@ class User(BaseModel):
 
     name = Column(String(64), index=True, unique=True, nullable=False)
     password_hash = Column(String(128), nullable=False)
-    email = Column(String(120), index=True, unique=True)
+    _email = Column(String(120), index=True, unique=True)
 
     email_to_validate = Column(String(120))
-    validation_token = Column(String(32))
+    # linked with email_to_validate, if it's provided, email is validated
+    email_token = Column(String(32))
+
+    # unique usage token used to login without a password.
+    # Useful for user creation and password reset
+    login_token = Column(String(32))
+    login_token_expiration_date = Column(DateTime)  # TODO
 
     ui_preferences = Column(Text)
 
@@ -24,6 +32,24 @@ class User(BaseModel):
 
     def __repr__(self):
         return f"<User {self.name}>"
+
+    @property
+    def email(self):
+
+        # last security fence, it should never happen
+        if not current_user.is_authenticated:
+            raise Forbidden()  # pragma: no cover
+
+        if current_user.id != self.id and not current_user.is_admin and not current_user.is_moderator:
+            raise Forbidden()  # pragma: no cover
+
+        return self._email
+
+    @property
+    def email_is_validated(self):
+        # At login, user is anonymous. But we must know if it's validated
+
+        return self._email is not None
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -37,7 +63,7 @@ class User(BaseModel):
 
     @property
     def is_active(self):
-        return self.is_authenticated and self.email is not None
+        return self.is_authenticated and self._email is not None
 
     def get_id(self):
         return str(self.id)
@@ -56,8 +82,25 @@ class User(BaseModel):
 
         return result
 
-    def set_validation_token(self):
-        self.validation_token = secrets.token_hex(self.__class__.password_hash.type.length)
+    def set_email(self, email):
+        if User.get(_email=email) is not None:
+            raise BadRequest("A user still exists with this email")
+
+        self.email_to_validate = email
+        self.email_token = secrets.token_hex(self.__class__.password_hash.type.length)
+
+        print(f"Update {self}'s email")
+        # TODO send an email
+
+    def validate_email(self):
+
+        self.email_token = None
+        self._email = self.email_to_validate
+        self.email_to_validate = None
+
+    def set_login_token(self):
+        self.login_token = secrets.token_hex(self.__class__.password_hash.type.length)
+        # self.login_token_expiration_date  # TODO
 
     @property
     def is_admin(self):

@@ -47,22 +47,19 @@ class BaseTest:
         user = User(name=name, roles=roles)
         user.set_password(password)
 
-        email = email if email else f"{name}@site.org"
+        user.set_email(email if email else f"{name}@site.org")
 
-        if not validate_email:
-            user.email_to_validate = email
-            user.set_validation_token()
-        else:
-            user.email = email
+        if validate_email:
+            user.validate_email()
 
         user.create()
 
         return User(
             id=user.id,
             name=user.name,
-            email=user.email,
+            _email=user._email,
             email_to_validate=user.email_to_validate,
-            validation_token=user.validation_token,
+            email_token=user.email_token,
             roles=user.roles,
         )
 
@@ -72,14 +69,13 @@ class BaseTest:
 
         return r
 
-    def logout_user(self):
-        return self.get("/logout")
+    def logout_user(self, expected_status=200):
+        r = self.get("/logout")
+        assert r.status_code == expected_status, r.json
+        return r
 
-    def get_validation_token(self, name):
-        users = database.execute(f"SELECT id, validation_token FROM user WHERE name='{name}'")
+    def get_email_token(self, name):
+        users = database.execute(f"SELECT id, email_token FROM user WHERE name='{name}'")
         user = [user for user in users][0]
 
-        token = user["validation_token"]
-        user_id = user["id"]
-
-        return user_id, token
+        return user["email_token"]

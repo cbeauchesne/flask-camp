@@ -1,0 +1,14 @@
+{
+  "description": "POST request to validate user creation",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "token": {
+      "type": "string"
+    }
+  },
+  "required": ["name", "token"],
+  "additionalProperties": false
+}
