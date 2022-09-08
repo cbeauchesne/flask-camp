@@ -32,13 +32,24 @@ Build a wiki API with all common features, regardless of the content of document
 * [ ] Moderator options
   * [x] protect/unprotect a document
   * [ ] hide/unhide a document version
-  * [ ] block/unbloc an user
+  * [x] block/unbloc an user
 * [ ] Admin options
   * [x] promote/unpromote an user to any role
 * [ ] follow list: get all changes made to documents in the user's follow list
 * [ ] logs
   * [ ] All admin/moderator actions
-* [ ] user flag: any user can add any flag/value to any documentx
+* [ ] user flag: any user can add any flag/value to any document
+
+
+## Golden rules
+
+* keep round API
+* explicit is better than implicit
+* 100% test coverage : test is ok <=> you can release
+* 80/20 usage: Do the 80% do NOT the 20%
+* Do not reinvent the wheel
+* API is security/consitency, UI is usability
+* security: everything is forbidden, except if it's allowed (TODO)
 
 ## Stack
 
@@ -64,4 +75,3 @@ And on develpment side :
 * get document -> get in elastic search
 * get list of document -> get in elastic search
 * get list of document with filters -> get in elastic search
-

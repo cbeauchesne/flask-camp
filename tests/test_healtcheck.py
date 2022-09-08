@@ -1,8 +1,8 @@
-from tests.conftest import client
+from tests.utils import BaseTest
 
 
-class Test_HealthCheck:
-    def test_main(self, client):
-        response = client.get("/healthcheck")
+class Test_HealthCheck(BaseTest):
+    def test_main(self):
+        response = self.get("/healthcheck")
         assert response.status_code == 200
         assert response.json["status"] == "ok"

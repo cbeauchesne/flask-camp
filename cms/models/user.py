@@ -1,6 +1,6 @@
 import secrets
 
-from sqlalchemy import Column, String, Text
+from sqlalchemy import Column, String, Text, Boolean
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from cms.models import BaseModel
@@ -19,6 +19,8 @@ class User(BaseModel):
     ui_preferences = Column(Text)
 
     roles = Column(Text, default="", nullable=False)
+
+    blocked = Column(Boolean, default=False, nullable=False)
 
     def __repr__(self):
         return f"<User {self.name}>"
@@ -41,11 +43,16 @@ class User(BaseModel):
         return str(self.id)
 
     def as_dict(self, include_personal_data=False):
-        result = {"id": self.id, "name": self.name, "roles": [] if not self.roles else self.roles.split(",")}
+        result = {
+            "id": self.id,
+            "name": self.name,
+            "roles": [] if not self.roles else self.roles.split(","),
+            "blocked": self.blocked,
+            "ui_preferences": self.ui_preferences,
+        }
 
         if include_personal_data:
             result["email"] = self.email
-            result["ui_preferences"] = self.ui_preferences
 
         return result
 

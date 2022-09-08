@@ -3,8 +3,9 @@ import json
 from flask import request
 from flask_restful import Resource
 from flask_login import login_required, current_user
-from werkzeug.exceptions import NotFound, BadRequest, Unauthorized
+from werkzeug.exceptions import NotFound, BadRequest, Forbidden
 
+from cms.decorators import user_must_not_be_blocked
 from cms.models.document import Document, DocumentVersion
 from cms.schemas import schema
 
@@ -25,8 +26,8 @@ class DocumentsView(Resource):
         documents = [document.get_last_version().as_dict() for document in documents]
         return {"status": "ok", "documents": documents, "count": count}
 
+    @user_must_not_be_blocked
     @schema("cms/schemas/create_document.json")
-    @login_required
     def put(self):
         """create an document"""
         body = request.get_json()
@@ -55,6 +56,7 @@ class DocumentView(Resource):
 
         return {"status": "ok", "document": version.as_dict()}
 
+    @user_must_not_be_blocked
     @schema("cms/schemas/modify_document.json")
     def post(self, id):
         """add a new version to a document"""
@@ -64,7 +66,7 @@ class DocumentView(Resource):
             raise NotFound()
 
         if document.protected and not current_user.is_moderator:
-            raise Unauthorized("The document is protected")
+            raise Forbidden("The document is protected")
 
         body = request.get_json()
 

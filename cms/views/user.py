@@ -21,7 +21,7 @@ class UserValidationView(Resource):
             raise BadRequest("User is still validated")
 
         if token != user.validation_token:
-            raise BadRequest("Token doesn't match")
+            raise Unauthorized("Token doesn't match")
 
         user.validation_token = None
         user.email = user.email_to_validate
@@ -79,11 +79,11 @@ class UserLoginView(Resource):
 
         if user is None:
             print(f"User [{name}] doesn't exists")
-            raise BadRequest("User does not exists, or password is wrong")
+            raise Unauthorized("User does not exists, or password is wrong")
 
         if not user.check_password(password):
             print(f"Wrong password for user {user}")
-            raise BadRequest("User does not exists, or password is wrong")
+            raise Unauthorized("User does not exists, or password is wrong")
 
         if user.email is None:
             raise Unauthorized("User's email is not validated")
@@ -117,7 +117,7 @@ class UserView(Resource):
     @schema("cms/schemas/modify_user.json")
     def post(self, id):
         if id != current_user.id and not current_user.is_admin:
-            raise Unauthorized("You can't modify this user")
+            raise Forbidden("You can't modify this user")
 
         # TODO log if current_user.is_admin
 

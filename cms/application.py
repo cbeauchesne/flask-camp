@@ -6,6 +6,7 @@ from flask_restful import Api
 
 from . import database
 from .models.user import User as UserModel
+from .views.block_user import BlockUserView
 from .views.changes import ChangesView
 from .views.document import DocumentsView, DocumentView
 from .views.healthcheck import HealthCheckView
@@ -45,6 +46,8 @@ class Application(Flask):
         self.add_resource(ChangesView, "/changes")
 
         self.add_resource(ProtectionView, "/protect/<int:id>")
+
+        self.add_resource(BlockUserView, "/block_user//<int:id>")
 
     def add_resource(self, *args, **kwargs):
         self._api.add_resource(*args, **kwargs)
