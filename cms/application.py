@@ -11,7 +11,7 @@ from .views.changes import ChangesView
 from .views.document import DocumentsView, DocumentView
 from .views.healthcheck import HealthCheckView
 from .views.protection import ProtectionView
-from .views.user import UsersView, EmailValidationView, UserLoginView, UserLogoutView, UserView
+from .views.user import UsersView, EmailValidationView, UserLoginView, UserLogoutView, UserView, ResetPasswordView
 
 
 class Application(Flask):
@@ -48,6 +48,8 @@ class Application(Flask):
         self.add_resource(ProtectionView, "/protect/<int:id>")
 
         self.add_resource(BlockUserView, "/block_user//<int:id>")
+
+        self.add_resource(ResetPasswordView, "/reset_password")
 
     def add_resource(self, *args, **kwargs):
         self._api.add_resource(*args, **kwargs)

@@ -21,8 +21,8 @@ class User(BaseModel):
 
     # unique usage token used to login without a password.
     # Useful for user creation and password reset
-    login_token = Column(String(32))
-    login_token_expiration_date = Column(DateTime)  # TODO
+    _login_token = Column(String(32))
+    _login_token_expiration_date = Column(DateTime)  # TODO
 
     ui_preferences = Column(Text)
 
@@ -55,7 +55,18 @@ class User(BaseModel):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        return password is not None and check_password_hash(self.password_hash, password)
+
+    def check_login_token(self, login_token):  # TODO replace with login_with_token
+        if self._login_token is None or login_token is None:
+            return False
+
+        if self._login_token != login_token:
+            return False
+
+        self._login_token = None
+
+        return True
 
     @property
     def is_authenticated(self):
@@ -99,8 +110,8 @@ class User(BaseModel):
         self.email_to_validate = None
 
     def set_login_token(self):
-        self.login_token = secrets.token_hex(self.__class__.password_hash.type.length)
-        # self.login_token_expiration_date  # TODO
+        self._login_token = secrets.token_hex(self.__class__.password_hash.type.length)
+        # self._login_token_expiration_date  # TODO
 
     @property
     def is_admin(self):

@@ -73,7 +73,8 @@ class UserLoginView(BaseResource):
         data = request.get_json()
 
         name = data["name"]
-        password = data["password"]
+        password = data.get("password", None)
+        login_token = data.get("token", None)
 
         user = UserModel.get(name=name)
 
@@ -81,14 +82,21 @@ class UserLoginView(BaseResource):
             print(f"User [{name}] doesn't exists")
             raise Unauthorized("User does not exists, or password is wrong")
 
-        if not user.check_password(password):
-            print(f"Wrong password for user {user}")
-            raise Unauthorized("User does not exists, or password is wrong")
-
         if not user.email_is_validated:
+            print(f"User [{name}] di not validate its mail")
             raise Unauthorized("User's email is not validated")
 
-        login_user(user)
+        if user.check_password(password):
+            print(f"A")
+            login_user(user)
+        elif user.check_login_token(login_token):
+            print(f"B")
+            login_user(user)
+        else:
+            print(f"Wrong auth for user {user}")
+            raise Unauthorized("User does not exists, or password is wrong")
+
+        user.update()
 
         return {"status": "ok", "user": user.as_dict(include_personal_data=True)}
 
@@ -149,3 +157,18 @@ class UserView(BaseResource):
 
         # personal data : user is current user or admin, so always true
         return {"status": "ok", "user": user.as_dict(include_personal_data=True)}
+
+
+class ResetPasswordView(BaseResource):
+    @allow_anonymous
+    @schema("cms/schemas/reset_password.json")
+    def post(self):
+        email = request.get_json()["email"]
+
+        user = UserModel.get(_email=email)
+
+        if not user is None:  # do not let hacker crawl our base
+            user.set_login_token()
+            user.update()
+
+        return {"status": "ok"}

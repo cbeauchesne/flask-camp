@@ -13,7 +13,9 @@ Build a wiki API with all common features, regardless of the content of document
     * [x] modify email
     * [ ] send email to validate email address
   * [ ] rate limiting on user login failures
-  * [ ] password reset using validated email
+  * [x] password reset
+    * [ ] using validated email
+    * [ ] login token must expire after one hour
 * [ ] rate limiting
 * [x] unique document type, shipping a namespace field.
   * [x] document can be protected by moderators

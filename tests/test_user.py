@@ -84,6 +84,9 @@ class Test_UserCreation(BaseTest):
         r = self.login_user(user.name, "not the password", expected_status=401)
         assert r.json["message"] == "User does not exists, or password is wrong"
 
+        r = self.post("/login", json={"name": user.name})
+        assert r.status_code == 400, r.json
+
     def test_logout_errors(self):
         r = self.get("/logout")
         assert r.status_code == 403
