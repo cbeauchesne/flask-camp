@@ -14,14 +14,14 @@ class Test_UserCreation(BaseTest):
         assert len(user) == 5, user
         assert "id" in user
         assert "ui_preferences" in user
-        assert user["blocked"] == False
+        assert user["blocked"] is False
         assert user["name"] == name
         assert user["roles"] == []
 
         token = self.get_email_token(name)
         assert token is not None
 
-        r = self.post(f"/validate_email", json={"name": name, "token": token})
+        r = self.post("/validate_email", json={"name": name, "token": token})
         assert r.status_code == 200, r.json
         assert r.json["status"] == "ok"
 
@@ -36,8 +36,8 @@ class Test_UserCreation(BaseTest):
 
         assert len(r.json["user"]) == 6, r.json["user"]
         assert r.json["user"]["id"] == user["id"]
-        assert r.json["user"]["blocked"] == False
-        assert r.json["user"]["ui_preferences"] == None
+        assert r.json["user"]["blocked"] is False
+        assert r.json["user"]["ui_preferences"] is None
         assert r.json["user"]["name"] == name
         assert r.json["user"]["email"] == email
         assert r.json["user"]["roles"] == []
@@ -51,24 +51,24 @@ class Test_UserCreation(BaseTest):
         r = self.login_user(password=password, expected_status=401)
         assert r.json["message"] == "User's email is not validated"
 
-        r = self.post(f"/validate_email", json={"name": user.name})
+        r = self.post("/validate_email", json={"name": user.name})
         assert r.status_code == 400
         assert r.json["message"] == "'token' is a required property on instance "
 
-        r = self.post(f"/validate_email", json={"name": "not the name", "token": user.email_token})
+        r = self.post("/validate_email", json={"name": "not the name", "token": user.email_token})
         assert r.status_code == 404
 
-        r = self.post(f"/validate_email", json={"name": user.name, "token": "not the good one"})
+        r = self.post("/validate_email", json={"name": user.name, "token": "not the good one"})
         assert r.status_code == 401
         assert r.json["message"] == "Token doesn't match"
 
         r = self.login_user(user.name, password, expected_status=401)
         assert r.json["message"] == "User's email is not validated"
 
-        r = self.post(f"/validate_email", json={"name": user.name, "token": user.email_token})
+        r = self.post("/validate_email", json={"name": user.name, "token": user.email_token})
         assert r.status_code == 200
 
-        r = self.post(f"/validate_email", json={"name": user.name, "token": user.email_token})
+        r = self.post("/validate_email", json={"name": user.name, "token": user.email_token})
         assert r.status_code == 400
         assert r.json["message"] == "There is no email to validate"
 
@@ -92,7 +92,7 @@ class Test_UserCreation(BaseTest):
         assert r.status_code == 403
 
     def test_notfound_errors(self):
-        user = self.add_user()
+        self.add_user()
         self.login_user()
         r = self.get("/user/42")
         assert r.status_code == 404
@@ -136,7 +136,7 @@ class Test_UserModification(BaseTest):
         assert r.json["user"]["email"] == "other@email.com", r.json
 
     def test_errors(self):
-        user = self.add_user()
+        self.add_user()
         other_user = self.add_user("other user")
         self.login_user()
 
@@ -188,10 +188,10 @@ class Test_UserUniqueness(BaseTest):
         user1 = self.add_user("u1", "a@b.c", validate_email=False)
         user2 = self.add_user("u2", "a@b.c", validate_email=False)
 
-        r = self.post(f"/validate_email", json={"name": user1.name, "token": user1.email_token})
+        r = self.post("/validate_email", json={"name": user1.name, "token": user1.email_token})
         assert r.status_code == 200, r.json
 
-        r = self.post(f"/validate_email", json={"name": user2.name, "token": user2.email_token})
+        r = self.post("/validate_email", json={"name": user2.name, "token": user2.email_token})
         assert r.status_code == 400, r.json
         assert r.json["message"] == "A user still exists with this email"
 

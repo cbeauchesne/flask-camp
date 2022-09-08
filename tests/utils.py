@@ -4,13 +4,16 @@ from cms.models.user import User
 
 
 class BaseTest:
-    def setup_method(self, test_method):
+    app = None
+    client = None
+
+    def setup_method(self, test_method):  # pylint: disable=unused-argument
         self.app = Application(TESTING=True)
         self.app.create_all()
         self.client = self.app.test_client()
         self.client.__enter__()
 
-    def teardown_method(self, test_method):
+    def teardown_method(self, test_method):  # pylint: disable=unused-argument
         self.client.__exit__(None, None, None)
 
     def _assert_status_response(self, r):
@@ -26,19 +29,19 @@ class BaseTest:
         return r
 
     def post(self, *args, **kwargs):
-        return self.client.post(*args, **kwargs)
+        r = self.client.post(*args, **kwargs)
         self._assert_status_response(r)
 
         return r
 
     def put(self, *args, **kwargs):
-        return self.client.put(*args, **kwargs)
+        r = self.client.put(*args, **kwargs)
         self._assert_status_response(r)
 
         return r
 
     def delete(self, *args, **kwargs):
-        return self.client.delete(*args, **kwargs)
+        r = self.client.delete(*args, **kwargs)
         self._assert_status_response(r)
 
         return r
@@ -76,12 +79,12 @@ class BaseTest:
 
     def get_email_token(self, name):
         users = database.execute(f"SELECT id, email_token FROM user WHERE name='{name}'")
-        user = [user for user in users][0]
+        user = list(users)[0]
 
         return user["email_token"]
 
     def get_login_token(self, name):
         users = database.execute(f"SELECT id, _login_token FROM user WHERE name='{name}'")
-        user = [user for user in users][0]
+        user = list(users)[0]
 
         return user["_login_token"]

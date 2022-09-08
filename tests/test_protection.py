@@ -3,13 +3,13 @@ from tests.utils import BaseTest
 
 class Test_Protection(BaseTest):
     def test_errors(self):
-        moderator = self.add_user(roles="moderator")
+        self.add_user(roles="moderator")
         self.login_user()
 
-        r = self.put(f"/protect/42")
+        r = self.put("/protect/42")
         assert r.status_code == 404
 
-        r = self.delete(f"/protect/42")
+        r = self.delete("/protect/42")
         assert r.status_code == 404
 
     def test_typical_scenario(self):
@@ -30,7 +30,7 @@ class Test_Protection(BaseTest):
         r = self.put(f"/protect/{document_id}")
         assert r.status_code == 200
         r = self.get(f"/document/{document_id}")
-        assert r.json["document"]["protected"] == True
+        assert r.json["document"]["protected"] is True
         self.logout_user()
 
         # try to unprotect doc without being an moderator
@@ -52,17 +52,17 @@ class Test_Protection(BaseTest):
         r = self.delete(f"/protect/{document_id}")
         assert r.status_code == 200
         r = self.get(f"/document/{document_id}")
-        assert r.json["document"]["protected"] == False
+        assert r.json["document"]["protected"] is False
         self.logout_user()
 
         # edit deprotected doc
         self.login_user(user.name)
         r = self.post(f"/document/{document_id}", json={"document": {"namespace": "x", "value": "43"}})
         assert r.status_code == 200
-        assert r.json["document"]["protected"] == False
+        assert r.json["document"]["protected"] is False
 
         r = self.post(
             f"/document/{document_id}", json={"document": {"namespace": "x", "value": "44", "protected": True}}
         )
         assert r.status_code == 200
-        assert r.json["document"]["protected"] == False
+        assert r.json["document"]["protected"] is False

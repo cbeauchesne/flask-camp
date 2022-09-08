@@ -1,6 +1,9 @@
 [tool.black]
 line-length = 120
 
-[tool.pylint.'MESSAGES CONTROL']
+[tool.pylint]
 max-line-length = 120
-disable = "missing-module-docstring,missing-class-docstring,missing-function-docstring,fixme"
+disable = "missing-module-docstring,missing-class-docstring,missing-function-docstring,fixme,too-many-arguments"
+
+[tool.pylint.tests]
+disable = "invalid-name,protected-access"

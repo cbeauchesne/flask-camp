@@ -23,13 +23,13 @@ class Test_Protection(BaseTest):
         assert r.status_code == 403
 
     def test_not_found(self):
-        moderator = self.add_user(roles="moderator")
+        self.add_user(roles="moderator")
         self.login_user()
 
-        r = self.put(f"/block_user/42")
+        r = self.put("/block_user/42")
         assert r.status_code == 404
 
-        r = self.delete(f"/block_user/42")
+        r = self.delete("/block_user/42")
         assert r.status_code == 404
 
     def test_typical_scenario(self):
@@ -43,7 +43,7 @@ class Test_Protection(BaseTest):
 
         # now get the user, check its blocked status, and block him
         r = self.get(f"/user/{user.id}")
-        assert r.json["user"]["blocked"] == False
+        assert r.json["user"]["blocked"] is False
 
         r = self.put(f"/block_user/{user.id}")
         assert r.status_code == 200
@@ -52,7 +52,7 @@ class Test_Protection(BaseTest):
         assert r.status_code == 200
 
         r = self.get(f"/user/{user.id}")  # it's status is now blocked
-        assert r.json["user"]["blocked"] == True
+        assert r.json["user"]["blocked"] is True
 
         self.logout_user()
 
@@ -91,7 +91,7 @@ class Test_Protection(BaseTest):
         assert r.status_code == 200
 
         r = self.get(f"/user/{user.id}")
-        assert r.json["user"]["blocked"] == False
+        assert not r.json["user"]["blocked"]
 
         # logout the admin, login the user, try to add/modify
         self.logout_user()

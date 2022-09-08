@@ -1,3 +1,3 @@
 #!/bin/bash
 black .
-pylint cms
+pylint cms tests

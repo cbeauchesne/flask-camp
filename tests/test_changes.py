@@ -8,7 +8,7 @@ class Test_Document(BaseTest):
         assert r.json["changes"] == []
 
     def test_simple(self):
-        user = self.add_user()
+        self.add_user()
         self.login_user()
 
         doc1 = self.put("/documents", json={"document": {"namespace": "x", "value": "doc_1/v1"}}).json["document"]
@@ -32,12 +32,12 @@ class Test_Document(BaseTest):
         user_2 = self.add_user("user2")
 
         self.login_user()
-        doc = self.put("/documents", json={"document": {"namespace": "x", "value": f"x"}}).json["document"]
+        doc = self.put("/documents", json={"document": {"namespace": "x", "value": "x"}}).json["document"]
         self.post(f"/document/{doc['id']}", json={"document": {"namespace": "x", "value": "y"}})
         self.get("/logout")
 
-        self.login_user("user2")
-        doc = self.put("/documents", json={"document": {"namespace": "x", "value": f"x"}}).json["document"]
+        self.login_user(user_2.name)
+        doc = self.put("/documents", json={"document": {"namespace": "x", "value": "x"}}).json["document"]
         self.post(f"/document/{doc['id']}", json={"document": {"namespace": "x", "value": "y"}})
         self.get("/logout")
 
