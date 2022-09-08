@@ -4,12 +4,6 @@ def allow_anonymous(func):
     return func
 
 
-def allow_current_user(func):
-    setattr(func, "__current_user", True)
-
-    return func
-
-
 def allow_blocked(func):
     setattr(func, "__allow_blocked", True)
 

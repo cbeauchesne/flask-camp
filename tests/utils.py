@@ -13,17 +13,35 @@ class BaseTest:
     def teardown_method(self, test_method):
         self.client.__exit__(None, None, None)
 
+    def _assert_status_response(self, r):
+        if r.status_code == 200:
+            assert r.json["status"] == "ok", r.json
+        else:
+            assert "message" in r.json, r.json
+
     def get(self, *args, **kwargs):
-        return self.client.get(*args, **kwargs)
+        r = self.client.get(*args, **kwargs)
+        self._assert_status_response(r)
+
+        return r
 
     def post(self, *args, **kwargs):
         return self.client.post(*args, **kwargs)
+        self._assert_status_response(r)
+
+        return r
 
     def put(self, *args, **kwargs):
         return self.client.put(*args, **kwargs)
+        self._assert_status_response(r)
+
+        return r
 
     def delete(self, *args, **kwargs):
         return self.client.delete(*args, **kwargs)
+        self._assert_status_response(r)
+
+        return r
 
     def add_user(self, name="name", email=None, password="password", validate_email=True, roles=""):
         user = User(name=name, roles=roles)
