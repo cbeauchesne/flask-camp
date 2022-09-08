@@ -37,9 +37,12 @@ class Application(Flask):
 
         self.add_resource(UsersView, "/users")
         self.add_resource(UserView, "/user/<int:id>")
-        self.add_resource(EmailValidationView, "/validate_email")
+
         self.add_resource(UserLoginView, "/login")
         self.add_resource(UserLogoutView, "/logout")
+
+        self.add_resource(EmailValidationView, "/validate_email")
+        self.add_resource(ResetPasswordView, "/reset_password")
 
         self.add_resource(DocumentsView, "/documents")
         self.add_resource(DocumentView, "/document/<int:id>")
@@ -47,10 +50,7 @@ class Application(Flask):
         self.add_resource(ChangesView, "/changes")
 
         self.add_resource(ProtectionView, "/protect/<int:id>")
-
-        self.add_resource(BlockUserView, "/block_user//<int:id>")
-
-        self.add_resource(ResetPasswordView, "/reset_password")
+        self.add_resource(BlockUserView, "/block_user/<int:id>")
 
     def add_resource(self, *args, **kwargs):
         self._api.add_resource(*args, **kwargs)
