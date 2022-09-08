@@ -5,11 +5,11 @@ class Test_UserCreation(BaseTest):
     def test_typical_scenario(self):
         name, password = "my user", "week password"
 
-        response = self.put("/users", json={"name": name, "email": "a@b.c", "password": password})
-        assert response.status_code == 200, response.json
-        assert response.json["status"] == "ok"
+        r = self.put("/users", json={"name": name, "email": "a@b.c", "password": password})
+        assert r.status_code == 200, r.json
+        assert r.json["status"] == "ok"
 
-        user = response.json["user"]
+        user = r.json["user"]
 
         assert len(user) == 6, user
         assert "id" in user
@@ -23,15 +23,15 @@ class Test_UserCreation(BaseTest):
 
         assert token is not None
 
-        response = self.get(f"/validate_user/{user_id}", query_string={"validation_token": token})
-        assert response.status_code == 200
-        assert response.json["status"] == "ok"
+        r = self.get(f"/validate_user/{user_id}", query_string={"validation_token": token})
+        assert r.status_code == 200
+        assert r.json["status"] == "ok"
 
-        response = self.login_user(name, password)
-        assert response.status_code == 200
-        assert response.json["status"] == "ok"
+        r = self.login_user(name, password)
+        assert r.status_code == 200
+        assert r.json["status"] == "ok"
 
-        user = response.json["user"]
+        user = r.json["user"]
 
         assert len(user) == 6, user
         assert user["id"] == user_id
@@ -41,52 +41,50 @@ class Test_UserCreation(BaseTest):
         assert user["email"] == "a@b.c"
         assert user["roles"] == []
 
-        response = self.get("/logout")
-        assert response.status_code == 200
+        r = self.get("/logout")
+        assert r.status_code == 200
 
     def test_errors_on_token_validation(self):
         name, password = "my user", "week password"
         user = self.add_user(name=name, password=password, validate_email=False)
 
-        response = self.login_user(name, password, 401)
-        assert response.json["message"] == "User's email is not validated"
+        r = self.login_user(name, password, 401)
+        assert r.json["message"] == "User's email is not validated"
 
-        response = self.get(f"/validate_user/{user.id}")
-        assert response.status_code == 400
-        assert (
-            response.json["message"] == "The browser (or proxy) sent a request that this server could not understand."
-        )
+        r = self.get(f"/validate_user/{user.id}")
+        assert r.status_code == 400
+        assert r.json["message"] == "The browser (or proxy) sent a request that this server could not understand."
 
-        response = self.get(f"/validate_user/{user.id}", query_string={"validation_token": "not the good token"})
-        assert response.status_code == 401
-        assert response.json["message"] == "Token doesn't match"
+        r = self.get(f"/validate_user/{user.id}", query_string={"validation_token": "not the good token"})
+        assert r.status_code == 401
+        assert r.json["message"] == "Token doesn't match"
 
-        response = self.login_user(name, password, 401)
-        assert response.json["message"] == "User's email is not validated"
+        r = self.login_user(name, password, 401)
+        assert r.json["message"] == "User's email is not validated"
 
-        response = self.get(f"/validate_user/{user.id}", query_string={"validation_token": user.validation_token})
-        assert response.status_code == 200
+        r = self.get(f"/validate_user/{user.id}", query_string={"validation_token": user.validation_token})
+        assert r.status_code == 200
 
-        response = self.get(f"/validate_user/{user.id}", query_string={"validation_token": user.validation_token})
-        assert response.status_code == 400
-        assert response.json["message"] == "User is still validated"
+        r = self.get(f"/validate_user/{user.id}", query_string={"validation_token": user.validation_token})
+        assert r.status_code == 400
+        assert r.json["message"] == "User is still validated"
 
-        response = self.login_user(name, password)
-        assert response.status_code == 200
+        r = self.login_user(name, password)
+        assert r.status_code == 200
 
     def test_login_errors(self):
         password = "week password"
         user = self.add_user(password=password)
 
-        response = self.login_user("not the name", password, expected_status=401)
-        assert response.json["message"] == "User does not exists, or password is wrong"
+        r = self.login_user("not the name", password, expected_status=401)
+        assert r.json["message"] == "User does not exists, or password is wrong"
 
-        response = self.login_user(user.name, "not the password", expected_status=401)
-        assert response.json["message"] == "User does not exists, or password is wrong"
+        r = self.login_user(user.name, "not the password", expected_status=401)
+        assert r.json["message"] == "User does not exists, or password is wrong"
 
     def test_logout_errors(self):
-        response = self.get("/logout")
-        assert response.status_code == 403
+        r = self.get("/logout")
+        assert r.status_code == 403
 
     def test_notfound_errors(self):
         user = self.add_user()
