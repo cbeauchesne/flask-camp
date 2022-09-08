@@ -59,3 +59,10 @@ class Test_Protection(BaseTest):
         self.login_user(client, user.username)
         r = client.post(f"/document/{document_id}", json={"document": {"namespace": "x", "value": "43"}})
         assert r.status_code == 200
+        assert r.json["document"]["protected"] == False
+
+        r = client.post(
+            f"/document/{document_id}", json={"document": {"namespace": "x", "value": "44", "protected": True}}
+        )
+        assert r.status_code == 200
+        assert r.json["document"]["protected"] == False
