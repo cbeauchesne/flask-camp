@@ -1,45 +1,28 @@
-from functools import wraps
+def allow_anonymous(func):
+    setattr(func, "__allow_anonymous", True)
 
-from flask_login import current_user
-from werkzeug.exceptions import Forbidden
-
-
-def moderator_required(func):
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
-
-        if not current_user.is_authenticated:
-            raise Forbidden("User is not logged in")
-
-        if not current_user.is_moderator:
-            raise Forbidden("User is not a moderator")
-
-        return func(*args, **kwargs)
-
-    return decorated_view
+    return func
 
 
-def user_must_not_be_blocked(func):
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
+def allow_current_user(func):
+    setattr(func, "__current_user", True)
 
-        if not current_user.is_authenticated:
-            raise Forbidden("User is not logged in")
-
-        if current_user.blocked:
-            raise Forbidden("User is blocked")
-
-        return func(*args, **kwargs)
-
-    return decorated_view
+    return func
 
 
-# def admin_required(func):
-#     @wraps(func)
-#     def decorated_view(*args, **kwargs):
-#         if not current_user.is_admin:
-#             return current_app.login_manager.unauthorized()
+def allow_blocked(func):
+    setattr(func, "__allow_blocked", True)
 
-#         return func(*args, **kwargs)
+    return func
 
-#     return decorated_view
+
+def allow_authenticated(func):
+    setattr(func, "__allow_authenticated", True)
+
+    return func
+
+
+def allow_moderator(func):
+    setattr(func, "__allow_moderator", True)
+
+    return func

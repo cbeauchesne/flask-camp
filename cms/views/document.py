@@ -1,16 +1,17 @@
 import json
 
 from flask import request
-from flask_restful import Resource
-from flask_login import login_required, current_user
+from flask_login import current_user
 from werkzeug.exceptions import NotFound, BadRequest, Forbidden
 
-from cms.decorators import user_must_not_be_blocked
+from cms.decorators import allow_anonymous, allow_authenticated
 from cms.models.document import Document, DocumentVersion
 from cms.schemas import schema
+from cms.views.core import BaseResource
 
 
-class DocumentsView(Resource):
+class DocumentsView(BaseResource):
+    @allow_anonymous
     def get(self):
         # returns all documents
 
@@ -26,7 +27,7 @@ class DocumentsView(Resource):
         documents = [document.get_last_version().as_dict() for document in documents]
         return {"status": "ok", "documents": documents, "count": count}
 
-    @user_must_not_be_blocked
+    @allow_authenticated
     @schema("cms/schemas/create_document.json")
     def put(self):
         """create an document"""
@@ -47,7 +48,8 @@ class DocumentsView(Resource):
         return {"status": "ok", "document": version.as_dict()}
 
 
-class DocumentView(Resource):
+class DocumentView(BaseResource):
+    @allow_anonymous
     def get(self, id):
         version = DocumentVersion.query().filter_by(document_id=id).order_by(DocumentVersion.id.desc()).first()
 
@@ -56,7 +58,7 @@ class DocumentView(Resource):
 
         return {"status": "ok", "document": version.as_dict()}
 
-    @user_must_not_be_blocked
+    @allow_authenticated
     @schema("cms/schemas/modify_document.json")
     def post(self, id):
         """add a new version to a document"""

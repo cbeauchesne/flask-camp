@@ -1,12 +1,14 @@
 from flask import request
-from flask_restful import Resource
-from flask_login import login_required, current_user
+from flask_login import current_user
 from werkzeug.exceptions import BadRequest
 
+from cms.decorators import allow_anonymous
 from cms.models.document import Document, DocumentVersion
+from cms.views.core import BaseResource
 
 
-class ChangesView(Resource):
+class ChangesView(BaseResource):
+    @allow_anonymous
     def get(self):
         # returns all changes
         filters = {}

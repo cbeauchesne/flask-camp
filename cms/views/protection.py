@@ -1,17 +1,16 @@
 import json
 
 from flask import request
-from flask_restful import Resource
-from flask_login import login_required, current_user
 from werkzeug.exceptions import NotFound, BadRequest
 
-from cms.decorators import moderator_required
+from cms.decorators import allow_moderator
 from cms.models.document import Document, DocumentVersion
 from cms.schemas import schema
+from cms.views.core import BaseResource
 
 
-class ProtectionView(Resource):
-    @moderator_required
+class ProtectionView(BaseResource):
+    @allow_moderator
     def put(self, id):
         doc = Document.query().filter_by(id=id).first()
 
@@ -23,7 +22,7 @@ class ProtectionView(Resource):
 
         return {"status": "ok"}
 
-    @moderator_required
+    @allow_moderator
     def delete(self, id):
         doc = Document.query().filter_by(id=id).first()
 

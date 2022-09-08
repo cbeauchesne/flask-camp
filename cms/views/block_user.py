@@ -1,13 +1,13 @@
-from flask_restful import Resource
 from werkzeug.exceptions import NotFound
 
 from cms import database
-from cms.decorators import moderator_required
+from cms.decorators import allow_moderator
 from cms.models.user import User as UserModel
+from cms.views.core import BaseResource
 
 
-class BlockUserView(Resource):
-    @moderator_required
+class BlockUserView(BaseResource):
+    @allow_moderator
     def put(self, id):
 
         user = UserModel.get(id=id)
@@ -20,7 +20,7 @@ class BlockUserView(Resource):
 
         return {"status": "ok"}
 
-    @moderator_required
+    @allow_moderator
     def delete(self, id):
         user = UserModel.get(id=id)
 

@@ -49,7 +49,7 @@ Build a wiki API with all common features, regardless of the content of document
 * 80/20 usage: Do the 80% do NOT the 20%
 * Do not reinvent the wheel
 * API is security/consitency, UI is usability
-* security: everything is forbidden, except if it's allowed (TODO)
+* security: everything is forbidden, except if it's allowed
 
 ## Stack
 

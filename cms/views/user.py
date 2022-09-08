@@ -1,18 +1,20 @@
 from flask import request
-from flask_login import login_user, logout_user, login_required, current_user
-from flask_restful import Resource
+from flask_login import login_user, logout_user, current_user
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Query
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized, NotFound
 
 from cms import database
+from cms.decorators import allow_anonymous, allow_blocked, allow_authenticated
 from cms.models.user import User as UserModel
 from cms.schemas import schema
+from cms.views.core import BaseResource
 
 
-class UserValidationView(Resource):
+class UserValidationView(BaseResource):
     """validate the user with the validation token"""
 
+    @allow_anonymous
     def get(self, user_id):
         user = UserModel.get(id=user_id)
         token = request.args["validation_token"]
@@ -39,7 +41,8 @@ class UserValidationView(Resource):
         return {"status": "ok"}
 
 
-class UsersView(Resource):
+class UsersView(BaseResource):
+    @allow_anonymous
     @schema("cms/schemas/create_user.json")
     def put(self):
         """create an user"""
@@ -67,7 +70,8 @@ class UsersView(Resource):
         return {"status": "ok", "user": user.as_dict(include_personal_data=True)}
 
 
-class UserLoginView(Resource):
+class UserLoginView(BaseResource):
+    @allow_anonymous
     @schema("cms/schemas/login_user.json")
     def post(self):
         data = request.get_json()
@@ -93,27 +97,36 @@ class UserLoginView(Resource):
         return {"status": "ok", "user": user.as_dict(include_personal_data=True)}
 
 
-class UserLogoutView(Resource):
-    @login_required
+class UserLogoutView(BaseResource):
+    @allow_blocked
     def get(self):
         logout_user()
 
         return {"status": "ok"}
 
 
-class UserView(Resource):
+class UserView(BaseResource):
+    @allow_anonymous
     def get(self, id):
         user = UserModel.get(id=id)
 
         if user is None:
             raise NotFound()
 
+        include_personal_data = False
+
+        if current_user.is_authenticated:
+            if user.id == current_user.id:
+                include_personal_data = True
+            elif current_user.is_admin:
+                include_personal_data = True
+
         return {
             "status": "ok",
-            "user": user.as_dict(include_personal_data=id == current_user.id or current_user.is_admin),
+            "user": user.as_dict(include_personal_data=include_personal_data),
         }
 
-    @login_required
+    @allow_blocked
     @schema("cms/schemas/modify_user.json")
     def post(self, id):
         if id != current_user.id and not current_user.is_admin:

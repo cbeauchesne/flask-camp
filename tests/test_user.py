@@ -86,11 +86,18 @@ class Test_UserCreation(BaseTest):
 
     def test_logout_errors(self):
         response = self.get("/logout")
-        assert response.status_code == 401
+        assert response.status_code == 403
 
-    def test_get_errors(self):
-        r = self.get(f"/user/1")
+    def test_notfound_errors(self):
+        user = self.add_user()
+        self.login_user()
+        r = self.get("/user/42")
         assert r.status_code == 404
+
+    def test_anonymous_get(self):
+        user = self.add_user()
+        r = self.get(f"/user/{user.id}")
+        assert r.status_code == 200
 
 
 class Test_UserModification(BaseTest):

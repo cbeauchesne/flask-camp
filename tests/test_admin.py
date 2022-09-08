@@ -12,6 +12,7 @@ class Test_Admin(BaseTest):
         assert r.status_code == 200, r.json
 
         r = self.get(f"/user/{user.id}")
+        assert r.status_code == 200, r.json
         assert r.json["user"]["roles"] == []
 
         self.logout_user()
