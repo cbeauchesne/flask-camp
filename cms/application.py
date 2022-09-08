@@ -6,12 +6,13 @@ from flask_restful import Api
 
 from . import database
 from .models.user import User as UserModel
+from .views.account import EmailValidationView, UserLoginView, UserLogoutView, ResetPasswordView
 from .views.block_user import BlockUserView
 from .views.changes import ChangesView
 from .views.document import DocumentsView, DocumentView
 from .views.healthcheck import HealthCheckView
 from .views.protection import ProtectionView
-from .views.user import UsersView, EmailValidationView, UserLoginView, UserLogoutView, UserView, ResetPasswordView
+from .views.user import UsersView, UserView
 
 
 class Application(Flask):
