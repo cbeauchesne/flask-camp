@@ -49,7 +49,7 @@ class UsersView(Resource):
             # there is a race condition here, but it's kind of inevitable
             raise BadRequest("A user still exists with this email")
 
-        user = UserModel(username=data["username"], email_to_validate=data["email"])
+        user = UserModel(name=data["name"], email_to_validate=data["email"])
         user.set_password(data["password"])
 
         user.set_validation_token()
@@ -59,7 +59,7 @@ class UsersView(Resource):
             user.create()
         except IntegrityError as e:
             error_info = e.orig.args
-            if error_info[0] == "UNIQUE constraint failed: user.username":
+            if error_info[0] == "UNIQUE constraint failed: user.name":
                 raise BadRequest("A user still exists with this name")
             else:
                 raise BadRequest(error_info[0])
@@ -72,13 +72,13 @@ class UserLoginView(Resource):
     def post(self):
         data = request.get_json()
 
-        username = data["username"]
+        name = data["name"]
         password = data["password"]
 
-        user = UserModel.get(username=username)
+        user = UserModel.get(name=name)
 
         if user is None:
-            print(f"User [{username}] doesn't exists")
+            print(f"User [{name}] doesn't exists")
             raise BadRequest("User does not exists, or password is wrong")
 
         if not user.check_password(password):

@@ -2,13 +2,13 @@
   "description": "POST request to login an user",
   "type": "object",
   "properties": {
-    "username": {
+    "name": {
       "type": "string"
     },
     "password": {
       "type": "string"
     }
   },
-  "required": ["username", "password"],
+  "required": ["name", "password"],
   "additionalProperties": false
 }

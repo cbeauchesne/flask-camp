@@ -6,7 +6,7 @@ class Test_Admin(BaseTest):
         admin = self.add_user(roles="admin")
         user = self.add_user("basic_user")
 
-        self.login_user(client, user.username)
+        self.login_user(client, user.name)
 
         r = client.post(f"/user/{user.id}", json={"roles": ["moderator"]})
         assert r.status_code == 200, r.json
@@ -16,7 +16,7 @@ class Test_Admin(BaseTest):
 
         self.logout_user(client)
 
-        self.login_user(client, admin.username)
+        self.login_user(client, admin.name)
         r = client.post(f"/user/{user.id}", json={"roles": ["moderator"]})
         assert r.status_code == 200, r.json
         r = client.get(f"/user/{user.id}")

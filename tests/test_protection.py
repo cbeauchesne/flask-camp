@@ -14,9 +14,9 @@ class Test_Protection(BaseTest):
 
     def test_typical_scenario(self, client):
         moderator = self.add_user(roles="moderator")
-        user = self.add_user(username="regular_user")
+        user = self.add_user(name="regular_user")
 
-        self.login_user(client, user.username)
+        self.login_user(client, user.name)
         r = client.put("/documents", json={"document": {"namespace": "x", "value": "42"}})
         document_id = r.json["document"]["id"]
 
@@ -26,7 +26,7 @@ class Test_Protection(BaseTest):
         self.logout_user(client)
 
         # protect doc
-        self.login_user(client, moderator.username)
+        self.login_user(client, moderator.name)
         r = client.put(f"/protect/{document_id}")
         assert r.status_code == 200
         r = client.get(f"/document/{document_id}")
@@ -34,7 +34,7 @@ class Test_Protection(BaseTest):
         self.logout_user(client)
 
         # try to unprotect doc without being an moderator
-        self.login_user(client, user.username)
+        self.login_user(client, user.name)
         r = client.delete(f"/protect/{document_id}")
         assert r.status_code == 401
 
@@ -44,7 +44,7 @@ class Test_Protection(BaseTest):
         self.logout_user(client)
 
         # edit protected doc
-        self.login_user(client, moderator.username)
+        self.login_user(client, moderator.name)
         r = client.post(f"/document/{document_id}", json={"document": {"namespace": "x", "value": "43"}})
         assert r.status_code == 200
 
@@ -56,7 +56,7 @@ class Test_Protection(BaseTest):
         self.logout_user(client)
 
         # edit deprotected doc
-        self.login_user(client, user.username)
+        self.login_user(client, user.name)
         r = client.post(f"/document/{document_id}", json={"document": {"namespace": "x", "value": "43"}})
         assert r.status_code == 200
         assert r.json["document"]["protected"] == False

@@ -2,7 +2,7 @@
   "description": "PUT request to create an user",
   "type": "object",
   "properties": {
-    "username": {
+    "name": {
       "type": "string"
     },
     "email": {
@@ -12,6 +12,6 @@
       "type": "string"
     }
   },
-  "required": ["username", "email", "password"],
+  "required": ["name", "email", "password"],
   "additionalProperties": false
 }

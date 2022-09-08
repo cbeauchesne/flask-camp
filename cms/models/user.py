@@ -9,7 +9,7 @@ from cms.models import BaseModel
 class User(BaseModel):
     __tablename__ = "user"
 
-    username = Column(String(64), index=True, unique=True, nullable=False)
+    name = Column(String(64), index=True, unique=True, nullable=False)
     password_hash = Column(String(128), nullable=False)
     email = Column(String(120), index=True, unique=True)
 
@@ -21,7 +21,7 @@ class User(BaseModel):
     roles = Column(Text, default="", nullable=False)
 
     def __repr__(self):
-        return f"<User {self.username}>"
+        return f"<User {self.name}>"
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -41,7 +41,7 @@ class User(BaseModel):
         return str(self.id)
 
     def as_dict(self, include_personal_data=False):
-        result = {"id": self.id, "username": self.username, "roles": [] if not self.roles else self.roles.split(",")}
+        result = {"id": self.id, "name": self.name, "roles": [] if not self.roles else self.roles.split(",")}
 
         if include_personal_data:
             result["email"] = self.email
