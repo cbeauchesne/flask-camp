@@ -1,5 +1,3 @@
-Before any command, run `source .env && source venv/bin/activate`
-
 ## Install
 
 ```
