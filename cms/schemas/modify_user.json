@@ -1,5 +1,5 @@
 {
-  "description": "POST request to create an user",
+  "description": "POST request to modify an user",
   "type": "object",
   "properties": {
     "password": {
@@ -13,7 +13,8 @@
       "items": {
         "type": "string"
       }
-    }
+    },
+    "ui_preferences": {}
   },
   "additionalProperties": false
 }

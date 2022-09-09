@@ -11,6 +11,7 @@ from .views.block_user import BlockUserView
 from .views.changes import ChangesView
 from .views.document import DocumentsView, DocumentView
 from .views.healthcheck import HealthCheckView
+from .views.log import LogsView
 from .views.protection import ProtectionView
 from .views.user import UsersView, UserView
 
@@ -48,6 +49,7 @@ class Application(Flask):
         self.add_resource(DocumentView, "/document/<int:id>")
 
         self.add_resource(ChangesView, "/changes")
+        self.add_resource(LogsView, "/logs")
 
         self.add_resource(ProtectionView, "/protect/<int:id>")
         self.add_resource(BlockUserView, "/block_user/<int:id>")

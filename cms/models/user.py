@@ -13,7 +13,7 @@ class User(BaseModel):
 
     name = Column(String(64), index=True, unique=True, nullable=False)
     password_hash = Column(String(128), nullable=False)
-    _email = Column(String(120), index=True, unique=True)
+    _email = Column("email", String(120), index=True, unique=True)
 
     email_to_validate = Column(String(120))
     # linked with email_to_validate, if it's provided, email is validated
@@ -21,12 +21,12 @@ class User(BaseModel):
 
     # unique usage token used to login without a password.
     # Useful for user creation and password reset
-    _login_token = Column(String(32))
+    _login_token = Column("login_token", String(32))
     _login_token_expiration_date = Column(DateTime)  # TODO
 
     ui_preferences = Column(Text)
 
-    roles = Column(Text, default="", nullable=False)
+    _roles = Column("roles", Text, default="", nullable=False)
 
     blocked = Column(Boolean, default=False, nullable=False)
 
@@ -83,7 +83,7 @@ class User(BaseModel):
         result = {
             "id": self.id,
             "name": self.name,
-            "roles": [] if not self.roles else self.roles.split(","),
+            "roles": self.roles,
             "blocked": self.blocked,
             "ui_preferences": self.ui_preferences,
         }
@@ -115,10 +115,16 @@ class User(BaseModel):
 
     @property
     def is_admin(self):
-        roles = [] if not self.roles else self.roles.split(",")
-        return "admin" in roles
+        return "admin" in self.roles
 
     @property
     def is_moderator(self):
-        roles = [] if not self.roles else self.roles.split(",")
-        return "moderator" in roles
+        return "moderator" in self.roles
+
+    @property
+    def roles(self):
+        return [] if not self._roles else self._roles.split(",")
+
+    @roles.setter
+    def roles(self, value):
+        self._roles = ",".join(value)

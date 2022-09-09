@@ -47,7 +47,14 @@ class BaseTest:
         return r
 
     def add_user(self, name="name", email=None, password="password", validate_email=True, roles=""):
-        user = User(name=name, roles=roles)
+        user = User(
+            name=name,
+            roles=roles
+            if isinstance(roles, (list, tuple))
+            else [
+                roles,
+            ],
+        )
         user.set_password(password)
 
         user.set_email(email if email else f"{name}@site.org")
@@ -84,7 +91,7 @@ class BaseTest:
         return user["email_token"]
 
     def get_login_token(self, name):
-        users = database.execute(f"SELECT id, _login_token FROM user WHERE name='{name}'")
+        users = database.execute(f"SELECT id, login_token FROM user WHERE name='{name}'")
         user = list(users)[0]
 
-        return user["_login_token"]
+        return user["login_token"]

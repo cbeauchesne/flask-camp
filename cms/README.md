@@ -39,8 +39,8 @@ Build a wiki API with all common features, regardless of the content of document
 * [ ] Admin options
   * [x] promote/unpromote an user to any role
 * [ ] follow list: get all changes made to documents in the user's follow list
-* [ ] logs
-  * [ ] All admin/moderator actions
+* [x] logs
+  * [x] All admin/moderator actions
 * [ ] user flag: any user can add any flag/value to any document
 
 

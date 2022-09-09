@@ -34,10 +34,8 @@ class UserLoginView(BaseResource):
             raise Unauthorized("User's email is not validated")
 
         if user.check_password(password):
-            print(f"A")
             login_user(user)
         elif user.check_login_token(login_token):
-            print(f"B")
             login_user(user)
         else:
             print(f"Wrong auth for user {user}")
@@ -80,7 +78,7 @@ class EmailValidationView(BaseResource):
             user.update()
         except IntegrityError as e:
             error_info = e.orig.args
-            if error_info[0] == "UNIQUE constraint failed: user._email":
+            if error_info[0] == "UNIQUE constraint failed: user.email":
                 raise BadRequest("A user still exists with this email")
             else:
                 raise BadRequest(error_info[0])
