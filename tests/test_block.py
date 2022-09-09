@@ -39,7 +39,7 @@ class Test_Protection(BaseTest):
         # log moderator, create a doc
         self.login_user()
 
-        doc = self.put("/documents", json={"document": {"namespace": "x", "value": "42"}}).json["document"]
+        doc = self.put_document().json["document"]
 
         # now get the user, check its blocked status, and block him
         r = self.get(f"/user/{user.id}")
@@ -66,10 +66,10 @@ class Test_Protection(BaseTest):
         r = self.get("/documents")
         assert r.status_code == 200
 
-        r = self.put("/documents", json={"document": {"namespace": "x", "value": "42"}})
+        r = self.put_document()
         assert r.status_code == 403
 
-        r = self.post(f"/document/{doc['id']}", json={"document": {"namespace": "x", "value": "42"}})
+        r = self.post_document(doc["id"])
         assert r.status_code == 403
 
         # Though, he can modify itself
@@ -97,8 +97,8 @@ class Test_Protection(BaseTest):
         self.logout_user()
         self.login_user()
 
-        r = self.put("/documents", json={"document": {"namespace": "x", "value": "42"}})
+        r = self.put_document()
         assert r.status_code == 200
 
-        r = self.post(f"/document/{doc['id']}", json={"document": {"namespace": "x", "value": "42"}})
+        r = self.post_document(doc["id"], data={"value": "42"})
         assert r.status_code == 200

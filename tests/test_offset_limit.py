@@ -7,7 +7,7 @@ class Test_Documents(BaseTest):
         self.login_user()
 
         for i in range(110):
-            r = self.put("/documents", json={"document": {"namespace": "x", "value": f"doc {i}"}})
+            r = self.put_document(data={"value": f"doc {i}"})
             assert r.status_code == 200
 
         r = self.get("/documents").json

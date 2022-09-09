@@ -95,3 +95,9 @@ class BaseTest:
         user = list(users)[0]
 
         return user["login_token"]
+
+    def put_document(self, namespace="x", data=None):
+        return self.put("/documents", json={"document": {"namespace": namespace, "data": data if data else {}}})
+
+    def post_document(self, id, data=None):
+        return self.post(f"/document/{id}", json={"document": {"namespace": "", "data": data if data else {}}})

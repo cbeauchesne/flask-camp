@@ -14,7 +14,7 @@ class Test_Logs(BaseTest):
         self.put(f"/block_user/{user.id}")
         self.delete(f"/block_user/{user.id}")
 
-        doc = self.put("/documents", json={"document": {"namespace": "x", "value": "42"}}).json["document"]
+        doc = self.put_document().json["document"]
 
         self.put(f"/protect/{doc['id']}")
         self.delete(f"/protect/{doc['id']}")

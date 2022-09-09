@@ -33,9 +33,9 @@ class DocumentsView(BaseResource):
         """create an document"""
         body = request.get_json()
 
-        data = body["document"]
         comment = body.get("comment", "creation")
-        namespace = data.pop("namespace")
+        namespace = body["document"]["namespace"]
+        data = body["document"]["data"]
 
         document = Document(namespace=namespace)
         document.create()
@@ -72,9 +72,8 @@ class DocumentView(BaseResource):
 
         body = request.get_json()
 
-        data = body["document"]
         comment = body.get("comment", "")
-        namespace = data.pop("namespace", None)
+        data = body["document"]["data"]
 
         version = DocumentVersion(
             document_id=document.id, user_id=current_user.id, comment=comment, data=json.dumps(data)

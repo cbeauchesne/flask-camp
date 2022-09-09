@@ -11,11 +11,11 @@ class Test_Document(BaseTest):
         self.add_user()
         self.login_user()
 
-        doc1 = self.put("/documents", json={"document": {"namespace": "x", "value": "doc_1/v1"}}).json["document"]
-        doc2 = self.put("/documents", json={"document": {"namespace": "x", "value": "doc_2/v1"}}).json["document"]
+        doc1 = self.put_document(data={"value": "doc_1/v1"}).json["document"]
+        doc2 = self.put_document(data={"value": "doc_2/v1"}).json["document"]
 
-        self.post(f"/document/{doc1['id']}", json={"document": {"namespace": "x", "value": "doc_1/v2"}})
-        self.post(f"/document/{doc2['id']}", json={"document": {"namespace": "x", "value": "doc_2/v2"}})
+        self.post_document(doc1["id"], data={"value": "doc_1/v2"})
+        self.post_document(doc2["id"], data={"value": "doc_2/v2"})
 
         r = self.get("/changes", query_string={"id": doc1["id"]})
         assert r.status_code == 200, r.json
@@ -32,13 +32,13 @@ class Test_Document(BaseTest):
         user_2 = self.add_user("user2")
 
         self.login_user()
-        doc = self.put("/documents", json={"document": {"namespace": "x", "value": "x"}}).json["document"]
-        self.post(f"/document/{doc['id']}", json={"document": {"namespace": "x", "value": "y"}})
+        doc = self.put_document(data={"value": "x"}).json["document"]
+        self.post_document(doc["id"], data={"value": "y"})
         self.get("/logout")
 
         self.login_user(user_2.name)
-        doc = self.put("/documents", json={"document": {"namespace": "x", "value": "x"}}).json["document"]
-        self.post(f"/document/{doc['id']}", json={"document": {"namespace": "x", "value": "y"}})
+        doc = self.put_document(data={"value": "x"}).json["document"]
+        self.post_document(doc["id"], data={"value": "y"})
         self.get("/logout")
 
         r = self.get("/changes", query_string={"user_id": user_1.id})
