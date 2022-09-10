@@ -9,9 +9,9 @@ from cms import database
 from cms.models import BaseModel
 
 
-def add_log(action, target_user_id=None, document_id=None):
+def add_log(action, target_user_id=None, document_id=None, version_id=None):
     database.session.add(  # pylint : disable=no-member
-        Log(action=action, target_user_id=target_user_id, document_id=document_id)
+        Log(action=action, target_user_id=target_user_id, document_id=document_id, version_id=version_id)
     )
 
 
@@ -31,6 +31,9 @@ class Log(BaseModel):
     document_id = Column(Integer, ForeignKey("document.id"), index=True)
     document = relationship("Document", foreign_keys=[document_id])
 
+    version_id = Column(Integer, ForeignKey("document_version.id"))
+    version = relationship("DocumentVersion", foreign_keys=[version_id])
+
     merged_document_id = Column(Integer, ForeignKey("document.id"), index=True)
     merged_document = relationship("Document", foreign_keys=[merged_document_id])
 
@@ -48,4 +51,5 @@ class Log(BaseModel):
             "target_user": None if self.target_user is None else self.target_user.as_dict(),
             "document_id": self.document_id,
             "merged_document_id": self.merged_document_id,
+            "version_id": self.version_id,
         }

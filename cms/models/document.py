@@ -31,20 +31,26 @@ class DocumentVersion(BaseModel):
     timestamp = Column(DateTime)
     comment = Column(String)
 
+    hidden = Column(Boolean, default=False, nullable=False)
     data = Column(String)
 
     def __init__(self, **kwargs):
         kwargs["timestamp"] = datetime.now()
         super().__init__(**kwargs)
 
-    def as_dict(self):
-        return {
+    def as_dict(self, include_data_even_if_hidden=False):
+        result = {
             "id": self.document.id,
             "namespace": self.document.namespace,
             "version_id": self.id,
             "timestamp": self.timestamp.isoformat(),
             "comment": self.comment,
-            "data": json.loads(self.data),
             "user": self.user.as_dict(),
             "protected": self.document.protected,
+            "hidden": self.hidden,
         }
+
+        if include_data_even_if_hidden or not self.hidden:
+            result["data"] = json.loads(self.data)
+
+        return result

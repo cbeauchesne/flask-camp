@@ -11,6 +11,7 @@ from .views.block_user import BlockUserView
 from .views.changes import ChangesView
 from .views.document import DocumentsView, DocumentView
 from .views.healthcheck import HealthCheckView
+from .views.hide_version import HideVersionView
 from .views.log import LogsView
 from .views.protection import ProtectionView
 from .views.user import UsersView, UserView
@@ -53,6 +54,7 @@ class Application(Flask):
 
         self.add_resource(ProtectionView, "/protect/<int:id>")
         self.add_resource(BlockUserView, "/block_user/<int:id>")
+        self.add_resource(HideVersionView, "/hide_version/<int:id>")
 
     def add_resource(self, *args, **kwargs):
         self._api.add_resource(*args, **kwargs)

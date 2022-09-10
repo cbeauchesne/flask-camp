@@ -8,35 +8,37 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] login
   * [x] logout
   * [x] user name and email uniqueness
-  * [ ] modify user
-    * [x] modify password
-    * [x] modify email
-    * [ ] send email to validate email address
-  * [ ] rate limiting on user login failures
-  * [ ] password reset
-    * [x] password reset entry point and logic
-    * [ ] send email with a login token
-    * [ ] login token must expire after one hour
+  * [ ] send email to validate email address
+* [ ] modify user
+  * [x] modify password
+  * [x] modify email
+  * [ ] send email to validate email address
+* [ ] password reset
+  * [x] password reset entry point and logic
+  * [ ] send email with a login token
+  * [ ] login token must expire after one hour
+* [ ] rate limiting on user login failures
 * [ ] rate limiting
 * [x] unique document type, shipping a namespace field.
   * [x] document can be protected by moderators
 * [ ] document list
   * [x] get
   * [x] offset and limit feature
+  * [ ] use elasticsearch
 * [ ] Modify
   * [x] Modify document
   * [ ] manage edit conflict
-* [ ] document history
+* [x] document history
   * [x] all changes
   * [x] all changes related to one document
   * [x] all changes made by one user
   * [x] offset and limit feature
-  * [ ] an item in the history can be hidden by moderators
-* [ ] Moderator options
+  * [x] an item in the history can be hidden by moderators
+* [x] Moderator options
   * [x] protect/unprotect a document
-  * [ ] hide/unhide a document version
+  * [x] hide/unhide a document version
   * [x] block/unbloc an user
-* [ ] Admin options
+* [x] Admin options
   * [x] promote/unpromote an user to any role
 * [ ] follow list: get all changes made to documents in the user's follow list
 * [x] logs

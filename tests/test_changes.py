@@ -17,7 +17,7 @@ class Test_Document(BaseTest):
         self.post_document(doc1["id"], data={"value": "doc_1/v2"})
         self.post_document(doc2["id"], data={"value": "doc_2/v2"})
 
-        r = self.get("/changes", query_string={"id": doc1["id"]})
+        r = self.get("/changes", query_string={"document_id": doc1["id"]})
         assert r.status_code == 200, r.json
         history = r.json
         assert history["count"] == len(history["changes"]) == 2
