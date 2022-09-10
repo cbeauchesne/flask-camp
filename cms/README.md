@@ -2,7 +2,7 @@
 
 Build a wiki API with all common features, regardless of the content of documents
 
-* [ ] basic user features
+* [ ] All basic user features
   * [x] create
   * [x] validate email
   * [x] login
@@ -16,9 +16,10 @@ Build a wiki API with all common features, regardless of the content of document
 * [ ] password reset
   * [x] password reset entry point and logic
   * [ ] send email with a login token
+  * [x] login token can only be used once
   * [ ] login token must expire after one hour
-* [ ] rate limiting on user login failures
 * [ ] rate limiting
+  * [ ] rate limiting on user login failures
 * [x] unique document type, shipping a namespace field.
   * [x] document can be protected by moderators
 * [ ] document list
@@ -37,12 +38,14 @@ Build a wiki API with all common features, regardless of the content of document
 * [x] Moderator options
   * [x] protect/unprotect a document
   * [x] hide/unhide a document version
-  * [x] block/unbloc an user
+  * [x] block/unblock an user
 * [x] Admin options
   * [x] promote/unpromote an user to any role
 * [ ] follow list: get all changes made to documents in the user's follow list
 * [x] logs
-  * [x] All admin/moderator actions
+  * [x] block/unblock user
+  * [x] protect/unprotect document
+  * [x] hide/unhide version
 * [ ] user flag: any user can add any flag/value to any document
 
 

@@ -6,10 +6,10 @@ class Test_Protection(BaseTest):
         self.add_user(roles="moderator")
         self.login_user()
 
-        r = self.put("/protect/42")
+        r = self.put("/protect_document/42")
         assert r.status_code == 404
 
-        r = self.delete("/protect/42")
+        r = self.delete("/protect_document/42")
         assert r.status_code == 404
 
     def test_typical_scenario(self):
@@ -21,13 +21,13 @@ class Test_Protection(BaseTest):
         document_id = r.json["document"]["id"]
 
         # try to protect a doc without being an moderator
-        r = self.put(f"/protect/{document_id}")
+        r = self.put(f"/protect_document/{document_id}")
         assert r.status_code == 403
         self.logout_user()
 
         # protect doc
         self.login_user(moderator.name)
-        r = self.put(f"/protect/{document_id}")
+        r = self.put(f"/protect_document/{document_id}")
         assert r.status_code == 200
         r = self.get(f"/document/{document_id}")
         assert r.json["document"]["protected"] is True
@@ -35,7 +35,7 @@ class Test_Protection(BaseTest):
 
         # try to unprotect doc without being an moderator
         self.login_user(user.name)
-        r = self.delete(f"/protect/{document_id}")
+        r = self.delete(f"/protect_document/{document_id}")
         assert r.status_code == 403
 
         # try to edit doc without being an moderator
@@ -49,7 +49,7 @@ class Test_Protection(BaseTest):
         assert r.status_code == 200
 
         # unprotect doc
-        r = self.delete(f"/protect/{document_id}")
+        r = self.delete(f"/protect_document/{document_id}")
         assert r.status_code == 200
         r = self.get(f"/document/{document_id}")
         assert r.json["document"]["protected"] is False

@@ -42,8 +42,8 @@ class Test_Logs(BaseTest):
 
         doc = self.put_document().json["document"]
 
-        self.put(f"/protect/{doc['id']}")
-        self.delete(f"/protect/{doc['id']}")
+        self.put(f"/protect_document/{doc['id']}")
+        self.delete(f"/protect_document/{doc['id']}")
 
         self.logout_user()
         admin = self.add_user(name="admin", roles="admin")

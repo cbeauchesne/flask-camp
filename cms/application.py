@@ -52,7 +52,7 @@ class Application(Flask):
         self.add_resource(ChangesView, "/changes")
         self.add_resource(LogsView, "/logs")
 
-        self.add_resource(ProtectionView, "/protect/<int:id>")
+        self.add_resource(ProtectionView, "/protect_document/<int:id>")
         self.add_resource(BlockUserView, "/block_user/<int:id>")
         self.add_resource(HideVersionView, "/hide_version/<int:id>")
 
