@@ -13,7 +13,7 @@ from .views.document import DocumentsView, DocumentView
 from .views.healthcheck import HealthCheckView
 from .views.hide_version import HideVersionView
 from .views.log import LogsView
-from .views.protection import ProtectionView
+from .views.protect_document import ProtectDocumentView
 from .views.user import UsersView, UserView
 
 
@@ -52,7 +52,7 @@ class Application(Flask):
         self.add_resource(ChangesView, "/changes")
         self.add_resource(LogsView, "/logs")
 
-        self.add_resource(ProtectionView, "/protect_document/<int:id>")
+        self.add_resource(ProtectDocumentView, "/protect_document/<int:id>")
         self.add_resource(BlockUserView, "/block_user/<int:id>")
         self.add_resource(HideVersionView, "/hide_version/<int:id>")
 

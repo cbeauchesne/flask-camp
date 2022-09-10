@@ -11,7 +11,7 @@ from cms.schemas import schema
 from cms.views.core import BaseResource
 
 
-class ProtectionView(BaseResource):
+class ProtectDocumentView(BaseResource):
     @allow_moderator
     def put(self, id):
         doc = Document.query().filter_by(id=id).first()
