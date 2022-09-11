@@ -55,7 +55,7 @@ class Test_UserCreation(BaseTest):
         assert r.status_code == 400
         assert r.json["message"] == "'token' is a required property on instance "
 
-        r = self.post("/validate_email", json={"name": "not the name", "token": user.email_token})
+        r = self.post("/validate_email", json={"name": "not the name", "token": user._email_token})
         assert r.status_code == 404
 
         r = self.post("/validate_email", json={"name": user.name, "token": "not the good one"})
@@ -65,10 +65,10 @@ class Test_UserCreation(BaseTest):
         r = self.login_user(user.name, password, expected_status=401)
         assert r.json["message"] == "User's email is not validated"
 
-        r = self.post("/validate_email", json={"name": user.name, "token": user.email_token})
+        r = self.post("/validate_email", json={"name": user.name, "token": user._email_token})
         assert r.status_code == 200
 
-        r = self.post("/validate_email", json={"name": user.name, "token": user.email_token})
+        r = self.post("/validate_email", json={"name": user.name, "token": user._email_token})
         assert r.status_code == 400
         assert r.json["message"] == "There is no email to validate"
 
@@ -188,10 +188,10 @@ class Test_UserUniqueness(BaseTest):
         user1 = self.add_user("u1", "a@b.c", validate_email=False)
         user2 = self.add_user("u2", "a@b.c", validate_email=False)
 
-        r = self.post("/validate_email", json={"name": user1.name, "token": user1.email_token})
+        r = self.post("/validate_email", json={"name": user1.name, "token": user1._email_token})
         assert r.status_code == 200, r.json
 
-        r = self.post("/validate_email", json={"name": user2.name, "token": user2.email_token})
+        r = self.post("/validate_email", json={"name": user2.name, "token": user2._email_token})
         assert r.status_code == 400, r.json
         assert r.json["message"] == "A user still exists with this email"
 

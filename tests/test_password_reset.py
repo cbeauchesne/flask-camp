@@ -43,7 +43,7 @@ class Test_PasswordReset(BaseTest):
 
     def test_user_is_not_validated(self):
         user = self.add_user(validate_email=False)
-        r = self.post("/reset_password", json={"email": user.email_to_validate})
+        r = self.post("/reset_password", json={"email": user._email_to_validate})
         assert r.status_code == 200
         assert self.get_login_token(user.name) is None
 

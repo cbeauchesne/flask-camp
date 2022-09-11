@@ -60,7 +60,7 @@ class BaseTest:
         user.set_email(email if email else f"{name}@site.org")
 
         if validate_email:
-            user.validate_email()
+            user.validate_email(user._email_token)
 
         user.create()
 
@@ -68,8 +68,8 @@ class BaseTest:
             id=user.id,
             name=user.name,
             _email=user._email,
-            email_to_validate=user.email_to_validate,
-            email_token=user.email_token,
+            _email_to_validate=user._email_to_validate,
+            _email_token=user._email_token,
             roles=user.roles,
         )
 

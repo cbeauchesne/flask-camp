@@ -66,16 +66,10 @@ class EmailValidationView(BaseResource):
         if user is None:
             raise NotFound()
 
-        if user.email_token is None:
-            raise BadRequest("There is no email to validate")
-
-        if data["token"] != user.email_token:
-            raise Unauthorized("Token doesn't match")
-
-        user.validate_email()
+        user.validate_email(data["token"])
 
         try:
-            user.update()
+            database.session.commit()
         except IntegrityError as e:
             error_info = e.orig.args
             if error_info[0] == "UNIQUE constraint failed: user.email":

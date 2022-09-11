@@ -3,7 +3,7 @@ import secrets
 
 from flask_login import current_user
 from sqlalchemy import Column, String, Text, Boolean, DateTime
-from werkzeug.exceptions import BadRequest, Forbidden
+from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from cms.models import BaseModel
@@ -16,14 +16,14 @@ class User(BaseModel):
     password_hash = Column(String(128), nullable=False)
     _email = Column("email", String(120), index=True, unique=True)
 
-    email_to_validate = Column(String(120))
+    _email_to_validate = Column("email_to_validate", String(120))
     # linked with email_to_validate, if it's provided, email is validated
-    email_token = Column(String(32))
+    _email_token = Column("email_token", String(32))
 
     # unique usage token used to login without a password.
     # Useful for user creation and password reset
     _login_token = Column("login_token", String(32))
-    _login_token_expiration_date = Column(DateTime)  # TODO
+    _login_token_expiration_date = Column("login_token_expiration_date", DateTime)  # TODO
 
     ui_preferences = Column(Text)
 
@@ -101,16 +101,23 @@ class User(BaseModel):
         if User.get(_email=email) is not None:
             raise BadRequest("A user still exists with this email")
 
-        self.email_to_validate = email
-        self.email_token = secrets.token_hex(self.__class__.password_hash.type.length)
+        self._email_to_validate = email
+        self._email_token = secrets.token_hex(self.__class__.password_hash.type.length)
 
         print(f"Update {self}'s email")
         # TODO send an email
 
-    def validate_email(self):
-        self.email_token = None
-        self._email = self.email_to_validate
-        self.email_to_validate = None
+    def validate_email(self, token):
+
+        if self._email_token is None:
+            raise BadRequest("There is no email to validate")
+
+        if token != self._email_token:
+            raise Unauthorized("Token doesn't match")
+
+        self._email_token = None
+        self._email = self._email_to_validate
+        self._email_to_validate = None
 
     def set_login_token(self):
         self._login_token = secrets.token_hex(self.__class__.password_hash.type.length)
