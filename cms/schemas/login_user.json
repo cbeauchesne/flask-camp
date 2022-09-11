@@ -3,7 +3,7 @@
   "type": "object",
   "properties": {
     "name": {
-      "type": "string"
+      "$ref": "/cms/schemas/entities/user_name.json"
     },
     "password": {
       "type": "string"

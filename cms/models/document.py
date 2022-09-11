@@ -11,7 +11,7 @@ class Document(BaseModel):
     __tablename__ = "document"
 
     id = Column(Integer, primary_key=True, index=True)
-    namespace = Column(String, index=True)
+    namespace = Column(String(16), index=True)
 
     protected = Column(Boolean, nullable=False, default=False)
 

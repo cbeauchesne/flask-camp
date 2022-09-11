@@ -3,10 +3,11 @@
   "type": "object",
   "properties": {
     "name": {
-      "type": "string"
+      "$ref": "/cms/schemas/entities/user_name.json"
     },
     "email": {
-      "type": "string"
+      "type": "string",
+      "format": "email"
     },
     "password": {
       "type": "string"

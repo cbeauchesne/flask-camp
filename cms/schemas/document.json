@@ -1,9 +1,0 @@
-{
-  "description": "PUT request to create a document",
-  "type": "object",
-  "properties": {
-    "namespace": { "type": "string" },
-    "data": {  }
-  },
-  "required": ["namespace", "data"]
-}

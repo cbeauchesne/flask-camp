@@ -38,7 +38,7 @@ class Test_PasswordReset(BaseTest):
         assert r.status_code == 401
 
     def test_email_not_found(self):
-        r = self.post("/reset_password", json={"email": "I do not exists"})
+        r = self.post("/reset_password", json={"email": "i_do@not_exists.fr"})
         assert r.status_code == 200
 
     def test_user_is_not_validated(self):

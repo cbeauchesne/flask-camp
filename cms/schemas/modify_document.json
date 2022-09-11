@@ -3,7 +3,7 @@
   "type": "object",
   "properties": {
     "document": {
-      "$ref": "/cms/schemas/document.json"
+      "$ref": "/cms/schemas/entities/document.json"
     },
     "comment": { "type": "string" }
   },
