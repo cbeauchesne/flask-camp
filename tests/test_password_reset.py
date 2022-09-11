@@ -6,6 +6,10 @@
 # 4. The UI is responsible to do a `POST /login` with the username/token present in the request query
 # 5. User is logged, and the token is removed.
 # 6. UI is reponsible to show a password reset page
+from datetime import timedelta, datetime
+
+from freezegun import freeze_time
+
 from tests.utils import BaseTest
 
 
@@ -14,6 +18,7 @@ class Test_PasswordReset(BaseTest):
         user = self.add_user()
         r = self.post("/reset_password", json={"email": user._email})
         assert r.status_code == 200
+        assert "expiration_date" in r.json
 
         self.login_user(expected_status=200)
         self.logout_user(expected_status=200)
@@ -70,3 +75,13 @@ class Test_PasswordReset(BaseTest):
 
         r = self.post("/login", json={"name": user.name, "token": token_2})
         assert r.status_code == 200
+
+    def test_expiration(self):
+        user = self.add_user()
+
+        r = self.post("/reset_password", json={"email": user._email})
+        token = self.get_login_token(user.name)
+
+        with freeze_time(datetime.now() + timedelta(days=3)):
+            r = self.post("/login", json={"name": user.name, "token": token})
+            assert r.status_code == 401

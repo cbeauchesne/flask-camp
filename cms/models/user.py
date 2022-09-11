@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import secrets
 
 from flask_login import current_user
@@ -61,6 +62,9 @@ class User(BaseModel):
         if self._login_token is None or login_token is None:
             return False
 
+        if datetime.now() > self._login_token_expiration_date:
+            return False
+
         if self._login_token != login_token:
             return False
 
@@ -104,14 +108,13 @@ class User(BaseModel):
         # TODO send an email
 
     def validate_email(self):
-
         self.email_token = None
         self._email = self.email_to_validate
         self.email_to_validate = None
 
     def set_login_token(self):
         self._login_token = secrets.token_hex(self.__class__.password_hash.type.length)
-        # self._login_token_expiration_date  # TODO
+        self._login_token_expiration_date = datetime.now() + timedelta(hours=1)
 
     @property
     def is_admin(self):
@@ -128,3 +131,7 @@ class User(BaseModel):
     @roles.setter
     def roles(self, value):
         self._roles = ",".join(value)
+
+    @property
+    def login_token_expiration_date(self):
+        return self._login_token_expiration_date

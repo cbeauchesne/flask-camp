@@ -17,7 +17,7 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] password reset entry point and logic
   * [ ] send email with a login token
   * [x] login token can only be used once
-  * [ ] login token must expire after one hour
+  * [x] login token must expire after one hour
 * [ ] rate limiting
   * [ ] rate limiting on user login failures
 * [x] unique document type, shipping a namespace field.

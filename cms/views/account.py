@@ -94,8 +94,13 @@ class ResetPasswordView(BaseResource):
 
         user = UserModel.get(_email=email)
 
-        if not user is None:  # do not let hacker crawl our base
-            user.set_login_token()
-            user.update()
+        if user is None:  # do not let hacker crawl our base
+            fake_user = UserModel()
+            fake_user.set_login_token()
 
-        return {"status": "ok"}
+            return {"status": "ok", "expiration_date": fake_user.login_token_expiration_date.isoformat()}
+
+        user.set_login_token()
+        user.update()
+
+        return {"status": "ok", "expiration_date": user.login_token_expiration_date.isoformat()}
