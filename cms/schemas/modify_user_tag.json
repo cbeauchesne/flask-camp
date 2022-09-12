@@ -1,0 +1,16 @@
+{
+  "description": "POST request to create/modify an user tag",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "document_id": {
+      "type": "integer"
+    },
+    "value": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

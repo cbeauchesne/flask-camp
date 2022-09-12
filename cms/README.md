@@ -54,6 +54,8 @@ Build a wiki API with all common features, regardless of the content of document
 
 ## TODO
 Test rate limiter
+test endpoint not found
+test method not allowed
 
 ## Golden rules
 

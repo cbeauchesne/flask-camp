@@ -17,6 +17,9 @@ class BaseTest:
         self.client.__exit__(None, None, None)
 
     def _assert_status_response(self, r):
+        assert r.json is not None, r
+        assert "status" in r.json, r.json
+
         if r.status_code == 200:
             assert r.json["status"] == "ok", r.json
         else:

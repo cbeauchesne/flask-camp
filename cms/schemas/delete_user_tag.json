@@ -1,0 +1,13 @@
+{
+  "description": "DELETE request to delete an user tag",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "document_id": {
+      "type": "integer"
+    }
+  },
+  "additionalProperties": false
+}

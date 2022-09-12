@@ -23,6 +23,7 @@ from .views import logs as logs_view
 from .views import protect_document as protect_document_view
 from .views import user as user_view
 from .views import users as users_view
+from .views import user_tags as user_tags_view
 
 logging.basicConfig(format="%(asctime)s [%(levelname)8s] %(message)s")
 log = logging.getLogger(__name__)
@@ -67,6 +68,8 @@ class Application(Flask):
         self.add_module(protect_document_view)
         self.add_module(block_user_view)
         self.add_module(hide_version_view)
+
+        self.add_module(user_tags_view)
 
     def add_module(self, module):
 
