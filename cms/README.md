@@ -66,15 +66,23 @@ Build a wiki API with all common features, regardless of the content of document
 Do not re-invent the wheel as a golden rule. So it uses : 
 
 * Flask
-* Flask-restful
 * Flask_login
 * SQLAlchemy
 * jsonschema
 
 And on develpment side :
 
+* pytest and pytest-cov
 * black
 * pylint
+* freezegun
+
+### Why not Flask-restful
+
+It's not maintenaind anymore : https://github.com/flask-restful/flask-restful/issues/883
+
+And it turns out that flask handle pretty well json requests and response out-of-the-box. Furthermore, a rest framework adds some opiniated choices that can be imcompatible with orher well known flask plugin. So let's try with raw flask. As now, the only code we had to add is the exception handler.
+
 
 ## Target archi 
 

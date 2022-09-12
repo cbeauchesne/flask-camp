@@ -4,7 +4,6 @@ import json
 import os
 
 from flask import request
-from flask_restful import abort
 from jsonschema import Draft7Validator, RefResolver, draft7_format_checker
 from werkzeug.exceptions import BadRequest
 
