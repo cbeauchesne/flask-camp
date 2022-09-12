@@ -6,7 +6,7 @@
       "$ref": "/cms/schemas/entities/user_name.json"
     },
     "token": {
-      "type": "string"
+      "$ref": "/cms/schemas/entities/token.json"
     }
   },
   "required": ["name", "token"],

@@ -18,11 +18,11 @@ class User(BaseModel):
 
     _email_to_validate = Column("email_to_validate", String(120))
     # linked with email_to_validate, if it's provided, email is validated
-    _email_token = Column("email_token", String(32))
+    _email_token = Column("email_token", String(64))
 
     # unique usage token used to login without a password.
     # Useful for user creation and password reset
-    _login_token = Column("login_token", String(32))
+    _login_token = Column("login_token", String(64))
     _login_token_expiration_date = Column("login_token_expiration_date", DateTime)  # TODO
 
     ui_preferences = Column(Text)
@@ -102,7 +102,8 @@ class User(BaseModel):
             raise BadRequest("A user still exists with this email")
 
         self._email_to_validate = email
-        self._email_token = secrets.token_hex(self.__class__.password_hash.type.length)
+        # each byte is converted to two hex digit, so we need len/2
+        self._email_token = secrets.token_hex(int(self.__class__._email_token.type.length / 2))
 
         print(f"Update {self}'s email")
         # TODO send an email
@@ -120,7 +121,8 @@ class User(BaseModel):
         self._email_to_validate = None
 
     def set_login_token(self):
-        self._login_token = secrets.token_hex(self.__class__.password_hash.type.length)
+        # each byte is converted to two hex digit, so we need len/2
+        self._login_token = secrets.token_hex(int(self.__class__._login_token.type.length / 2))
         self._login_token_expiration_date = datetime.now() + timedelta(hours=1)
 
     @property

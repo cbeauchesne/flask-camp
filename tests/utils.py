@@ -11,7 +11,7 @@ class BaseTest:
         self.app = Application(TESTING=True)
         self.app.create_all()
         self.client = self.app.test_client()
-        self.client.__enter__()
+        self.client.__enter__()  # pylint: disable=unnecessary-dunder-call
 
     def teardown_method(self, test_method):  # pylint: disable=unused-argument
         self.client.__exit__(None, None, None)

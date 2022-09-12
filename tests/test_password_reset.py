@@ -50,10 +50,10 @@ class Test_PasswordReset(BaseTest):
     def test_bad_token(self):
         user = self.add_user()
         r = self.post("/reset_password", json={"email": user._email})
-        assert r.status_code == 200
+        assert r.status_code == 200, r.json
 
         r = self.post("/login", json={"name": user.name, "token": "not the token"})
-        assert r.status_code == 401
+        assert r.status_code == 401, r.json
 
     def test_several_request(self):
         user = self.add_user()

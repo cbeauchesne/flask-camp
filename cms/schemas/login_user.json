@@ -9,7 +9,7 @@
       "type": "string"
     },
     "token": {
-      "type": "string"
+      "$ref": "/cms/schemas/entities/token.json"
     }
   },
   "oneOf": [

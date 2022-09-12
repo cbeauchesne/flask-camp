@@ -10,9 +10,9 @@ from cms.models import BaseModel
 
 
 def add_log(action, target_user_id=None, document_id=None, version_id=None):
-    database.session.add(  # pylint : disable=no-member
-        Log(action=action, target_user_id=target_user_id, document_id=document_id, version_id=version_id)
-    )
+
+    log = Log(action=action, target_user_id=target_user_id, document_id=document_id, version_id=version_id)
+    database.session.add(log)  # pylint: disable=no-member
 
 
 class Log(BaseModel):
