@@ -1,8 +1,8 @@
-from cms.decorators import allow_anonymous
+from cms.decorators import allow
 
 rule = "/healthcheck"
 
 
-@allow_anonymous
+@allow("anonymous")
 def get():
     return {"status": "ok"}

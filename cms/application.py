@@ -4,22 +4,24 @@ import secrets
 
 from flask import Flask
 from flask_login import LoginManager
-from flask_restful import Api
-from werkzeug.exceptions import Forbidden, BadRequest
+from werkzeug.exceptions import Forbidden, BadRequest, NotFound, Unauthorized
 
 from . import database
 from .models.user import User as UserModel
-from .views.account import EmailValidationView, UserLoginView, UserLogoutView, ResetPasswordView
-from .views.block_user import BlockUserView
-from .views.changes import ChangesView
-from .views.document import DocumentView
+
+from .views.account import user_login as user_login_view
+from .views.account import email_validation as email_validation_view
+from .views.account import reset_password as reset_password_view
+from .views import block_user as block_user_view
+from .views import changes as changes_view
+from .views import document as document_view
 from .views import documents as documents_view
 from .views import healthcheck as healthcheck_view
-
-from .views.hide_version import HideVersionView
-from .views.log import LogsView
-from .views.protect_document import ProtectDocumentView
-from .views.user import UsersView, UserView
+from .views import hide_version as hide_version_view
+from .views import logs as logs_view
+from .views import protect_document as protect_document_view
+from .views import user as user_view
+from .views import users as users_view
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +32,6 @@ class Application(Flask):
 
         self.config.from_object(kwargs)
 
-        self._api = Api(self, catch_all_404s=True)
         self._login_manager = LoginManager(self)
         self.secret_key = secrets.token_hex()
 
@@ -44,27 +45,23 @@ class Application(Flask):
 
         self.add_module(healthcheck_view)
 
-        self.add_resource(UsersView, "/users")
-        self.add_resource(UserView, "/user/<int:id>")
+        self.add_module(users_view)
+        self.add_module(user_view)
 
-        self.add_resource(UserLoginView, "/login")
-        self.add_resource(UserLogoutView, "/logout")
+        self.add_module(user_login_view)
 
-        self.add_resource(EmailValidationView, "/validate_email")
-        self.add_resource(ResetPasswordView, "/reset_password")
+        self.add_module(email_validation_view)
+        self.add_module(reset_password_view)
 
         self.add_module(documents_view)
-        self.add_resource(DocumentView, "/document/<int:id>")
+        self.add_module(document_view)
 
-        self.add_resource(ChangesView, "/changes")
-        self.add_resource(LogsView, "/logs")
+        self.add_module(changes_view)
+        self.add_module(logs_view)
 
-        self.add_resource(ProtectDocumentView, "/protect_document/<int:id>")
-        self.add_resource(BlockUserView, "/block_user/<int:id>")
-        self.add_resource(HideVersionView, "/hide_version/<int:id>")
-
-    def add_resource(self, *args, **kwargs):
-        self._api.add_resource(*args, **kwargs)
+        self.add_module(protect_document_view)
+        self.add_module(block_user_view)
+        self.add_module(hide_version_view)
 
     def add_module(self, module):
 
@@ -79,10 +76,14 @@ class Application(Flask):
         def wrapper(*args, **kwargs):
             try:
                 return function(*args, **kwargs)
-            except Forbidden as e:
-                return {"message": e.description}, 403
             except BadRequest as e:
                 return {"message": e.description}, 400
+            except Unauthorized as e:
+                return {"message": e.description}, 401
+            except Forbidden as e:
+                return {"message": e.description}, 403
+            except NotFound as e:
+                return {"message": e.description}, 404
             except Exception as e:  # pylint: disable=broad-except
                 log.exception(e)
                 return {"message": str(e)}, 500

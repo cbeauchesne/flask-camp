@@ -80,7 +80,7 @@ class BaseTest:
         return r
 
     def logout_user(self, expected_status=200):
-        r = self.get("/logout")
+        r = self.delete("/login")
         assert r.status_code == expected_status, r.json
         return r
 

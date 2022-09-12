@@ -1,40 +1,41 @@
 from werkzeug.exceptions import NotFound, BadRequest
 
 from cms import database
-from cms.views.core import BaseResource
-from cms.decorators import allow_moderator
+from cms.decorators import allow
 from cms.models.document import DocumentVersion
 from cms.models.log import add_log
 
+rule = "/hide_version/<int:id>"
 
-class HideVersionView(BaseResource):
-    @allow_moderator
-    def put(self, id):
-        version = DocumentVersion.get(id=id)
 
-        if version is None:
-            raise NotFound()
+@allow("moderator")
+def put(id):
+    version = DocumentVersion.get(id=id)
 
-        if version.document.get_last_version().id == id:
-            raise BadRequest("You can't hide the last version of a document")
+    if version is None:
+        raise NotFound()
 
-        version.hidden = True
-        add_log("hide_version", version_id=version.id, document_id=version.document.id)
+    if version.document.get_last_version().id == id:
+        raise BadRequest("You can't hide the last version of a document")
 
-        database.session.commit()
+    version.hidden = True
+    add_log("hide_version", version_id=version.id, document_id=version.document.id)
 
-        return {"status": "ok"}
+    database.session.commit()
 
-    @allow_moderator
-    def delete(self, id):
-        version = DocumentVersion.get(id=id)
+    return {"status": "ok"}
 
-        if version is None:
-            raise NotFound()
 
-        version.hidden = False
-        add_log("unhide_version", version_id=version.id, document_id=version.document.id)
+@allow("moderator")
+def delete(id):
+    version = DocumentVersion.get(id=id)
 
-        database.session.commit()
+    if version is None:
+        raise NotFound()
 
-        return {"status": "ok"}
+    version.hidden = False
+    add_log("unhide_version", version_id=version.id, document_id=version.document.id)
+
+    database.session.commit()
+
+    return {"status": "ok"}

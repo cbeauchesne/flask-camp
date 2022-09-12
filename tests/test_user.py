@@ -88,7 +88,7 @@ class Test_UserCreation(BaseTest):
         assert r.status_code == 400, r.json
 
     def test_logout_errors(self):
-        r = self.get("/logout")
+        r = self.delete("/login")
         assert r.status_code == 403
 
     def test_notfound_errors(self):
@@ -133,7 +133,7 @@ class Test_UserModification(BaseTest):
         r = self.post(f"/user/{user.id}", json={"password": "p2"})
         assert r.status_code == 200, r.json
 
-        self.get("/logout")
+        self.logout_user()
         self.login_user(user.name, "p1", expected_status=401)
         self.login_user(user.name, "p2", expected_status=200)
 
@@ -210,12 +210,12 @@ class Test_UserUniqueness(BaseTest):
         r = self.post(f"/user/{user.id}", json={"email": "mail@competition.fr"})
         assert r.status_code == 200
 
-        self.get("/logout")
+        self.logout_user()
 
         self.login_user(name=other_user.name)
         r = self.post(f"/user/{other_user.id}", json={"email": "mail@competition.fr"})
         assert r.status_code == 200
-        self.get("/logout")
+        self.logout_user()
 
     def test_do_not_validate_same_email(self):
         user1 = self.add_user("user1", "a@b.c", validate_email=False)

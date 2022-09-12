@@ -4,7 +4,7 @@ from flask import request
 from flask_login import current_user
 from werkzeug.exceptions import NotFound, BadRequest, Forbidden
 
-from cms.decorators import allow_anonymous, allow_authenticated, allow
+from cms.decorators import allow
 from cms.models.document import Document, DocumentVersion
 from cms.schemas import schema
 

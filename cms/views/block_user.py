@@ -1,40 +1,41 @@
 from werkzeug.exceptions import NotFound
 
 from cms import database
-from cms.decorators import allow_moderator
+from cms.decorators import allow
 from cms.models.user import User as UserModel
 from cms.models.log import add_log
-from cms.views.core import BaseResource
+
+rule = "/block_user/<int:id>"
 
 
-class BlockUserView(BaseResource):
-    @allow_moderator
-    def put(self, id):
+@allow("moderator")
+def put(id):
 
-        user = UserModel.get(id=id)
+    user = UserModel.get(id=id)
 
-        if not user:
-            raise NotFound()
+    if not user:
+        raise NotFound()
 
-        user.blocked = True
+    user.blocked = True
 
-        add_log(action="block", target_user_id=id)
+    add_log(action="block", target_user_id=id)
 
-        database.session.commit()
+    database.session.commit()
 
-        return {"status": "ok"}
+    return {"status": "ok"}
 
-    @allow_moderator
-    def delete(self, id):
-        user = UserModel.get(id=id)
 
-        if not user:
-            raise NotFound()
+@allow("moderator")
+def delete(id):
+    user = UserModel.get(id=id)
 
-        user.blocked = False
+    if not user:
+        raise NotFound()
 
-        add_log(action="unblock", target_user_id=id)
+    user.blocked = False
 
-        database.session.commit()
+    add_log(action="unblock", target_user_id=id)
 
-        return {"status": "ok"}
+    database.session.commit()
+
+    return {"status": "ok"}

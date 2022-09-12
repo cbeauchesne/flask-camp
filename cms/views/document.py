@@ -4,42 +4,41 @@ from flask import request
 from flask_login import current_user
 from werkzeug.exceptions import NotFound, BadRequest, Forbidden
 
-from cms.decorators import allow_anonymous, allow_authenticated
+from cms.decorators import allow
 from cms.models.document import Document, DocumentVersion
 from cms.schemas import schema
-from cms.views.core import BaseResource
+
+rule = "/document/<int:id>"
 
 
-class DocumentView(BaseResource):
-    @allow_anonymous
-    def get(self, id):
-        version = DocumentVersion.query().filter_by(document_id=id).order_by(DocumentVersion.id.desc()).first()
+@allow("anonymous")
+def get(id):
+    version = DocumentVersion.query().filter_by(document_id=id).order_by(DocumentVersion.id.desc()).first()
 
-        if version is None:
-            raise NotFound()
+    if version is None:
+        raise NotFound()
 
-        return {"status": "ok", "document": version.as_dict()}
+    return {"status": "ok", "document": version.as_dict()}
 
-    @allow_authenticated
-    @schema("cms/schemas/modify_document.json")
-    def post(self, id):
-        """add a new version to a document"""
-        document = Document.get(id=id)
 
-        if document is None:
-            raise NotFound()
+@allow("authenticated")
+@schema("cms/schemas/modify_document.json")
+def post(id):
+    """add a new version to a document"""
+    document = Document.get(id=id)
 
-        if document.protected and not current_user.is_moderator:
-            raise Forbidden("The document is protected")
+    if document is None:
+        raise NotFound()
 
-        body = request.get_json()
+    if document.protected and not current_user.is_moderator:
+        raise Forbidden("The document is protected")
 
-        comment = body.get("comment", "")
-        data = body["document"]["data"]
+    body = request.get_json()
 
-        version = DocumentVersion(
-            document_id=document.id, user_id=current_user.id, comment=comment, data=json.dumps(data)
-        )
-        version.create()
+    comment = body.get("comment", "")
+    data = body["document"]["data"]
 
-        return {"status": "ok", "document": version.as_dict()}
+    version = DocumentVersion(document_id=document.id, user_id=current_user.id, comment=comment, data=json.dumps(data))
+    version.create()
+
+    return {"status": "ok", "document": version.as_dict()}

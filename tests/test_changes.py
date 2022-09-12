@@ -34,12 +34,12 @@ class Test_Document(BaseTest):
         self.login_user()
         doc = self.put_document(data={"value": "x"}).json["document"]
         self.post_document(doc["id"], data={"value": "y"})
-        self.get("/logout")
+        self.logout_user()
 
         self.login_user(user_2.name)
         doc = self.put_document(data={"value": "x"}).json["document"]
         self.post_document(doc["id"], data={"value": "y"})
-        self.get("/logout")
+        self.logout_user()
 
         r = self.get("/changes", query_string={"user_id": user_1.id})
         assert r.status_code == 200, r.json
