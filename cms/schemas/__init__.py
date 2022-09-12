@@ -1,5 +1,6 @@
-import os
+from functools import wraps
 import json
+import os
 
 from flask import request
 from flask_restful import abort
@@ -13,6 +14,7 @@ def schema(filename):
     validator = _validators[filename]
 
     def decorator(real_method):
+        @wraps(real_method)
         def wrapper(*args, **kwargs):
             print(f"Validate {request.url_rule} with {filename}")
 
