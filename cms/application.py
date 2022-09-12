@@ -38,6 +38,7 @@ class Application(Flask):
         self.secret_key = secrets.token_hex()
 
         limiter.init_app(self)
+        limiter.enabled = not kwargs.get("TESTING", False)
 
         @self.login_manager.user_loader  # pylint: disable=no-member
         def load_user(user_id):

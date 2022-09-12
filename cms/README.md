@@ -19,7 +19,9 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] login token can only be used once
   * [x] login token must expire after one hour
 * [ ] rate limiting
-  * [ ] rate limiting on user login failures
+  * [x] rate limiting on user login failures
+  * [x] rate limiting on document creation
+  * [x] rate limiting on document modification
 * [x] unique document type, shipping a namespace field.
   * [x] document can be protected by moderators
 * [ ] document list
@@ -50,13 +52,15 @@ Build a wiki API with all common features, regardless of the content of document
   * [ ] get all changes on document with an user flag ? /changes?flag=XX (AKA follow list ?)
 * [ ] follow list: get all changes made to documents in the user's follow list (can be done with user flag ?)
 
+## TODO
+Test rate limiter
 
 ## Golden rules
 
 * keep round API
 * explicit is better than implicit
 * 100% test coverage : test is ok <=> you can release
-* 80/20 usage: Do the 80% do NOT the 20%
+* 80/20 usage: Do the 80%. do NOT the 20%
 * Do not reinvent the wheel
 * API is security/consitency, UI is usability
 * security: everything is forbidden, except if it's allowed
@@ -66,7 +70,8 @@ Build a wiki API with all common features, regardless of the content of document
 Do not re-invent the wheel as a golden rule. So it uses : 
 
 * Flask
-* Flask_login
+* Flask-Limiter
+* Flask-Login
 * SQLAlchemy
 * jsonschema
 

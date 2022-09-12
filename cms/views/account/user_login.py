@@ -8,6 +8,7 @@ from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized, NotFound
 
 from cms import database
 from cms.decorators import allow
+from cms.limiter import limiter
 from cms.models.user import User as UserModel
 from cms.schemas import schema
 
@@ -15,6 +16,7 @@ from cms.schemas import schema
 rule = "/login"
 
 
+@limiter.limit("1/second;5/minute;10/hour")
 @allow("anonymous")
 @schema("cms/schemas/login_user.json")
 def post():

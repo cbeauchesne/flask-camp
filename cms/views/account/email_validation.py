@@ -8,12 +8,14 @@ from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized, NotFound
 
 from cms import database
 from cms.decorators import allow
+from cms.limiter import limiter
 from cms.models.user import User as UserModel
 from cms.schemas import schema
 
 rule = "/validate_email"
 
 
+@limiter.limit("10/hour")
 @allow("anonymous")
 @schema("cms/schemas/validate_email.json")
 def post():
