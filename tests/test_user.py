@@ -49,28 +49,28 @@ class Test_UserCreation(BaseTest):
         user = self.add_user(password=password, validate_email=False)
 
         r = self.login_user(password=password, expected_status=401)
-        assert r.json["message"] == "User's email is not validated"
+        assert r.json["description"] == "User's email is not validated"
 
         r = self.post("/validate_email", json={"name": user.name})
         assert r.status_code == 400
-        assert r.json["message"] == "'token' is a required property on instance "
+        assert r.json["description"] == "'token' is a required property on instance "
 
         r = self.post("/validate_email", json={"name": "not_the_name", "token": user._email_token})
         assert r.status_code == 404
 
         r = self.post("/validate_email", json={"name": user.name, "token": "not the good one"})
         assert r.status_code == 401
-        assert r.json["message"] == "Token doesn't match"
+        assert r.json["description"] == "Token doesn't match"
 
         r = self.login_user(user.name, password, expected_status=401)
-        assert r.json["message"] == "User's email is not validated"
+        assert r.json["description"] == "User's email is not validated"
 
         r = self.post("/validate_email", json={"name": user.name, "token": user._email_token})
         assert r.status_code == 200
 
         r = self.post("/validate_email", json={"name": user.name, "token": user._email_token})
         assert r.status_code == 400
-        assert r.json["message"] == "There is no email to validate"
+        assert r.json["description"] == "There is no email to validate"
 
         r = self.login_user(password=password, expected_status=200)
 
@@ -79,10 +79,10 @@ class Test_UserCreation(BaseTest):
         user = self.add_user(password=password)
 
         r = self.login_user("not_the_name", password, expected_status=401)
-        assert r.json["message"] == "User does not exists, or password is wrong"
+        assert r.json["description"] == "User [not_the_name] does not exists, or password is wrong"
 
         r = self.login_user(user.name, "not the password", expected_status=401)
-        assert r.json["message"] == "User does not exists, or password is wrong"
+        assert r.json["description"] == f"User [{user.name}] does not exists, or password is wrong"
 
         r = self.post("/login", json={"name": user.name})
         assert r.status_code == 400, r.json
@@ -164,7 +164,7 @@ class Test_UserModification(BaseTest):
 
         r = self.post(f"/user/{other_user.id}", json={"password": "p2"})
         assert r.status_code == 403, r.json
-        assert r.json["message"] == "You can't modify this user"
+        assert r.json["description"] == "You can't modify this user"
 
     def test_email_error(self):
         user = self.add_user()
@@ -184,28 +184,28 @@ class Test_UserUniqueness(BaseTest):
 
         r = self.put("/users", json={"name": user.name, "email": "other@email.c", "password": "x"})
         assert r.status_code == 400, r.json
-        assert r.json["message"] == "A user still exists with this name"
+        assert r.json["description"] == "A user still exists with this name"
 
     def test_email_at_creation(self):
         user = self.add_user()
 
         r = self.put("/users", json={"name": "other_name", "email": user._email, "password": "x"})
         assert r.status_code == 400, r.json
-        assert r.json["message"] == "A user still exists with this email"
+        assert r.json["description"] == "A user still exists with this email"
 
     def test_email_at_modification(self):
         user = self.add_user()
 
         r = self.put("/users", json={"name": "other_user", "email": user._email, "password": "x"})
         assert r.status_code == 400, r.json
-        assert r.json["message"] == "A user still exists with this email"
+        assert r.json["description"] == "A user still exists with this email"
 
         other_user = self.add_user(name="other_user")
 
         self.login_user()
         r = self.post(f"/user/{user.id}", json={"email": other_user._email})
         assert r.status_code == 400, r.json
-        assert r.json["message"] == "A user still exists with this email"
+        assert r.json["description"] == "A user still exists with this email"
 
         r = self.post(f"/user/{user.id}", json={"email": "mail@competition.fr"})
         assert r.status_code == 200
@@ -226,7 +226,7 @@ class Test_UserUniqueness(BaseTest):
 
         r = self.post("/validate_email", json={"name": user2.name, "token": user2._email_token})
         assert r.status_code == 400, r.json
-        assert r.json["message"] == "A user still exists with this email"
+        assert r.json["description"] == "A user still exists with this email"
 
 
 class Test_Logout(BaseTest):

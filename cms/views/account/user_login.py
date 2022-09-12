@@ -27,11 +27,9 @@ def post():
     user = UserModel.get(name=name)
 
     if user is None:
-        print(f"User [{name}] doesn't exists")
-        raise Unauthorized("User does not exists, or password is wrong")
+        raise Unauthorized(f"User [{name}] does not exists, or password is wrong")
 
     if not user.email_is_validated:
-        print(f"User [{name}] di not validate its mail")
         raise Unauthorized("User's email is not validated")
 
     if user.check_password(password):
@@ -39,8 +37,7 @@ def post():
     elif user.check_login_token(login_token):
         login_user(user)
     else:
-        print(f"Wrong auth for user {user}")
-        raise Unauthorized("User does not exists, or password is wrong")
+        raise Unauthorized(f"User [{name}] does not exists, or password is wrong")
 
     user.update()
 

@@ -4,9 +4,10 @@ import secrets
 
 from flask import Flask
 from flask_login import LoginManager
-from werkzeug.exceptions import Forbidden, BadRequest, NotFound, Unauthorized
+from werkzeug.exceptions import HTTPException
 
 from . import database
+from .limiter import limiter
 from .models.user import User as UserModel
 
 from .views.account import user_login as user_login_view
@@ -23,6 +24,7 @@ from .views import protect_document as protect_document_view
 from .views import user as user_view
 from .views import users as users_view
 
+logging.basicConfig(format="%(asctime)s [%(levelname)8s] %(message)s")
 log = logging.getLogger(__name__)
 
 
@@ -34,6 +36,8 @@ class Application(Flask):
 
         self._login_manager = LoginManager(self)
         self.secret_key = secrets.token_hex()
+
+        limiter.init_app(self)
 
         @self.login_manager.user_loader  # pylint: disable=no-member
         def load_user(user_id):
@@ -76,17 +80,11 @@ class Application(Flask):
         def wrapper(*args, **kwargs):
             try:
                 return function(*args, **kwargs)
-            except BadRequest as e:
-                return {"message": e.description}, 400
-            except Unauthorized as e:
-                return {"message": e.description}, 401
-            except Forbidden as e:
-                return {"message": e.description}, 403
-            except NotFound as e:
-                return {"message": e.description}, 404
+            except HTTPException as e:
+                return {"status": "error", "name": e.name, "description": e.description}, e.code
             except Exception as e:  # pylint: disable=broad-except
                 log.exception(e)
-                return {"message": str(e)}, 500
+                return {"status": "error", "name": e.__class__.__name__, "description": str(e)}, 500
 
         self.add_url_rule(rule, view_func=wrapper, methods=[method.upper()], endpoint=endpoint)
 

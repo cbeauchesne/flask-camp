@@ -78,8 +78,8 @@ class Test_Document(BaseTest):
 
         r = self.put("/documents", json={"document": {"data": {}}})
         assert r.status_code == 400, r.json
-        assert r.json["message"] == "'namespace' is a required property on instance ['document']"
+        assert r.json["description"] == "'namespace' is a required property on instance ['document']"
 
         r = self.put("/documents", json={"document": {"namespace": "x"}})
         assert r.status_code == 400, r.json
-        assert r.json["message"] == "'data' is a required property on instance ['document']"
+        assert r.json["description"] == "'data' is a required property on instance ['document']"

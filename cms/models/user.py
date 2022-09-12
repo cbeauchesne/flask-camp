@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import logging
 import secrets
 
 from flask_login import current_user
@@ -7,6 +8,8 @@ from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from cms.models import BaseModel
+
+log = logging.getLogger(__name__)
 
 
 class User(BaseModel):
@@ -53,19 +56,28 @@ class User(BaseModel):
         return self._email is not None
 
     def set_password(self, password):
+        log.info("Set %s's password", self)
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
-        return password is not None and check_password_hash(self.password_hash, password)
+        if password is None:
+            return False
+        if not check_password_hash(self.password_hash, password):
+            log.info("Check password failed for %s", self)
+            return False
+
+        return True
 
     def check_login_token(self, login_token):  # TODO replace with login_with_token
         if self._login_token is None or login_token is None:
             return False
 
         if datetime.now() > self._login_token_expiration_date:
+            log.info("Login token is expired for %s", self)
             return False
 
         if self._login_token != login_token:
+            log.error("Login token check fails for %s", self)
             return False
 
         self._login_token = None
@@ -105,7 +117,7 @@ class User(BaseModel):
         # each byte is converted to two hex digit, so we need len/2
         self._email_token = secrets.token_hex(int(self.__class__._email_token.type.length / 2))
 
-        print(f"Update {self}'s email")
+        log.info("Update %s's email", self)
         # TODO send an email
 
     def validate_email(self, token):

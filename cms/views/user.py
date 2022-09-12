@@ -54,7 +54,6 @@ def post(id):
 
     if "password" in data:
         # TODO check current password
-        print(f"Update {current_user}'s password")
         user.set_password(data["password"])
         log_admin_action(action="change_password", target_user_id=id)
 

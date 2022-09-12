@@ -6,7 +6,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 
 def add_handler(handler):
-    handler.setFormatter(logging.Formatter(fmt="%(asctime)s %(levelname)s %(message)s"))
+    # handler.setFormatter(logging.Formatter(fmt="%(asctime)s %(levelname)s %(message)s"))
     handler.setLevel(logging.INFO)
 
     _logger = logging.getLogger("sqlalchemy")

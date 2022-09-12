@@ -20,7 +20,8 @@ class BaseTest:
         if r.status_code == 200:
             assert r.json["status"] == "ok", r.json
         else:
-            assert "message" in r.json or "error" in r.json, r.json
+            assert r.json["status"] == "error", r.json
+            assert "description" in r.json, r.json
 
     def get(self, *args, **kwargs):
         r = self.client.get(*args, **kwargs)
