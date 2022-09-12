@@ -1,8 +1,8 @@
-from cms.views.core import BaseResource
 from cms.decorators import allow_anonymous
 
+rule = "/healthcheck"
 
-class HealthCheckView(BaseResource):
-    @allow_anonymous
-    def get(self):
-        return {"status": "ok"}
+
+@allow_anonymous
+def get():
+    return {"status": "ok"}

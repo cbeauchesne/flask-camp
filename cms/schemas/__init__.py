@@ -1,10 +1,15 @@
 from functools import wraps
+import logging
 import json
 import os
 
 from flask import request
 from flask_restful import abort
 from jsonschema import Draft7Validator, RefResolver, draft7_format_checker
+from werkzeug.exceptions import BadRequest
+
+
+log = logging.getLogger(__name__)
 
 
 def schema(filename):
@@ -16,7 +21,7 @@ def schema(filename):
     def decorator(real_method):
         @wraps(real_method)
         def wrapper(*args, **kwargs):
-            print(f"Validate {request.url_rule} with {filename}")
+            log.debug("Validate %s with %s", request.url_rule, filename)
 
             data = request.get_json()
             errors = list(validator.iter_errors(data))
@@ -27,8 +32,8 @@ def schema(filename):
                 for error in errors:
                     messages.append(f"{error.message} on instance " + "".join([f"[{repr(i)}]" for i in error.path]))
 
-                print("\n".join(messages))
-                abort(400, message="\n".join(messages))
+                log.error("\n".join(messages))
+                raise BadRequest("\n".join(messages))
 
             return real_method(*args, **kwargs)
 
