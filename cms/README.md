@@ -48,9 +48,9 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] protect/unprotect document
   * [x] hide/unhide version
 * [ ] user flag: any user can add any flag/value to any document
-  * [ ] get all document with some user flag ? /documents?flag=XX
+  * [x] get all document with some user flag ? /documents?flag=XX
   * [ ] get all changes on document with an user flag ? /changes?flag=XX (AKA follow list ?)
-* [ ] follow list: get all changes made to documents in the user's follow list (can be done with user flag ?)
+
 
 ## TODO
 Test rate limiter

@@ -9,14 +9,14 @@ from cms.models import BaseModel
 class UserTag(BaseModel):
     __tablename__ = "user_tag"
 
-    user_id = Column(Integer, ForeignKey("user.id"), index=True)
+    user_id = Column(Integer, ForeignKey("user.id"), index=True, nullable=False)
     user = relationship("User", foreign_keys=[user_id])
 
     document_id = Column(Integer, ForeignKey("document.id"), index=True, nullable=False)
     document = relationship("Document", foreign_keys=[document_id])
 
     name = Column(String(16), index=True, nullable=False)
-    value = Column(String(32))
+    value = Column(String(32), index=True)
 
     __table_args__ = (UniqueConstraint("user_id", "document_id", "name", name="_user_tag_uc"),)
 

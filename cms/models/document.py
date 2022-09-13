@@ -15,6 +15,8 @@ class Document(BaseModel):
 
     protected = Column(Boolean, nullable=False, default=False)
 
+    user_tags = relationship("UserTag", back_populates="document", lazy="select")
+
     def get_last_version(self):
         return DocumentVersion.query().filter_by(document_id=self.id).order_by(DocumentVersion.id.desc()).first()
 

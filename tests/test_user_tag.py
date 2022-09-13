@@ -94,16 +94,28 @@ class Test_UserTag(BaseTest):
         assert r.json["count"] == 1
 
     def test_get_documents(self):
+        self.add_user()
+        self.login_user()
+        doc1 = self.put_document().json["document"]
+        doc2 = self.put_document().json["document"]
+        doc3 = self.put_document().json["document"]
+        self.post("/user_tags", json={"name": "t1", "document_id": doc1["id"], "value": "6a"})
+        self.post("/user_tags", json={"name": "t1", "document_id": doc2["id"]})
+        self.post("/user_tags", json={"name": "t2", "document_id": doc3["id"]})
+        self.logout_user()
 
-        # # get all doc that have at least a tag t1
-        # r = self.get("/documents", query_string={"tag_name": "t1"})
+        user2 = self.add_user("user2")
+        self.login_user(user2.name)
+        self.post("/user_tags", json={"name": "t1", "document_id": doc1["id"]})
 
-        # # get all doc that have at least a tag t1   
-        # r = self.get("/documents", query_string={"tag_name": "t1", "tag_value": "6a"})
+        r = self.get("/documents", query_string={"tag_name": "t1"})
+        assert r.json["count"] == 2
 
-        # # get all doc that have at least a tag t1 for user id 1
-        # r = self.get("/documents", query_string={"tag_name": "t1", "tag_user_id": 1})
-        pass
+        r = self.get("/documents", query_string={"tag_name": "t1", "tag_user_id": user2.id})
+        assert r.json["count"] == 1
+
+        r = self.get("/documents", query_string={"tag_name": "t1", "tag_value": "6a"})
+        assert r.json["count"] == 1
 
     def test_errors(self):
         self.add_user()
