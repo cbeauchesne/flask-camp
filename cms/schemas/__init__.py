@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 def schema(filename):
     if filename not in _validators:
-        raise FileNotFoundError(f"{filename} does not exists")  # pragma: no cover
+        raise FileNotFoundError(f"{filename} does not exists")
 
     validator = _validators[filename]
 

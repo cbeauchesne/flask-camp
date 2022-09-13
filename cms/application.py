@@ -1,4 +1,3 @@
-from functools import wraps
 import logging
 import secrets
 
@@ -81,20 +80,9 @@ class Application(Flask):
             if hasattr(module, method):
                 function = getattr(module, method)
 
-                self._add_function(module.rule, function, method, endpoint=f"{method}_{module.__name__}")
-
-    def _add_function(self, rule, function, method, endpoint):
-        @wraps(function)
-        def wrapper(*args, **kwargs):
-            try:
-                return function(*args, **kwargs)
-            except HTTPException:
-                raise
-            except Exception as e:  # pylint: disable=broad-except
-                log.exception(e)
-                return {"status": "error", "name": e.__class__.__name__, "description": str(e)}, 500
-
-        self.add_url_rule(rule, view_func=wrapper, methods=[method.upper()], endpoint=endpoint)
+                self.add_url_rule(
+                    module.rule, view_func=function, methods=[method.upper()], endpoint=f"{method}_{module.__name__}"
+                )
 
     def create_all(self):
         database.create_all()

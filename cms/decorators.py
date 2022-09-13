@@ -13,7 +13,7 @@ def allow(*args):
     items = set(args)
 
     for item in items:
-        assert item in ["anonymous", "blocked", "authenticated", "moderator", "admin"], f"{item} is not recognised"
+        assert item in ["anonymous", "blocked", "authenticated", "moderator"], f"{item} is not recognised"
 
     def decorator(f):
         @wraps(f)
@@ -32,8 +32,6 @@ def allow(*args):
                     if "authenticated" in items:
                         allowed = True
                     elif "moderator" in items and current_user.is_moderator:
-                        allowed = True
-                    elif "admin" in items and current_user.is_admin:
                         allowed = True
 
             if not allowed:

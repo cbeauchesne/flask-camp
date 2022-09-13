@@ -9,6 +9,12 @@ class BaseTest:
 
     def setup_method(self, test_method):  # pylint: disable=unused-argument
         self.app = Application(TESTING=True)
+
+        self.app.add_url_rule("/__testing/500", view_func=lambda: 1 / 0, endpoint="500")
+        self.app.add_url_rule(
+            "/__testing/vuln/<int:id>", view_func=lambda id: User.get(id=id).as_dict(True), endpoint="vuln"
+        )
+
         self.app.create_all()
         self.client = self.app.test_client()
         self.client.__enter__()  # pylint: disable=unnecessary-dunder-call

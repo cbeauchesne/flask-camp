@@ -42,10 +42,12 @@ class User(BaseModel):
 
         # last security fence, it should never happen
         if not current_user.is_authenticated:
-            raise Forbidden()  # pragma: no cover
+            log.error("Unexpected access to user._email")
+            raise Forbidden()
 
         if current_user.id != self.id and not current_user.is_admin and not current_user.is_moderator:
-            raise Forbidden()  # pragma: no cover
+            log.error("Unexpected access to user._email")
+            raise Forbidden()
 
         return self._email
 
