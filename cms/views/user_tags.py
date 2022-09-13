@@ -13,7 +13,7 @@ rule = "/user_tags"
 
 
 def _build_filters(**kwargs):
-    return {k: v for key, value in kwargs.items() if value is not None}
+    return {key: value for key, value in kwargs.items() if value is not None}
 
 
 @allow("anonymous")

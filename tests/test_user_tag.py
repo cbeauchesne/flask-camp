@@ -49,11 +49,51 @@ class Test_UserTag(BaseTest):
         assert_tag(r.json["user_tags"][0], user, doc["id"], "y", "6a")
 
     def test_get_tags(self):
-        #   filter on user id
-        #   filter on documemt id
-        #   filter on tag name
-        #   filter on tag name and value
-        pass
+        user1 = self.add_user("user1")
+        user2 = self.add_user("user2")
+
+        self.login_user(user1.name)
+        doc1 = self.put_document().json["document"]
+        doc2 = self.put_document().json["document"]
+
+        self.post("/user_tags", json={"name": "t1", "document_id": doc1["id"]})
+        self.post("/user_tags", json={"name": "t2", "document_id": doc1["id"]})
+        self.post("/user_tags", json={"name": "t1", "document_id": doc2["id"]})
+        self.post("/user_tags", json={"name": "t2", "document_id": doc2["id"]})
+
+        self.logout_user()
+        self.login_user(user2.name)
+
+        self.post("/user_tags", json={"name": "t1", "document_id": doc1["id"]})
+        self.post("/user_tags", json={"name": "t2", "document_id": doc1["id"]})
+        self.post("/user_tags", json={"name": "t1", "document_id": doc2["id"]})
+        self.post("/user_tags", json={"name": "t2", "document_id": doc2["id"]})
+
+        r = self.get("/user_tags")
+        assert r.json["count"] == 8
+
+        r = self.get("/user_tags", query_string={"user_id": user1.id})
+        assert r.json["count"] == 4
+
+        r = self.get("/user_tags", query_string={"document_id": doc1["id"]})
+        assert r.json["count"] == 4
+
+        r = self.get("/user_tags", query_string={"name": "t1"})
+        assert r.json["count"] == 4
+
+        r = self.get("/user_tags", query_string={"user_id": user1.id, "document_id": doc1["id"]})
+        assert r.json["count"] == 2
+
+        r = self.get("/user_tags", query_string={"document_id": doc1["id"], "name": "t1"})
+        assert r.json["count"] == 2
+
+        r = self.get("/user_tags", query_string={"user_id": user1.id, "name": "t1"})
+        assert r.json["count"] == 2
+
+        r = self.get("/user_tags", query_string={"user_id": user1.id, "document_id": doc1["id"], "name": "t1"})
+        assert r.json["count"] == 1
+
+        # TODO: filter on tag name and value
 
     def test_get_documents(self):
         # get documents with some tag
@@ -63,5 +103,10 @@ class Test_UserTag(BaseTest):
         pass
 
     def test_errors(self):
-        # delete inexistant tag
-        pass
+        self.add_user()
+        self.login_user()
+
+        doc = self.put_document().json["document"]
+
+        r = self.delete("/user_tags", json={"name": "x", "document_id": doc["id"]})
+        assert r.status_code == 404
