@@ -12,6 +12,38 @@ from cms.schemas import schema
 rule = "/user_tags"
 
 
+def _build_filters(**kwargs):
+    return {k: v for key, value in kwargs.items() if value is not None}
+
+
+@allow("blocked")
+def get():
+
+    limit = request.args.get("limit", default=100, type=int)
+    offset = request.args.get("offset", default=0, type=int)
+
+    filters = _build_filters(
+        user_id=request.args.get("user_id", default=None, type=int),
+        document_id=request.args.get("document_id", default=None, type=int),
+        name=request.args.get("name", default=None, type=str),
+        value=request.args.get("value", default=None, type=str),
+    )
+
+    query = UserTag.query()
+
+    if len(filters) != 0:
+        query = query.filter_by(**filters)
+
+    count = query.count()
+    query = query.offset(offset).limit(limit)
+
+    return {
+        "status": "ok",
+        "count": count,
+        "user_tags": [tag.as_dict() for tag in query],
+    }
+
+
 @allow("blocked")
 @schema("cms/schemas/modify_user_tag.json")
 def post():
