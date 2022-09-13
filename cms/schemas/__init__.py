@@ -23,6 +23,10 @@ def schema(filename):
             log.debug("Validate %s with %s", request.url_rule, filename)
 
             data = request.get_json()
+
+            if data is None:
+                raise BadRequest("Expecting JSON body")
+
             errors = list(validator.iter_errors(data))
 
             if len(errors) != 0:

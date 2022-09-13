@@ -18,7 +18,7 @@ Build a wiki API with all common features, regardless of the content of document
   * [ ] send email with a login token
   * [x] login token can only be used once
   * [x] login token must expire after one hour
-* [ ] rate limiting
+* [x] rate limiting
   * [x] rate limiting on user login failures
   * [x] rate limiting on document creation
   * [x] rate limiting on document modification
@@ -43,6 +43,8 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] block/unblock an user
 * [x] Admin options
   * [x] promote/unpromote an user to any role
+  * [ ] delete a document
+  * [x] delete a document version
 * [x] logs
   * [x] block/unblock user
   * [x] protect/unprotect document
@@ -54,8 +56,6 @@ Build a wiki API with all common features, regardless of the content of document
 
 ## TODO
 Test rate limiter
-test endpoint not found
-test method not allowed
 
 ## Golden rules
 

@@ -14,6 +14,7 @@ from .views.account import email_validation as email_validation_view
 from .views.account import reset_password as reset_password_view
 from .views import block_user as block_user_view
 from .views import changes as changes_view
+from .views import document_version as document_version_view
 from .views import document as document_view
 from .views import documents as documents_view
 from .views import healthcheck as healthcheck_view
@@ -73,6 +74,7 @@ class Application(Flask):
         self.add_module(hide_version_view)
 
         self.add_module(user_tags_view)
+        self.add_module(document_version_view)
 
     def add_module(self, module):
 

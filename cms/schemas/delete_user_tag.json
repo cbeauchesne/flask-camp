@@ -9,5 +9,6 @@
       "type": "integer"
     }
   },
+  "required": ["name", "document_id"],
   "additionalProperties": false
 }
