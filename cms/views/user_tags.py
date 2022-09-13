@@ -1,7 +1,7 @@
 from flask import request
 from flask_login import current_user
 from sqlalchemy.orm import Query
-from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized, NotFound
+from werkzeug.exceptions import BadRequest, NotFound
 
 from cms import database
 from cms.decorators import allow
@@ -21,6 +21,9 @@ def get():
 
     limit = request.args.get("limit", default=100, type=int)
     offset = request.args.get("offset", default=0, type=int)
+
+    if not 0 <= limit <= 100:
+        raise BadRequest("Limit can't be lower than 0 or higher than 100")
 
     filters = _build_filters(
         user_id=request.args.get("user_id", default=None, type=int),

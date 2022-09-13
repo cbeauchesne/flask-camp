@@ -93,13 +93,16 @@ class Test_UserTag(BaseTest):
         r = self.get("/user_tags", query_string={"user_id": user1.id, "document_id": doc1["id"], "name": "t1"})
         assert r.json["count"] == 1
 
-        # TODO: filter on tag name and value
-
     def test_get_documents(self):
-        # get documents with some tag
-        # get documents with some tag value
-        # get documents with some tag for user X
-        # get documents with some tag value for user X
+
+        # # get all doc that have at least a tag t1
+        # r = self.get("/documents", query_string={"tag_name": "t1"})
+
+        # # get all doc that have at least a tag t1   
+        # r = self.get("/documents", query_string={"tag_name": "t1", "tag_value": "6a"})
+
+        # # get all doc that have at least a tag t1 for user id 1
+        # r = self.get("/documents", query_string={"tag_name": "t1", "tag_user_id": 1})
         pass
 
     def test_errors(self):
@@ -110,3 +113,6 @@ class Test_UserTag(BaseTest):
 
         r = self.delete("/user_tags", json={"name": "x", "document_id": doc["id"]})
         assert r.status_code == 404
+
+        r = self.get("/user_tags", query_string={"limit": 101})
+        assert r.status_code == 400
