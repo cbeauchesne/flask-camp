@@ -1,4 +1,5 @@
 from flask import request
+from werkzeug.exceptions import BadRequest
 
 from cms.decorators import allow
 from cms.models.log import Log

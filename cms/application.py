@@ -49,6 +49,10 @@ class Application(Flask):
         def shutdownsession(exception=None):  # pylint: disable=unused-argument
             database.session.remove()
 
+        @self.errorhandler(HTTPException)
+        def rest_error_handler(e):
+            return {"status": "error", "name": e.name, "description": e.description}, e.code
+
         self.add_module(healthcheck_view)
 
         self.add_module(users_view)
@@ -84,8 +88,8 @@ class Application(Flask):
         def wrapper(*args, **kwargs):
             try:
                 return function(*args, **kwargs)
-            except HTTPException as e:
-                return {"status": "error", "name": e.name, "description": e.description}, e.code
+            except HTTPException:
+                raise
             except Exception as e:  # pylint: disable=broad-except
                 log.exception(e)
                 return {"status": "error", "name": e.__class__.__name__, "description": str(e)}, 500

@@ -61,3 +61,7 @@ class Test_UserTag(BaseTest):
         # get documents with some tag for user X
         # get documents with some tag value for user X
         pass
+
+    def test_errors(self):
+        # delete inexistant tag
+        pass

@@ -32,6 +32,10 @@ class Test_Logs(BaseTest):
         assert logs[-2]["document_id"] == doc["id"]
         assert logs[-2]["user"]["id"] == moderator.id
 
+    def test_errors(self):
+        r = self.get("/logs", query_string={"limit": 101})
+        assert r.status_code == 400
+
     def test_typical_scenario(self):
         moderator = self.add_user(roles="moderator")
         user = self.add_user("user")

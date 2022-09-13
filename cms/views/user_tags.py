@@ -16,7 +16,7 @@ def _build_filters(**kwargs):
     return {k: v for key, value in kwargs.items() if value is not None}
 
 
-@allow("blocked")
+@allow("anonymous")
 def get():
 
     limit = request.args.get("limit", default=100, type=int)
