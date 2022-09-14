@@ -1,26 +1,9 @@
 from cms import database
-from cms.application import Application
 from cms.models.user import User
 
 
 class BaseTest:
-    app = None
     client = None
-
-    def setup_method(self, test_method):  # pylint: disable=unused-argument
-        self.app = Application(TESTING=True)
-
-        self.app.add_url_rule("/__testing/500", view_func=lambda: 1 / 0, endpoint="500")
-        self.app.add_url_rule(
-            "/__testing/vuln/<int:id>", view_func=lambda id: User.get(id=id).as_dict(True), endpoint="vuln"
-        )
-
-        self.app.create_all()
-        self.client = self.app.test_client()
-        self.client.__enter__()  # pylint: disable=unnecessary-dunder-call
-
-    def teardown_method(self, test_method):  # pylint: disable=unused-argument
-        self.client.__exit__(None, None, None)
 
     def _assert_status_response(self, r):
         assert r.json is not None, r
@@ -33,30 +16,32 @@ class BaseTest:
             assert "description" in r.json, r.json
 
     def get(self, *args, **kwargs):
-        r = self.client.get(*args, **kwargs)
+        r = BaseTest.client.get(*args, **kwargs)
         self._assert_status_response(r)
 
         return r
 
     def post(self, *args, **kwargs):
-        r = self.client.post(*args, **kwargs)
+        r = BaseTest.client.post(*args, **kwargs)
         self._assert_status_response(r)
 
         return r
 
     def put(self, *args, **kwargs):
-        r = self.client.put(*args, **kwargs)
+        r = BaseTest.client.put(*args, **kwargs)
         self._assert_status_response(r)
 
         return r
 
     def delete(self, *args, **kwargs):
-        r = self.client.delete(*args, **kwargs)
+        r = BaseTest.client.delete(*args, **kwargs)
         self._assert_status_response(r)
 
         return r
 
-    def db_add_user(self, name="name", email=None, password="password", validate_email=True, roles=""):
+    def db_add_user(
+        self, name="name", email=None, password="password", validate_email=True, roles="", perform_login=False
+    ):
         user = User(
             name=name,
             roles=roles
