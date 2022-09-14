@@ -40,7 +40,8 @@ class Document(BaseModel):
 
     protected = Column(Boolean, nullable=False, default=False)
 
-    user_tags = relationship("UserTag", back_populates="document", lazy="select")
+    user_tags = relationship("UserTag", back_populates="document", lazy="select", cascade="all,delete")
+    versions = relationship("DocumentVersion", back_populates="document", lazy="select", cascade="all,delete")
 
     def as_dict(self):
         version = (

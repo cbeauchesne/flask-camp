@@ -4,9 +4,11 @@ from flask import request
 from flask_login import current_user
 from werkzeug.exceptions import NotFound, BadRequest, Forbidden
 
+from cms import database
 from cms.decorators import allow
 from cms.limiter import limiter
 from cms.models.document import Document, DocumentVersion
+from cms.models.log import add_log
 from cms.schemas import schema
 
 rule = "/document/<int:id>"
@@ -44,3 +46,20 @@ def post(id):
     version.create()
 
     return {"status": "ok", "document": version.as_dict()}
+
+
+@allow("admin")
+@schema("cms/schemas/comment.json")
+def delete(id):
+    """delete a document"""
+    document = Document.get(id=id)
+
+    if document is None:
+        raise NotFound()
+
+    database.session.delete(document)
+
+    add_log("delete_document", document_id=document.id)
+    database.session.commit()
+
+    return {"status": "ok"}

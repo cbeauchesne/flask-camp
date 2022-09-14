@@ -2,25 +2,6 @@ from tests.utils import BaseTest
 
 
 class Test_HideVersion(BaseTest):
-    def get_document(self, document_id, data_should_be_present, version_should_be=None):
-        r = self.get(f"/document/{document_id}")
-        assert r.status_code == 200
-        if data_should_be_present:
-            assert "data" in r.json["document"]
-        else:
-            assert "data" not in r.json["document"]
-
-        if version_should_be:
-            assert r.json["document"]["version_id"] == version_should_be["version_id"]
-
-    def get_document_version(self, version, data_should_be_present):
-        r = self.get(f"/document_version/{version['version_id']}")
-        assert r.status_code == 200
-        if data_should_be_present:
-            assert "data" in r.json["document"]
-        else:
-            assert "data" not in r.json["document"]
-
     def test_typical(self):
         self.db_add_user("modo", roles="moderator")
         self.db_add_user("user")

@@ -44,7 +44,7 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] block/unblock an user
 * [x] Admin options
   * [x] promote/unpromote an user to any role
-  * [ ] delete a document
+  * [x] delete a document
   * [x] delete a document version
 * [x] logs
   * [x] block/unblock user
@@ -57,6 +57,8 @@ Build a wiki API with all common features, regardless of the content of document
 
 ## TODO
 Test rate limiter
+more test on delete
+more test on logs
 
 ## Golden rules
 

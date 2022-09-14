@@ -39,9 +39,7 @@ class BaseTest:
 
         return r
 
-    def db_add_user(
-        self, name="name", email=None, password="password", validate_email=True, roles="", perform_login=False
-    ):
+    def db_add_user(self, name="name", email=None, password="password", validate_email=True, roles=""):
         user = User(
             name=name,
             roles=roles
@@ -99,6 +97,37 @@ class BaseTest:
         r = self.put("/documents", json={"document": {"namespace": namespace, "data": data if data else {}}})
 
         assert r.status_code == expected_status, r.json
+
+        return r
+
+    def get_document(self, document, expected_status=200, data_should_be_present=True, version_should_be=None):
+        document_id = document if isinstance(document, int) else document["id"]
+
+        r = self.get(f"/document/{document_id}")
+        assert r.status_code == expected_status
+
+        if r.status_code == 200:
+            if data_should_be_present:
+                assert "data" in r.json["document"]
+            else:
+                assert "data" not in r.json["document"]
+
+            if version_should_be:
+                assert r.json["document"]["version_id"] == version_should_be["version_id"]
+
+        return r
+
+    def get_document_version(self, version, expected_status=200, data_should_be_present=True):
+        version_id = version if isinstance(version, int) else version["version_id"]
+
+        r = self.get(f"/document_version/{version_id}")
+        assert r.status_code == expected_status
+
+        if r.status_code == 200:
+            if data_should_be_present:
+                assert "data" in r.json["document"]
+            else:
+                assert "data" not in r.json["document"]
 
         return r
 
