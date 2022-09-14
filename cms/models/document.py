@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 
+from flask_login import current_user
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
 
@@ -40,7 +41,7 @@ class DocumentVersion(BaseModel):
         kwargs["timestamp"] = datetime.now()
         super().__init__(**kwargs)
 
-    def as_dict(self, include_data_even_if_hidden=False):
+    def as_dict(self):
         result = {
             "id": self.document.id,
             "namespace": self.document.namespace,
@@ -52,7 +53,7 @@ class DocumentVersion(BaseModel):
             "hidden": self.hidden,
         }
 
-        if include_data_even_if_hidden or not self.hidden:
+        if not self.hidden or (current_user.is_authenticated and (current_user.is_admin or current_user.is_moderator)):
             result["data"] = json.loads(self.data)
 
         return result

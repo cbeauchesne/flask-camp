@@ -1,5 +1,4 @@
 from flask import request
-from flask_login import current_user
 from werkzeug.exceptions import BadRequest
 
 from cms.decorators import allow
@@ -36,10 +35,8 @@ def get():
     count = query.count()
     query = query.offset(offset).limit(limit)
 
-    include_data_even_if_hidden = current_user.is_authenticated and (current_user.is_admin or current_user.is_moderator)
-
     return {
         "status": "ok",
         "count": count,
-        "changes": [version.as_dict(include_data_even_if_hidden=include_data_even_if_hidden) for version in query],
+        "changes": [version.as_dict() for version in query],
     }

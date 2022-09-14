@@ -1,6 +1,47 @@
 from tests.utils import BaseTest
 
 
+class Test_GetVersion(BaseTest):
+    def test_errors(self):
+        r = self.get("/document_version/42")
+        assert r.status_code == 404
+
+    def test_main(self):
+        self.add_user()
+        self.login_user()
+
+        v0 = self.put_document().json["document"]
+        document_id = v0["id"]
+        v1 = self.post_document(document_id, data={"value": "43"}).json["document"]
+
+        self.logout_user()
+
+        r = self.get(f"/document_version/{v0['version_id']}")
+        assert r.status_code == 200
+        assert r.json["document"]["data"] == {}
+
+        r = self.get(f"/document_version/{v1['version_id']}")
+        assert r.status_code == 200
+        assert r.json["document"]["data"] == {"value": "43"}
+
+        modo = self.add_user("modo", roles="moderator")
+        self.login_user(modo.name)
+
+        r = self.put(f"/hide_version/{v0['version_id']}")
+        assert r.status_code == 200
+
+        r = self.get(f"/document_version/{v0['version_id']}")
+        assert r.status_code == 200
+        assert r.json["document"]["data"] == {}
+
+        self.login_user()
+
+        r = self.get(f"/document_version/{v0['version_id']}")
+        assert r.status_code == 200
+        assert "data" not in r.json["document"]
+        assert r.json["document"]["hidden"] is True
+
+
 class Test_DeleteVersion(BaseTest):
     def test_main(self):
         self.add_user()

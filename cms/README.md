@@ -31,6 +31,7 @@ Build a wiki API with all common features, regardless of the content of document
 * [ ] Modify
   * [x] Modify document
   * [ ] manage edit conflict
+  * [x] get a given version
 * [x] document history
   * [x] all changes
   * [x] all changes related to one document

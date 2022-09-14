@@ -10,6 +10,17 @@ from cms.models.log import add_log
 rule = "/document_version/<int:id>"
 
 
+@allow("anonymous")
+def get(id):
+
+    version = DocumentVersion.get(id=id)
+
+    if version is None:
+        raise NotFound()
+
+    return {"status": "ok", "document": version.as_dict()}
+
+
 @allow("admin")
 @schema("cms/schemas/delete_version.json")
 def delete(id):
