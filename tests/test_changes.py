@@ -1,7 +1,7 @@
 from tests.utils import BaseTest
 
 
-class Test_Document(BaseTest):
+class Test_Changes(BaseTest):
     def test_main(self):
         r = self.get("/changes")
         assert r.status_code == 200
