@@ -27,8 +27,7 @@ class Test_GetVersion(BaseTest):
         modo = self.add_user("modo", roles="moderator")
         self.login_user(modo.name)
 
-        r = self.put(f"/hide_version/{v0['version_id']}")
-        assert r.status_code == 200
+        self.hide_version(v0)
 
         r = self.get(f"/document_version/{v0['version_id']}")
         assert r.status_code == 200
@@ -98,7 +97,4 @@ class Test_DeleteVersion(BaseTest):
         assert r.status_code == 400, r.json
 
         r = self.delete("/document_version/200")
-        assert r.status_code == 400, r.json
-
-        r = self.delete("/document_version/200", json={"commentt": "toto", "comment": "toto"})
         assert r.status_code == 400, r.json

@@ -106,8 +106,47 @@ class BaseTest:
 
         return user["login_token"]
 
+    # helpers
     def put_document(self, namespace="x", data=None):
         return self.put("/documents", json={"document": {"namespace": namespace, "data": data if data else {}}})
 
     def post_document(self, id, data=None):
         return self.post(f"/document/{id}", json={"document": {"namespace": "", "data": data if data else {}}})
+
+    def hide_version(self, version=None, version_id=None, expected_status=200):
+        version_id = version_id if version_id is not None else version["version_id"]
+
+        r = self.put(f"/hide_version/{version_id}", json={"comment": "some comment"})
+        assert r.status_code == expected_status
+
+        return r
+
+    def unhide_version(self, version=None, version_id=None, expected_status=200):
+        version_id = version_id if version_id is not None else version["version_id"]
+
+        r = self.delete(f"/hide_version/{version_id}", json={"comment": "some comment"})
+        assert r.status_code == expected_status
+
+        return r
+
+    def protect_document(self, document_id, expected_status=200):
+        r = self.put(f"/protect_document/{document_id}", json={"comment": "some comment"})
+        assert r.status_code == expected_status
+
+        return r
+
+    def unprotect_document(self, document_id, expected_status=200):
+        r = self.delete(f"/protect_document/{document_id}", json={"comment": "some comment"})
+        assert r.status_code == expected_status
+
+        return r
+
+    def block_user(self, user, expected_status=200):
+        r = self.put(f"/block_user/{user.id}", json={"comment": "Some comment"})
+        assert r.status_code == expected_status, r.json
+        return r
+
+    def unblock_user(self, user, expected_status=200):
+        r = self.delete(f"/block_user/{user.id}", json={"comment": "Some comment"})
+        assert r.status_code == expected_status, r.json
+        return r

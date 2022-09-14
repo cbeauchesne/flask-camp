@@ -13,8 +13,8 @@ class Test_Logs(BaseTest):
         doc = self.put_document().json["document"]
         self.post_document(doc["id"], data="v2")
 
-        self.put(f"/hide_version/{doc['version_id']}")
-        self.delete(f"/hide_version/{doc['version_id']}")
+        self.hide_version(doc)
+        self.unhide_version(doc)
 
         r = self.get("/logs")
 
@@ -41,13 +41,13 @@ class Test_Logs(BaseTest):
         user = self.add_user("user")
 
         self.login_user()
-        self.put(f"/block_user/{user.id}")
-        self.delete(f"/block_user/{user.id}")
+        self.block_user(user)
+        self.unblock_user(user)
 
         doc = self.put_document().json["document"]
 
-        self.put(f"/protect_document/{doc['id']}")
-        self.delete(f"/protect_document/{doc['id']}")
+        self.protect_document(document_id=doc["id"])
+        self.unprotect_document(document_id=doc["id"])
 
         self.logout_user()
         admin = self.add_user(name="admin", roles="admin")

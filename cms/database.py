@@ -23,7 +23,7 @@ def execute(sql):
     return _engine.execute(sql)
 
 
-add_handler(logging.NullHandler())
+# add_handler(logging.NullHandler())
 
 _engine = create_engine("sqlite://")
 session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=_engine))

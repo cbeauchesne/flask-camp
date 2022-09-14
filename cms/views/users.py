@@ -6,7 +6,6 @@ from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized, NotFound
 
 from cms import database
 from cms.decorators import allow
-from cms.models.log import add_log
 from cms.models.user import User as UserModel
 from cms.schemas import schema
 

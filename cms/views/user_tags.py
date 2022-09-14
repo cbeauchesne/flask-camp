@@ -5,7 +5,6 @@ from werkzeug.exceptions import BadRequest, NotFound
 
 from cms import database
 from cms.decorators import allow
-from cms.models.log import add_log
 from cms.models.user_tag import UserTag
 from cms.schemas import schema
 

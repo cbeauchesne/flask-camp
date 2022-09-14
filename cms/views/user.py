@@ -55,11 +55,11 @@ def post(id):
     if "password" in data:
         # TODO check current password
         user.set_password(data["password"])
-        log_admin_action(action="change_password", target_user_id=id)
+        log_admin_action(action="change_password", comment="", target_user_id=id)
 
     if "email" in data:
         user.set_email(data["email"])
-        log_admin_action(action="change_email", target_user_id=id)
+        log_admin_action(action="change_email", comment="", target_user_id=id)
 
     if "roles" in data and current_user.is_admin:
         new_roles = data["roles"]
@@ -69,11 +69,11 @@ def post(id):
 
         for role in old_roles:
             if not role in new_roles:
-                log_admin_action(action=f"remove_role {role}", target_user_id=id)
+                log_admin_action(action=f"remove_role {role}", comment="", target_user_id=id)
 
         for role in new_roles:
             if not role in old_roles:
-                log_admin_action(action=f"add_role {role}", target_user_id=id)
+                log_admin_action(action=f"add_role {role}", comment="", target_user_id=id)
 
     database.session.commit()
 

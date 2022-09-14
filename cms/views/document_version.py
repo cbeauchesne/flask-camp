@@ -22,12 +22,8 @@ def get(id):
 
 
 @allow("admin")
-@schema("cms/schemas/delete_version.json")
+@schema("cms/schemas/comment.json")
 def delete(id):
-
-    body = request.get_json()
-
-    comment = body["comment"]
 
     version = DocumentVersion.get(id=id)
 

@@ -2,18 +2,6 @@ from tests.utils import BaseTest
 
 
 class Test_HideVersion(BaseTest):
-    def hide_version(self, doc, expected_status=200):
-        r = self.put(f"/hide_version/{doc['version_id']}")
-        assert r.status_code == expected_status
-
-        return r
-
-    def unhide_version(self, doc, expected_status=200):
-        r = self.delete(f"/hide_version/{doc['version_id']}")
-        assert r.status_code == expected_status
-
-        return r
-
     def get_document(self, document_id, data_should_be_present, version_should_be=None):
         r = self.get(f"/document/{document_id}")
         assert r.status_code == 200
@@ -89,34 +77,26 @@ class Test_HideVersion(BaseTest):
     def test_forbidden(self):
 
         # anonymous
-        r = self.put("/hide_version/1")
-        assert r.status_code == 403
-        r = self.delete("/hide_version/1")
-        assert r.status_code == 403
+        self.hide_version(version_id=1, expected_status=403)
+        self.unhide_version(version_id=1, expected_status=403)
 
         # authenticated
         self.add_user()
         self.login_user()
-        r = self.put("/hide_version/1")
-        assert r.status_code == 403
-        r = self.delete("/hide_version/1")
-        assert r.status_code == 403
+        self.hide_version(version_id=1, expected_status=403)
+        self.unhide_version(version_id=1, expected_status=403)
         self.logout_user()
 
         self.add_user("admin", roles="admin")
         self.login_user("admin")
-        r = self.put("/hide_version/1")
-        assert r.status_code == 403
-        r = self.delete("/hide_version/1")
-        assert r.status_code == 403
+        self.hide_version(version_id=1, expected_status=403)
+        self.unhide_version(version_id=1, expected_status=403)
 
     def test_notfound(self):
         self.add_user(roles="moderator")
         self.login_user()
-        r = self.put("/hide_version/1")
-        assert r.status_code == 404
-        r = self.delete("/hide_version/1")
-        assert r.status_code == 404
+        self.hide_version(version_id=1, expected_status=404)
+        self.unhide_version(version_id=1, expected_status=404)
 
     def test_hide_last(self):
 

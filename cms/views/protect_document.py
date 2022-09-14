@@ -13,6 +13,7 @@ rule = "/protect_document/<int:id>"
 
 
 @allow("moderator")
+@schema("cms/schemas/comment.json")
 def put(id):
     doc = Document.query().filter_by(id=id).first()
 
@@ -27,6 +28,7 @@ def put(id):
 
 
 @allow("moderator")
+@schema("cms/schemas/comment.json")
 def delete(id):
     doc = Document.query().filter_by(id=id).first()
 

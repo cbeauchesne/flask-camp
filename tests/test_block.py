@@ -8,29 +8,23 @@ class Test_Protection(BaseTest):
     def test_not_allowed(self):
         user = self.add_user()
 
-        r = self.put(f"/block_user/{user.id}")
-        assert r.status_code == 403
-
-        r = self.delete(f"/block_user/{user.id}")
-        assert r.status_code == 403
+        self.block_user(user, 403)
+        self.unblock_user(user, 403)
 
         self.login_user()
 
-        r = self.put(f"/block_user/{user.id}")
-        assert r.status_code == 403
-
-        r = self.delete(f"/block_user/{user.id}")
-        assert r.status_code == 403
+        self.block_user(user, 403)
+        self.unblock_user(user, 403)
 
     def test_not_found(self):
         self.add_user(roles="moderator")
         self.login_user()
 
-        r = self.put("/block_user/42")
-        assert r.status_code == 404
+        r = self.put("/block_user/42", json={"comment": "some comment"})
+        assert r.status_code == 404, r.json
 
-        r = self.delete("/block_user/42")
-        assert r.status_code == 404
+        r = self.delete("/block_user/42", json={"comment": "some comment"})
+        assert r.status_code == 404, r.json
 
     def test_typical_scenario(self):
         moderator = self.add_user(roles="moderator")
@@ -45,11 +39,8 @@ class Test_Protection(BaseTest):
         r = self.get(f"/user/{user.id}")
         assert r.json["user"]["blocked"] is False
 
-        r = self.put(f"/block_user/{user.id}")
-        assert r.status_code == 200
-
-        r = self.put(f"/block_user/{user.id}")  # block him twice, it should not produce an error
-        assert r.status_code == 200
+        self.block_user(user)
+        self.block_user(user)  # block him twice, it should not produce an error
 
         r = self.get(f"/user/{user.id}")  # it's status is now blocked
         assert r.json["user"]["blocked"] is True
@@ -84,11 +75,8 @@ class Test_Protection(BaseTest):
         self.logout_user()
         self.login_user()
 
-        r = self.delete(f"/block_user/{user.id}")
-        assert r.status_code == 200
-
-        r = self.delete(f"/block_user/{user.id}")  # unblock him twice, it should not produce an error
-        assert r.status_code == 200
+        self.unblock_user(user)
+        self.unblock_user(user)  # unblock him twice, it should not produce an error
 
         r = self.get(f"/user/{user.id}")
         assert not r.json["user"]["blocked"]

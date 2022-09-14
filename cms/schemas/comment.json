@@ -1,0 +1,13 @@
+{
+    "description": "Any action that requires a comment",
+    "type": "object",
+    "properties": {
+      "comment": {
+        "type": "string",
+        "minLength": 3,
+        "maxLength": 128
+      }
+    },
+    "required": ["comment"]
+  }
+  

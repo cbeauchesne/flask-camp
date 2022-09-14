@@ -4,11 +4,13 @@ from cms import database
 from cms.decorators import allow
 from cms.models.document import DocumentVersion
 from cms.models.log import add_log
+from cms.schemas import schema
 
 rule = "/hide_version/<int:id>"
 
 
 @allow("moderator")
+@schema("cms/schemas/comment.json")
 def put(id):
     version = DocumentVersion.get(id=id)
 
@@ -24,6 +26,7 @@ def put(id):
 
 
 @allow("moderator")
+@schema("cms/schemas/comment.json")
 def delete(id):
     version = DocumentVersion.get(id=id)
 
