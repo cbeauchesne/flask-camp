@@ -4,7 +4,7 @@ from werkzeug.exceptions import BadRequest
 from cms.decorators import allow
 from cms.models.document import Document, DocumentVersion
 
-rule = "/changes"
+rule = "/document_versions"
 
 
 @allow("anonymous")

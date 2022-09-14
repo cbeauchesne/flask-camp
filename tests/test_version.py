@@ -52,7 +52,7 @@ class Test_DeleteVersion(BaseTest):
         v1 = self.modify_document(document_id, data={"value": "43"}).json["document"]
         self.modify_document(document_id, data={"value": "43"})
 
-        r = self.get("/changes", query_string={"document_id": document_id})
+        r = self.get("/document_versions", query_string={"document_id": document_id})
         assert r.json["count"] == 3
 
         self.logout_user()
@@ -61,7 +61,7 @@ class Test_DeleteVersion(BaseTest):
         r = self.delete(f"/document_version/{v1['id']}", json={"comment": "toto"})
         assert r.status_code == 200, r.json
 
-        r = self.get("/changes", query_string={"document_id": document_id})
+        r = self.get("/document_versions", query_string={"document_id": document_id})
         assert r.json["count"] == 2
 
     def test_not_the_last_one(self):

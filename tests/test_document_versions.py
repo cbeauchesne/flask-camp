@@ -1,9 +1,9 @@
 from tests.utils import BaseTest
 
 
-class Test_Changes(BaseTest):
+class Test_DocumentVersions(BaseTest):
     def test_main(self):
-        r = self.get("/changes")
+        r = self.get("/document_versions")
         assert r.status_code == 200
         assert r.json["changes"] == []
 
@@ -17,7 +17,7 @@ class Test_Changes(BaseTest):
         self.modify_document(doc1["id"], data={"value": "doc_1/v2"})
         self.modify_document(doc2["id"], data={"value": "doc_2/v2"})
 
-        r = self.get("/changes", query_string={"document_id": doc1["id"]})
+        r = self.get("/document_versions", query_string={"document_id": doc1["id"]})
         assert r.status_code == 200, r.json
         history = r.json
         assert history["count"] == len(history["changes"]) == 2
@@ -41,7 +41,7 @@ class Test_Changes(BaseTest):
         self.modify_document(doc["id"], data={"value": "y"})
         self.logout_user()
 
-        r = self.get("/changes", query_string={"user_id": user_1.id})
+        r = self.get("/document_versions", query_string={"user_id": user_1.id})
         assert r.status_code == 200, r.json
         history = r.json
         assert history["count"] == len(history["changes"]) == 2
