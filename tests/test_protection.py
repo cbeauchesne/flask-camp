@@ -3,18 +3,18 @@ from tests.utils import BaseTest
 
 class Test_Protection(BaseTest):
     def test_errors(self):
-        self.add_user(roles="moderator")
+        self.db_add_user(roles="moderator")
         self.login_user()
 
         self.protect_document(42, 404)
         self.unprotect_document(42, 404)
 
     def test_typical_scenario(self):
-        moderator = self.add_user(roles="moderator")
-        user = self.add_user(name="regular_user")
+        moderator = self.db_add_user(roles="moderator")
+        user = self.db_add_user(name="regular_user")
 
         self.login_user(user.name)
-        r = self.put_document()
+        r = self.create_document()
         document_id = r.json["document"]["id"]
 
         # try to protect a doc without being an moderator
@@ -29,22 +29,14 @@ class Test_Protection(BaseTest):
         assert r.json["document"]["protected"] is True
         self.logout_user()
 
-        # try to unprotect doc without being an moderator
         self.login_user(user.name)
-        r = self.protect_document(document_id, 403)
-
-        # try to edit doc without being an moderator
-        r = self.post_document(document_id)
-        assert r.status_code == 403
+        self.protect_document(document_id, expected_status=403)  # unprotect doc without being an moderator
+        self.modify_document(document_id, expected_status=403)  # edit protected doc without being an moderator
         self.logout_user()
 
-        # edit protected doc
         self.login_user(moderator.name)
-        r = self.post_document(document_id, data={"value": "43"})
-        assert r.status_code == 200
-
-        # unprotect doc
-        r = self.unprotect_document(document_id)
+        self.modify_document(document_id, data={"value": "43"}, expected_status=200)  # edit protected doc
+        self.unprotect_document(document_id, expected_status=200)  # unprotect doc
 
         r = self.get(f"/document/{document_id}")
         assert r.json["document"]["protected"] is False
@@ -52,8 +44,7 @@ class Test_Protection(BaseTest):
 
         # edit deprotected doc
         self.login_user(user.name)
-        r = self.post_document(document_id, data={"value": "43"})
-        assert r.status_code == 200
+        r = self.modify_document(document_id, data={"value": "43"}, expected_status=200)
         assert r.json["document"]["protected"] is False
 
         # try to hack

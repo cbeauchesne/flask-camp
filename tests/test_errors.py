@@ -11,7 +11,7 @@ def test_missing_schema():
 
 class Test_Errors(BaseTest):
     def test_no_body(self):
-        self.add_user()
+        self.db_add_user()
         self.login_user()
 
         r = self.put("/documents", data="null")
@@ -24,8 +24,8 @@ class Test_Errors(BaseTest):
         assert r.json["description"] == "None is not of type 'object' on instance ", r.json
 
     def test_vuln(self):
-        user1 = self.add_user()
-        user2 = self.add_user("user2")
+        user1 = self.db_add_user()
+        user2 = self.db_add_user("user2")
 
         r = self.client.get(f"/__testing/vuln/{user1.id}")
         assert r.status_code == 403

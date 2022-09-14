@@ -56,7 +56,7 @@ class BaseTest:
 
         return r
 
-    def add_user(self, name="name", email=None, password="password", validate_email=True, roles=""):
+    def db_add_user(self, name="name", email=None, password="password", validate_email=True, roles=""):
         user = User(
             name=name,
             roles=roles
@@ -83,7 +83,10 @@ class BaseTest:
             roles=user.roles,
         )
 
-    def login_user(self, name="name", password="password", expected_status=200):
+    def login_user(self, user="name", password="password", expected_status=200):
+
+        name = user if isinstance(user, str) else user.name
+
         r = self.post("/login", json={"name": name, "password": password})
         assert r.status_code == expected_status, f"Expecting status {expected_status}, got {r.status_code}: {r.json}"
 
@@ -107,22 +110,32 @@ class BaseTest:
         return user["login_token"]
 
     # helpers
-    def put_document(self, namespace="x", data=None):
-        return self.put("/documents", json={"document": {"namespace": namespace, "data": data if data else {}}})
+    def create_document(self, namespace="x", data=None, expected_status=200):
+        r = self.put("/documents", json={"document": {"namespace": namespace, "data": data if data else {}}})
 
-    def post_document(self, id, data=None):
-        return self.post(f"/document/{id}", json={"document": {"namespace": "", "data": data if data else {}}})
+        assert r.status_code == expected_status, r.json
 
-    def hide_version(self, version=None, version_id=None, expected_status=200):
-        version_id = version_id if version_id is not None else version["version_id"]
+        return r
+
+    def modify_document(self, document, data=None, expected_status=200):
+        document_id = document if isinstance(document, int) else document["id"]
+
+        r = self.post(f"/document/{document_id}", json={"document": {"namespace": "", "data": data if data else {}}})
+
+        assert r.status_code == expected_status, r.json
+
+        return r
+
+    def hide_version(self, version, expected_status=200):
+        version_id = version if isinstance(version, int) else version["version_id"]
 
         r = self.put(f"/hide_version/{version_id}", json={"comment": "some comment"})
         assert r.status_code == expected_status
 
         return r
 
-    def unhide_version(self, version=None, version_id=None, expected_status=200):
-        version_id = version_id if version_id is not None else version["version_id"]
+    def unhide_version(self, version, expected_status=200):
+        version_id = version if isinstance(version, int) else version["version_id"]
 
         r = self.delete(f"/hide_version/{version_id}", json={"comment": "some comment"})
         assert r.status_code == expected_status

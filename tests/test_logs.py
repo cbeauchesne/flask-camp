@@ -7,11 +7,11 @@ class Test_Logs(BaseTest):
         assert r.status_code == 200
 
     def test_hide_version(self):
-        moderator = self.add_user(roles="moderator")
+        moderator = self.db_add_user(roles="moderator")
         self.login_user()
 
-        doc = self.put_document().json["document"]
-        self.post_document(doc["id"], data="v2")
+        doc = self.create_document().json["document"]
+        self.modify_document(doc["id"], data="v2")
 
         self.hide_version(doc)
         self.unhide_version(doc)
@@ -37,20 +37,20 @@ class Test_Logs(BaseTest):
         assert r.status_code == 400
 
     def test_typical_scenario(self):
-        moderator = self.add_user(roles="moderator")
-        user = self.add_user("user")
+        moderator = self.db_add_user(roles="moderator")
+        user = self.db_add_user("user")
 
         self.login_user()
         self.block_user(user)
         self.unblock_user(user)
 
-        doc = self.put_document().json["document"]
+        doc = self.create_document().json["document"]
 
         self.protect_document(document_id=doc["id"])
         self.unprotect_document(document_id=doc["id"])
 
         self.logout_user()
-        admin = self.add_user(name="admin", roles="admin")
+        admin = self.db_add_user(name="admin", roles="admin")
         self.login_user("admin")
 
         self.post(f"/user/{user.id}", json={"roles": ["moderator"]})

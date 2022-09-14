@@ -3,8 +3,8 @@ from tests.utils import BaseTest
 
 class Test_Admin(BaseTest):
     def test_right_attribution(self):
-        admin = self.add_user(roles="admin")
-        user = self.add_user("basic_user")
+        admin = self.db_add_user(roles="admin")
+        user = self.db_add_user("basic_user")
 
         self.login_user(user.name)
 

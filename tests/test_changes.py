@@ -8,14 +8,14 @@ class Test_Document(BaseTest):
         assert r.json["changes"] == []
 
     def test_simple(self):
-        self.add_user()
+        self.db_add_user()
         self.login_user()
 
-        doc1 = self.put_document(data={"value": "doc_1/v1"}).json["document"]
-        doc2 = self.put_document(data={"value": "doc_2/v1"}).json["document"]
+        doc1 = self.create_document(data={"value": "doc_1/v1"}).json["document"]
+        doc2 = self.create_document(data={"value": "doc_2/v1"}).json["document"]
 
-        self.post_document(doc1["id"], data={"value": "doc_1/v2"})
-        self.post_document(doc2["id"], data={"value": "doc_2/v2"})
+        self.modify_document(doc1["id"], data={"value": "doc_1/v2"})
+        self.modify_document(doc2["id"], data={"value": "doc_2/v2"})
 
         r = self.get("/changes", query_string={"document_id": doc1["id"]})
         assert r.status_code == 200, r.json
@@ -28,17 +28,17 @@ class Test_Document(BaseTest):
         assert history["changes"][1]["data"] == {"value": "doc_1/v1"}
 
     def test_user_filter(self):
-        user_1 = self.add_user()
-        user_2 = self.add_user("user2")
+        user_1 = self.db_add_user()
+        user_2 = self.db_add_user("user2")
 
         self.login_user()
-        doc = self.put_document(data={"value": "x"}).json["document"]
-        self.post_document(doc["id"], data={"value": "y"})
+        doc = self.create_document(data={"value": "x"}).json["document"]
+        self.modify_document(doc["id"], data={"value": "y"})
         self.logout_user()
 
         self.login_user(user_2.name)
-        doc = self.put_document(data={"value": "x"}).json["document"]
-        self.post_document(doc["id"], data={"value": "y"})
+        doc = self.create_document(data={"value": "x"}).json["document"]
+        self.modify_document(doc["id"], data={"value": "y"})
         self.logout_user()
 
         r = self.get("/changes", query_string={"user_id": user_1.id})

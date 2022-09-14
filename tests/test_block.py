@@ -6,7 +6,7 @@ from tests.utils import BaseTest
 
 class Test_Protection(BaseTest):
     def test_not_allowed(self):
-        user = self.add_user()
+        user = self.db_add_user()
 
         self.block_user(user, 403)
         self.unblock_user(user, 403)
@@ -17,7 +17,7 @@ class Test_Protection(BaseTest):
         self.unblock_user(user, 403)
 
     def test_not_found(self):
-        self.add_user(roles="moderator")
+        self.db_add_user(roles="moderator")
         self.login_user()
 
         r = self.put("/block_user/42", json={"comment": "some comment"})
@@ -27,13 +27,13 @@ class Test_Protection(BaseTest):
         assert r.status_code == 404, r.json
 
     def test_typical_scenario(self):
-        moderator = self.add_user(roles="moderator")
-        user = self.add_user(name="regular_user")
+        moderator = self.db_add_user(roles="moderator")
+        user = self.db_add_user(name="regular_user")
 
         # log moderator, create a doc
         self.login_user()
 
-        doc = self.put_document().json["document"]
+        doc = self.create_document().json["document"]
 
         # now get the user, check its blocked status, and block him
         r = self.get(f"/user/{user.id}")
@@ -57,11 +57,8 @@ class Test_Protection(BaseTest):
         r = self.get("/documents")
         assert r.status_code == 200
 
-        r = self.put_document()
-        assert r.status_code == 403
-
-        r = self.post_document(doc["id"])
-        assert r.status_code == 403
+        self.create_document(expected_status=403)
+        self.modify_document(doc["id"], expected_status=403)
 
         # Though, he can modify itself
         r = self.post(f"/user/{user.id}", json={"password": "updated"})
@@ -85,8 +82,5 @@ class Test_Protection(BaseTest):
         self.logout_user()
         self.login_user()
 
-        r = self.put_document()
-        assert r.status_code == 200
-
-        r = self.post_document(doc["id"], data={"value": "42"})
-        assert r.status_code == 200
+        self.create_document(expected_status=200)
+        self.modify_document(doc["id"], data={"value": "42"}, expected_status=200)

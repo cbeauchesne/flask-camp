@@ -21,10 +21,10 @@ class Test_UserTag(BaseTest):
         assert r.status_code == 403
 
     def test_add_modify_delete(self):
-        user = self.add_user()
+        user = self.db_add_user()
         self.login_user()
 
-        doc = self.put_document().json["document"]
+        doc = self.create_document().json["document"]
 
         r = self.post("/user_tags", json={"name": "x", "document_id": doc["id"]})
         assert r.status_code == 200
@@ -49,12 +49,12 @@ class Test_UserTag(BaseTest):
         assert_tag(r.json["user_tags"][0], user, doc["id"], "y", "6a")
 
     def test_get_tags(self):
-        user1 = self.add_user("user1")
-        user2 = self.add_user("user2")
+        user1 = self.db_add_user("user1")
+        user2 = self.db_add_user("user2")
 
         self.login_user(user1.name)
-        doc1 = self.put_document().json["document"]
-        doc2 = self.put_document().json["document"]
+        doc1 = self.create_document().json["document"]
+        doc2 = self.create_document().json["document"]
 
         self.post("/user_tags", json={"name": "t1", "document_id": doc1["id"]})
         self.post("/user_tags", json={"name": "t2", "document_id": doc1["id"]})
@@ -94,17 +94,17 @@ class Test_UserTag(BaseTest):
         assert r.json["count"] == 1
 
     def test_get_documents(self):
-        self.add_user()
+        self.db_add_user()
         self.login_user()
-        doc1 = self.put_document().json["document"]
-        doc2 = self.put_document().json["document"]
-        doc3 = self.put_document().json["document"]
+        doc1 = self.create_document().json["document"]
+        doc2 = self.create_document().json["document"]
+        doc3 = self.create_document().json["document"]
         self.post("/user_tags", json={"name": "t1", "document_id": doc1["id"], "value": "6a"})
         self.post("/user_tags", json={"name": "t1", "document_id": doc2["id"]})
         self.post("/user_tags", json={"name": "t2", "document_id": doc3["id"]})
         self.logout_user()
 
-        user2 = self.add_user("user2")
+        user2 = self.db_add_user("user2")
         self.login_user(user2.name)
         self.post("/user_tags", json={"name": "t1", "document_id": doc1["id"]})
 
@@ -118,10 +118,10 @@ class Test_UserTag(BaseTest):
         assert r.json["count"] == 1
 
     def test_errors(self):
-        self.add_user()
+        self.db_add_user()
         self.login_user()
 
-        doc = self.put_document().json["document"]
+        doc = self.create_document().json["document"]
 
         r = self.delete("/user_tags", json={"name": "x", "document_id": doc["id"]})
         assert r.status_code == 404

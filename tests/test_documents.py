@@ -4,8 +4,7 @@ from tests.utils import BaseTest
 
 class Test_Document(BaseTest):
     def test_creation_not_logged(self):
-        r = self.put_document()
-        assert r.status_code == 403
+        self.create_document(expected_status=403)
 
     def assert_document(self, document, user, data, comment="creation"):
         assert document["comment"] == comment
@@ -17,7 +16,7 @@ class Test_Document(BaseTest):
         assert document["user"]["id"] == user.id
 
     def test_creation(self):
-        user = self.add_user()
+        user = self.db_add_user()
         self.login_user()
 
         r = self.get("documents")
@@ -26,8 +25,7 @@ class Test_Document(BaseTest):
         assert r.json["count"] == 0
         assert r.json["documents"] == []
 
-        r = self.put_document(data={"value": "42"})
-        assert r.status_code == 200
+        r = self.create_document(data={"value": "42"})
         assert r.json["status"] == "ok"
         self.assert_document(r.json["document"], user, data={"value": "42"})
 
@@ -46,16 +44,14 @@ class Test_Document(BaseTest):
         self.assert_document(r.json["documents"][0], user, data={"value": "42"})
 
     def test_modification(self):
-        user = self.add_user()
+        user = self.db_add_user()
         self.login_user()
 
-        r = self.put_document()
-        assert r.status_code == 200, r.json
+        r = self.create_document(expected_status=200)
         first_version = r.json["document"]
         document_id = first_version["id"]
 
-        r = self.post_document(document_id, data={"value": "43"})
-        assert r.status_code == 200
+        r = self.modify_document(document_id, data={"value": "43"}, expected_status=200)
         second_version = r.json["document"]
 
         self.assert_document(second_version, user, comment="", data={"value": "43"})
@@ -67,14 +63,13 @@ class Test_Document(BaseTest):
         assert r.json["documents"][0]["version_id"] == second_version["version_id"]
 
     def test_errors(self):
-        self.add_user()
+        self.db_add_user()
         self.login_user()
 
         r = self.get("/document/1")
         assert r.status_code == 404
 
-        r = self.post_document(1)
-        assert r.status_code == 404
+        self.modify_document(1, expected_status=404)
 
         r = self.put("/documents", json={"document": {"data": {}}})
         assert r.status_code == 400, r.json

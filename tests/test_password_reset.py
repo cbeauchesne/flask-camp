@@ -15,7 +15,7 @@ from tests.utils import BaseTest
 
 class Test_PasswordReset(BaseTest):
     def test_simple(self):
-        user = self.add_user()
+        user = self.db_add_user()
         r = self.post("/reset_password", json={"email": user._email})
         assert r.status_code == 200
         assert "expiration_date" in r.json
@@ -42,13 +42,13 @@ class Test_PasswordReset(BaseTest):
         assert r.status_code == 200
 
     def test_user_is_not_validated(self):
-        user = self.add_user(validate_email=False)
+        user = self.db_add_user(validate_email=False)
         r = self.post("/reset_password", json={"email": user._email_to_validate})
         assert r.status_code == 200
         assert self.get_login_token(user.name) is None
 
     def test_bad_token(self):
-        user = self.add_user()
+        user = self.db_add_user()
         r = self.post("/reset_password", json={"email": user._email})
         assert r.status_code == 200, r.json
 
@@ -56,7 +56,7 @@ class Test_PasswordReset(BaseTest):
         assert r.status_code == 401, r.json
 
     def test_several_request(self):
-        user = self.add_user()
+        user = self.db_add_user()
 
         r = self.post("/reset_password", json={"email": user._email})
         assert r.status_code == 200
@@ -77,7 +77,7 @@ class Test_PasswordReset(BaseTest):
         assert r.status_code == 200
 
     def test_expiration(self):
-        user = self.add_user()
+        user = self.db_add_user()
 
         r = self.post("/reset_password", json={"email": user._email})
         token = self.get_login_token(user.name)

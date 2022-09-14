@@ -22,13 +22,13 @@ class Test_HideVersion(BaseTest):
             assert "data" not in r.json["document"]
 
     def test_typical(self):
-        self.add_user("modo", roles="moderator")
-        self.add_user("user")
+        self.db_add_user("modo", roles="moderator")
+        self.db_add_user("user")
 
         self.login_user("modo")
 
-        doc_v1 = self.put_document(data="v1").json["document"]
-        doc_v2 = self.post_document(doc_v1["id"], data="v2").json["document"]
+        doc_v1 = self.create_document(data="v1").json["document"]
+        doc_v2 = self.modify_document(doc_v1["id"], data="v2").json["document"]
 
         self.hide_version(doc_v1)
 
@@ -77,34 +77,34 @@ class Test_HideVersion(BaseTest):
     def test_forbidden(self):
 
         # anonymous
-        self.hide_version(version_id=1, expected_status=403)
-        self.unhide_version(version_id=1, expected_status=403)
+        self.hide_version(1, expected_status=403)
+        self.unhide_version(1, expected_status=403)
 
         # authenticated
-        self.add_user()
+        self.db_add_user()
         self.login_user()
-        self.hide_version(version_id=1, expected_status=403)
-        self.unhide_version(version_id=1, expected_status=403)
+        self.hide_version(1, expected_status=403)
+        self.unhide_version(1, expected_status=403)
         self.logout_user()
 
-        self.add_user("admin", roles="admin")
+        self.db_add_user("admin", roles="admin")
         self.login_user("admin")
-        self.hide_version(version_id=1, expected_status=403)
-        self.unhide_version(version_id=1, expected_status=403)
+        self.hide_version(1, expected_status=403)
+        self.unhide_version(1, expected_status=403)
 
     def test_notfound(self):
-        self.add_user(roles="moderator")
+        self.db_add_user(roles="moderator")
         self.login_user()
-        self.hide_version(version_id=1, expected_status=404)
-        self.unhide_version(version_id=1, expected_status=404)
+        self.hide_version(1, expected_status=404)
+        self.unhide_version(1, expected_status=404)
 
     def test_hide_last(self):
 
-        self.add_user(roles="moderator")
+        self.db_add_user(roles="moderator")
         self.login_user()
 
-        doc_v1 = self.put_document(data="v1").json["document"]
-        doc_v2 = self.post_document(doc_v1["id"], data="v2").json["document"]
+        doc_v1 = self.create_document(data="v1").json["document"]
+        doc_v2 = self.modify_document(doc_v1["id"], data="v2").json["document"]
         document_id = doc_v1["id"]
 
         # state 1: only V2 is hidden (it's the last one)

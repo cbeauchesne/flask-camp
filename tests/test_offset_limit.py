@@ -3,12 +3,11 @@ from tests.utils import BaseTest
 
 class Test_Documents(BaseTest):
     def test_simple(self):
-        self.add_user()
+        self.db_add_user()
         self.login_user()
 
         for i in range(110):
-            r = self.put_document(data={"value": f"doc {i}"})
-            assert r.status_code == 200
+            r = self.create_document(data={"value": f"doc {i}"}, expected_status=200)
 
         r = self.get("/documents").json
         assert r["count"] == 110
