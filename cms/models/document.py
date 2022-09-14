@@ -13,25 +13,21 @@ def _as_dict(document, version, include_hidden_data_for_staff=False):
         "id": document.id,
         "namespace": document.namespace,
         "protected": document.protected,
+        "comment": version.comment,
+        "hidden": version.hidden,
+        "timestamp": version.timestamp.isoformat(),
+        "user": version.user.as_dict(),
+        "version_id": version.id,
     }
 
-    if version is not None:  # can happen when all version are deleted
-        result = result | {
-            "comment": version.comment,
-            "hidden": version.hidden,
-            "timestamp": version.timestamp.isoformat(),
-            "user": version.user.as_dict(),
-            "version_id": version.id,
-        }
-
-        if not version.hidden:
-            result["data"] = json.loads(version.data)
-        elif (
-            include_hidden_data_for_staff
-            and current_user.is_authenticated
-            and (current_user.is_admin or current_user.is_moderator)
-        ):
-            result["data"] = json.loads(version.data)
+    if not version.hidden:
+        result["data"] = json.loads(version.data)
+    elif (
+        include_hidden_data_for_staff
+        and current_user.is_authenticated
+        and (current_user.is_admin or current_user.is_moderator)
+    ):
+        result["data"] = json.loads(version.data)
 
     return result
 
