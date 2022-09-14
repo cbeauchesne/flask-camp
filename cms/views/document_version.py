@@ -57,4 +57,3 @@ def delete(id):
     database.session.commit()
 
     return {"status": "ok"}
-

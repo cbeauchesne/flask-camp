@@ -143,7 +143,7 @@ class BaseTest:
     def hide_version(self, version, expected_status=200):
         version_id = version if isinstance(version, int) else version["version_id"]
 
-        r = self.post(f"/document_version/{version_id}", json={"comment": "some comment", "hidden":True})
+        r = self.post(f"/document_version/{version_id}", json={"comment": "some comment", "hidden": True})
         assert r.status_code == expected_status, r.json
 
         return r
@@ -151,7 +151,7 @@ class BaseTest:
     def unhide_version(self, version, expected_status=200):
         version_id = version if isinstance(version, int) else version["version_id"]
 
-        r = self.post(f"/document_version/{version_id}", json={"comment": "some comment", "hidden":False})
+        r = self.post(f"/document_version/{version_id}", json={"comment": "some comment", "hidden": False})
         assert r.status_code == expected_status, r.json
 
         return r

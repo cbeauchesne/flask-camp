@@ -2,7 +2,6 @@ from tests.utils import BaseTest
 
 
 class Test_GetVersion(BaseTest):
-
     def test_errors(self):
         r = self.get("/document_version/42")
         assert r.status_code == 404
