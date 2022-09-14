@@ -185,3 +185,11 @@ class BaseTest:
         assert r.status_code == expected_status, r.json
 
         return r
+
+    def delete_document(self, document, expected_status=200):
+        document_id = document if isinstance(document, int) else document["id"]
+
+        r = self.delete(f"/document/{document_id}", json={"comment": "comment"})
+        assert r.status_code == expected_status, r.json
+
+        return r

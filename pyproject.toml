@@ -6,4 +6,4 @@ max-line-length = 120
 disable = "missing-module-docstring,missing-class-docstring,missing-function-docstring,fixme,too-many-arguments,redefined-builtin"
 
 [tool.pylint.tests]
-disable = "invalid-name,protected-access"
+disable = "invalid-name,protected-access,too-many-public-methods"

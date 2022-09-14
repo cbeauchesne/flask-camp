@@ -1,6 +1,15 @@
 from tests.utils import BaseTest
 
 
+def _assert_log(log, action, user, document_id=None, version_id=None, target_user_id=None):
+
+    assert log["action"] == action
+    assert log["user"]["id"] == user.id
+    assert log["document_id"] == document_id
+    assert log["version_id"] == version_id
+    assert log["target_user_id"] == target_user_id
+
+
 class Test_Logs(BaseTest):
     def test_anonymous_get(self):
         r = self.get("/logs")
@@ -45,6 +54,7 @@ class Test_Logs(BaseTest):
         self.unblock_user(user)
 
         doc = self.create_document().json["document"]
+        doc_v2 = self.modify_document(doc, "v2").json["document"]
 
         self.protect_document(document_id=doc["id"])
         self.unprotect_document(document_id=doc["id"])
@@ -58,47 +68,30 @@ class Test_Logs(BaseTest):
         self.post(f"/user/{user.id}", json={"roles": ["admin", "robot"]})
         self.post(f"/user/{user.id}", json={"roles": []})
 
+        self.delete_document_version(doc_v2)
+        self.delete_document(doc)
+
         r = self.get("/logs")
 
         assert r.status_code == 200
-        assert r.json["count"] == 10, r.json
+        assert r.json["count"] == 12, r.json
 
         logs = r.json["logs"]
 
-        assert logs[-1]["action"] == "block"
-        assert logs[-1]["target_user"]["id"] == user.id
-        assert logs[-1]["user"]["id"] == moderator.id
-        assert logs[-2]["action"] == "unblock"
-        assert logs[-2]["target_user"]["id"] == user.id
-        assert logs[-2]["user"]["id"] == moderator.id
+        _assert_log(logs[-1], "block", moderator, target_user_id=user.id)
+        _assert_log(logs[-2], "unblock", moderator, target_user_id=user.id)
 
-        assert logs[-3]["action"] == "protect"
-        assert logs[-3]["document_id"] == doc["id"]
-        assert logs[-3]["user"]["id"] == moderator.id
-        assert logs[-4]["action"] == "unprotect"
-        assert logs[-4]["document_id"] == doc["id"]
-        assert logs[-4]["user"]["id"] == moderator.id
+        _assert_log(logs[-3], "protect", moderator, document_id=doc["id"])
+        _assert_log(logs[-4], "unprotect", moderator, document_id=doc["id"])
 
-        assert logs[-5]["action"] == "add_role moderator"
-        assert logs[-5]["target_user"]["id"] == user.id
-        assert logs[-5]["user"]["id"] == admin.id
+        _assert_log(logs[-5], "add_role moderator", admin, target_user_id=user.id)
+        _assert_log(logs[-6], "remove_role moderator", admin, target_user_id=user.id)
 
-        assert logs[-6]["action"] == "remove_role moderator"
-        assert logs[-6]["target_user"]["id"] == user.id
-        assert logs[-6]["user"]["id"] == admin.id
+        _assert_log(logs[-7], "add_role admin", admin, target_user_id=user.id)
+        _assert_log(logs[-8], "add_role robot", admin, target_user_id=user.id)
 
-        assert logs[-7]["action"] == "add_role admin"
-        assert logs[-7]["target_user"]["id"] == user.id
-        assert logs[-7]["user"]["id"] == admin.id
+        _assert_log(logs[-9], "remove_role admin", admin, target_user_id=user.id)
+        _assert_log(logs[-10], "remove_role robot", admin, target_user_id=user.id)
 
-        assert logs[-8]["action"] == "add_role robot"
-        assert logs[-8]["target_user"]["id"] == user.id
-        assert logs[-8]["user"]["id"] == admin.id
-
-        assert logs[-9]["action"] == "remove_role admin"
-        assert logs[-9]["target_user"]["id"] == user.id
-        assert logs[-9]["user"]["id"] == admin.id
-
-        assert logs[-10]["action"] == "remove_role robot"
-        assert logs[-10]["target_user"]["id"] == user.id
-        assert logs[-10]["user"]["id"] == admin.id
+        _assert_log(logs[-11], "delete_version", admin, document_id=doc["id"], version_id=doc_v2["version_id"])
+        _assert_log(logs[-12], "delete_document", admin, document_id=doc["id"])

@@ -51,6 +51,7 @@ class Log(BaseModel):
             "user": self.user.as_dict(),
             "timestamp": self.timestamp.isoformat(),
             "action": self.action,
+            "target_user_id": self.target_user_id,
             "target_user": None if self.target_user is None else self.target_user.as_dict(),
             "document_id": self.document_id,
             "merged_document_id": self.merged_document_id,
