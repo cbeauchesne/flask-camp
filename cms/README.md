@@ -23,21 +23,21 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] rate limiting on document creation
   * [x] rate limiting on document modification
 * [x] unique document type, shipping a namespace field.
-  * [x] document can be protected by moderators
-* [ ] document list
-  * [x] get
-  * [x] offset and limit feature
-  * [ ] use elasticsearch
-* [ ] Modify
-  * [x] Modify document
-  * [ ] manage edit conflict
-  * [x] get a given version
-* [x] document history
-  * [x] all changes
-  * [x] all changes related to one document
-  * [x] all changes made by one user
-  * [x] offset and limit feature
-  * [x] an item in the history can be hidden by moderators
+  * [ ] `/documents`
+    * [x] add a document
+    * [x] get list of document
+      * [x] offset and limit feature
+      * [ ] use elasticsearch
+  * [ ] `/document` get, modify, delete a document
+    * [x] Modify document
+    * [ ] manage edit conflict
+  * [x] `/document_versions`
+    * [x] get a list of version
+    * [x] all changes
+    * [x] all changes related to one document
+    * [x] all changes made by one user
+    * [x] offset and limit feature
+  * [ ] `/document_version` get a given version of a doc
 * [x] Moderator options
   * [x] protect/unprotect a document
   * [x] hide/unhide a document version
@@ -50,15 +50,17 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] block/unblock user
   * [x] protect/unprotect document
   * [x] hide/unhide version
+  * [ ] delete a document
+  * [ ] delete a document version
 * [ ] user flag: any user can add any flag/value to any document
   * [x] get all document with some user flag ? /documents?flag=XX
-  * [ ] get all changes on document with an user flag ? /changes?flag=XX (AKA follow list ?)
+  * [ ] get all versions on document with an user flag ? /document_versions?flag=XX (AKA follow list ?)
 
 
 ## TODO
 email
 elastic search
-get all changes on document with an user flag ? /changes?flag=XX (AKA follow list ?)
+get all changes on document with an user flag ? /document_versions?flag=XX (AKA follow list ?)
 manage edit conflict
 Test rate limiter
 more test on delete

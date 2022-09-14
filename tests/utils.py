@@ -143,16 +143,16 @@ class BaseTest:
     def hide_version(self, version, expected_status=200):
         version_id = version if isinstance(version, int) else version["version_id"]
 
-        r = self.put(f"/hide_version/{version_id}", json={"comment": "some comment"})
-        assert r.status_code == expected_status
+        r = self.post(f"/document_version/{version_id}", json={"comment": "some comment", "hidden":True})
+        assert r.status_code == expected_status, r.json
 
         return r
 
     def unhide_version(self, version, expected_status=200):
         version_id = version if isinstance(version, int) else version["version_id"]
 
-        r = self.delete(f"/hide_version/{version_id}", json={"comment": "some comment"})
-        assert r.status_code == expected_status
+        r = self.post(f"/document_version/{version_id}", json={"comment": "some comment", "hidden":False})
+        assert r.status_code == expected_status, r.json
 
         return r
 
@@ -176,4 +176,12 @@ class BaseTest:
     def unblock_user(self, user, expected_status=200):
         r = self.delete(f"/block_user/{user.id}", json={"comment": "Some comment"})
         assert r.status_code == expected_status, r.json
+        return r
+
+    def delete_document_version(self, version, expected_status=200):
+        version_id = version if isinstance(version, int) else version["version_id"]
+
+        r = self.delete(f"/document_version/{version_id}", json={"comment": "toto"})
+        assert r.status_code == expected_status, r.json
+
         return r

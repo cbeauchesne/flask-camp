@@ -18,7 +18,6 @@ from .views import document_version as document_version_view
 from .views import document as document_view
 from .views import documents as documents_view
 from .views import healthcheck as healthcheck_view
-from .views import hide_version as hide_version_view
 from .views import logs as logs_view
 from .views import protect_document as protect_document_view
 from .views import user as user_view
@@ -71,7 +70,6 @@ class Application(Flask):
 
         self.add_module(protect_document_view)
         self.add_module(block_user_view)
-        self.add_module(hide_version_view)
 
         self.add_module(user_tags_view)
         self.add_module(document_version_view)

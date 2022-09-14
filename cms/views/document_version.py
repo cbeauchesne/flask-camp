@@ -21,6 +21,24 @@ def get(id):
     return {"status": "ok", "document": version.as_dict()}
 
 
+@allow("moderator")
+@schema("cms/schemas/modify_version.json")
+def post(id):
+    version = DocumentVersion.get(id=id)
+
+    if version is None:
+        raise NotFound()
+
+    hidden = request.get_json()["hidden"]
+    version.hidden = hidden
+
+    add_log("hide_version" if hidden else "unhide_version", version_id=version.id, document_id=version.document.id)
+
+    database.session.commit()
+
+    return {"status": "ok"}
+
+
 @allow("admin")
 @schema("cms/schemas/comment.json")
 def delete(id):
@@ -39,3 +57,4 @@ def delete(id):
     database.session.commit()
 
     return {"status": "ok"}
+

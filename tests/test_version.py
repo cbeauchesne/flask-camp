@@ -2,6 +2,7 @@ from tests.utils import BaseTest
 
 
 class Test_GetVersion(BaseTest):
+
     def test_errors(self):
         r = self.get("/document_version/42")
         assert r.status_code == 404
@@ -58,8 +59,7 @@ class Test_DeleteVersion(BaseTest):
         self.logout_user()
         self.login_user(admin.name)
 
-        r = self.delete(f"/document_version/{v1['id']}", json={"comment": "toto"})
-        assert r.status_code == 200, r.json
+        self.delete_document_version(v1, expected_status=200)
 
         r = self.get("/document_versions", query_string={"document_id": document_id})
         assert r.json["count"] == 2
@@ -69,8 +69,7 @@ class Test_DeleteVersion(BaseTest):
         self.login_user()
 
         v0 = self.create_document().json["document"]
-        r = self.delete(f"/document_version/{v0['id']}", json={"comment": "toto"})
-        assert r.status_code == 400, r.json
+        r = self.delete_document_version(v0, expected_status=400)
         assert r.json["description"] == "Can't delete last version of a document"
 
     def test_rights(self):
@@ -78,15 +77,13 @@ class Test_DeleteVersion(BaseTest):
         self.login_user()
 
         v0 = self.create_document().json["document"]
-        r = self.delete(f"/document_version/{v0['id']}", json={"comment": "toto"})
-        assert r.status_code == 403, r.json
+        self.delete_document_version(v0, expected_status=403)
 
     def test_not_found(self):
         self.db_add_user(roles="admin")
         self.login_user()
 
-        r = self.delete("/document_version/200", json={"comment": "toto"})
-        assert r.status_code == 404, r.json
+        self.delete_document_version(42, expected_status=404)
 
     def test_bad_format(self):
         self.db_add_user(roles="admin")
