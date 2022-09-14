@@ -15,9 +15,6 @@ def put(id):
     if version is None:
         raise NotFound()
 
-    if version.document.get_last_version().id == id:
-        raise BadRequest("You can't hide the last version of a document")
-
     version.hidden = True
     add_log("hide_version", version_id=version.id, document_id=version.document.id)
 

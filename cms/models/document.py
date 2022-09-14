@@ -8,6 +8,34 @@ from sqlalchemy.orm import relationship
 from cms.models import BaseModel
 
 
+def _as_dict(document, version, include_hidden_data_for_staff=False):
+    result = {
+        "id": document.id,
+        "namespace": document.namespace,
+        "protected": document.protected,
+    }
+
+    if version is not None:  # can happen when all version are deleted
+        result = result | {
+            "comment": version.comment,
+            "hidden": version.hidden,
+            "timestamp": version.timestamp.isoformat(),
+            "user": version.user.as_dict(),
+            "version_id": version.id,
+        }
+
+        if not version.hidden:
+            result["data"] = json.loads(version.data)
+        elif (
+            include_hidden_data_for_staff
+            and current_user.is_authenticated
+            and (current_user.is_admin or current_user.is_moderator)
+        ):
+            result["data"] = json.loads(version.data)
+
+    return result
+
+
 class Document(BaseModel):
     __tablename__ = "document"
 
@@ -18,8 +46,17 @@ class Document(BaseModel):
 
     user_tags = relationship("UserTag", back_populates="document", lazy="select")
 
-    def get_last_version(self):
-        return DocumentVersion.query().filter_by(document_id=self.id).order_by(DocumentVersion.id.desc()).first()
+    def as_dict(self):
+        version = (
+            DocumentVersion.query()
+            .filter_by(document_id=self.id, hidden=False)
+            .order_by(DocumentVersion.id.desc())
+            .first()
+        )
+        if version is None:
+            version = DocumentVersion.query().filter_by(document_id=self.id).order_by(DocumentVersion.id.desc()).first()
+
+        return _as_dict(self, version)
 
 
 class DocumentVersion(BaseModel):
@@ -42,18 +79,4 @@ class DocumentVersion(BaseModel):
         super().__init__(**kwargs)
 
     def as_dict(self):
-        result = {
-            "id": self.document.id,
-            "namespace": self.document.namespace,
-            "version_id": self.id,
-            "timestamp": self.timestamp.isoformat(),
-            "comment": self.comment,
-            "user": self.user.as_dict(),
-            "protected": self.document.protected,
-            "hidden": self.hidden,
-        }
-
-        if not self.hidden or (current_user.is_authenticated and (current_user.is_admin or current_user.is_moderator)):
-            result["data"] = json.loads(self.data)
-
-        return result
+        return _as_dict(self.document, self, include_hidden_data_for_staff=True)

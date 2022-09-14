@@ -40,7 +40,7 @@ def get():
     count = query.count()
     documents = query.offset(offset).limit(limit)
 
-    documents = [document.get_last_version().as_dict() for document in documents]
+    documents = [document.as_dict() for document in documents]
     return {"status": "ok", "documents": documents, "count": count}
 
 

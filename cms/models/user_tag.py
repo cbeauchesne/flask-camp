@@ -26,6 +26,4 @@ class UserTag(BaseModel):
             "document_id": self.document_id,
             "name": self.name,
             "value": self.value,
-            # "user": self.user.as_dict(),
-            # "document": self.document.get_last_version().as_dict(),
         }

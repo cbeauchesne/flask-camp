@@ -14,12 +14,12 @@ rule = "/document/<int:id>"
 
 @allow("anonymous")
 def get(id):
-    version = DocumentVersion.query().filter_by(document_id=id).order_by(DocumentVersion.id.desc()).first()
+    document = Document.get(id=id)
 
-    if version is None:
+    if document is None:
         raise NotFound()
 
-    return {"status": "ok", "document": version.as_dict()}
+    return {"status": "ok", "document": document.as_dict()}
 
 
 @limiter.limit("2/second;10/minute;60/hour")
