@@ -1,22 +1,9 @@
-import json
 from tests.utils import BaseTest
 
 
-class Test_Document(BaseTest):
-    def test_creation_not_logged(self):
-        self.create_document(expected_status=403)
-
-    def assert_document(self, document, user, data, comment="creation"):
-        assert document["comment"] == comment
-        assert document["namespace"] == "x"
-        assert json.dumps(document["data"]) == json.dumps(data)
-        assert isinstance(document["id"], int)
-        assert isinstance(document["timestamp"], str)
-        assert isinstance(document["version_id"], int)
-        assert document["user"]["id"] == user.id
-
-    def test_creation(self):
-        user = self.db_add_user()
+class Test_Documents(BaseTest):
+    def test_basic(self):
+        self.db_add_user()
         self.login_user()
 
         r = self.get("documents")
@@ -25,56 +12,62 @@ class Test_Document(BaseTest):
         assert r.json["count"] == 0
         assert r.json["documents"] == []
 
-        r = self.create_document(data={"value": "42"})
-        assert r.json["status"] == "ok"
-        self.assert_document(r.json["document"], user, data={"value": "42"})
-
-        document_id = r.json["document"]["id"]
-
-        r = self.get(f"/document/{document_id}")
-        assert r.json["status"] == "ok"
-        self.assert_document(r.json["document"], user, data={"value": "42"})
+        self.create_document(data={"value": "42"})
 
         r = self.get("documents")
         assert r.status_code == 200
         assert r.json["status"] == "ok"
         assert r.json["count"] == 1
         assert len(r.json["documents"]) == 1
+        assert r.json["documents"][0]["data"] == {"value": "42"}
 
-        self.assert_document(r.json["documents"][0], user, data={"value": "42"})
-
-    def test_modification(self):
-        user = self.db_add_user()
-        self.login_user()
-
-        r = self.create_document(expected_status=200)
-        first_version = r.json["document"]
-        document_id = first_version["id"]
-
-        r = self.modify_document(document_id, data={"value": "43"}, expected_status=200)
-        second_version = r.json["document"]
-
-        self.assert_document(second_version, user, comment="", data={"value": "43"})
-
+        self.create_document()
         r = self.get("documents")
         assert r.status_code == 200
         assert r.json["status"] == "ok"
-        assert r.json["count"] == 1
-        assert r.json["documents"][0]["version_id"] == second_version["version_id"]
+        assert r.json["count"] == 2
+        assert len(r.json["documents"]) == 2
 
-    def test_errors(self):
+    def test_offset_limit(self):
         self.db_add_user()
         self.login_user()
 
-        r = self.get("/document/1")
-        assert r.status_code == 404
+        for i in range(110):
+            r = self.create_document(data={"value": f"doc {i}"}, expected_status=200)
 
-        self.modify_document(1, expected_status=404)
+        r = self.get("/documents").json
+        assert r["count"] == 110
+        assert len(r["documents"]) == 30
 
-        r = self.put("/documents", json={"document": {"data": {}}})
-        assert r.status_code == 400, r.json
-        assert r.json["description"] == "'namespace' is a required property on instance ['document']"
+        r = self.get("/documents", query_string={"limit": 1}).json
+        assert len(r["documents"]) == 1
 
-        r = self.put("/documents", json={"document": {"namespace": "x"}})
-        assert r.status_code == 400, r.json
-        assert r.json["description"] == "'data' is a required property on instance ['document']"
+        r = self.get("/documents", query_string={"limit": 0}).json
+        assert len(r["documents"]) == 0
+
+        r = self.get("/documents", query_string={"limit": 100}).json
+        assert len(r["documents"]) == 100
+
+        r = self.get("/documents", query_string={"limit": 101})
+        assert r.status_code == 400
+
+        r = self.get("/documents", query_string={"limit": "nan"}).json
+        assert len(r["documents"]) == 30
+
+        r = self.get("/documents").json
+        assert r["documents"][0]["data"]["value"] == "doc 0"
+        assert r["documents"][29]["data"]["value"] == "doc 29"
+
+        r = self.get("/documents", query_string={"offset": 30}).json
+        assert r["documents"][0]["data"]["value"] == "doc 30"
+        assert r["documents"][29]["data"]["value"] == "doc 59"
+
+        r = self.get("/changes").json
+        assert r["count"] == 110
+        assert len(r["changes"]) == 30
+
+        r = self.get("/changes", query_string={"limit": 1}).json
+        assert len(r["changes"]) == 1
+
+        r = self.get("/changes", query_string={"limit": 101})
+        assert r.status_code == 400

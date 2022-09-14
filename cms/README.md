@@ -56,9 +56,15 @@ Build a wiki API with all common features, regardless of the content of document
 
 
 ## TODO
+email
+elastic search
+get all changes on document with an user flag ? /changes?flag=XX (AKA follow list ?)
+manage edit conflict
 Test rate limiter
 more test on delete
 more test on logs
+more test!
+
 
 ## Golden rules
 
