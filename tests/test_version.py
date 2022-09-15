@@ -49,8 +49,8 @@ class Test_DeleteVersion(BaseTest):
         v0 = self.create_document().json["document"]
         document_id = v0["id"]
 
-        v1 = self.modify_document(document_id, data={"value": "43"}).json["document"]
-        self.modify_document(document_id, data={"value": "43"})
+        v1 = self.modify_document(v0, data={"value": "43"}).json["document"]
+        self.modify_document(v1, data={"value": "43"})
 
         r = self.get("/document_versions", query_string={"document_id": document_id})
         assert r.json["count"] == 3

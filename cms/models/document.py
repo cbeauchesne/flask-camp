@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from flask_login import current_user
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from cms.models import BaseModel
@@ -18,6 +18,7 @@ def _as_dict(document, version, include_hidden_data_for_staff=False):
         "timestamp": version.timestamp.isoformat(),
         "user": version.user.as_dict(),
         "version_id": version.id,
+        "version_number": version.version_number,
     }
 
     if not version.hidden:
@@ -68,8 +69,16 @@ class DocumentVersion(BaseModel):
     timestamp = Column(DateTime)
     comment = Column(String)
 
+    # This column give the nth version of a document
+    # it starts at 1, and is incremented by 1 every new version
+    # the api is responsible to increment it. By this, it prevents edit conflict
+    # version_number = Column(Integer, index=True, nullable=False)
+    version_number = Column(Integer, nullable=False)
+
     hidden = Column(Boolean, default=False, nullable=False)
     data = Column(String)
+
+    __table_args__ = (UniqueConstraint("document_id", "version_number", name="_document_version_uc"),)
 
     def __init__(self, **kwargs):
         kwargs["timestamp"] = datetime.now()

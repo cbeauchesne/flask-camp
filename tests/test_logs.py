@@ -20,7 +20,7 @@ class Test_Logs(BaseTest):
         self.login_user()
 
         doc = self.create_document().json["document"]
-        self.modify_document(doc["id"], data="v2")
+        self.modify_document(doc, data="v2")
 
         self.hide_version(doc)
         self.unhide_version(doc)

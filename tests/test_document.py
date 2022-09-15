@@ -18,8 +18,10 @@ class Test_Document(BaseTest):
         self.db_add_user()
         self.login_user()
 
-        self.get_document(1, expected_status=404)
-        self.modify_document(1, expected_status=404)
+        fake_doc = {"id": 1, "namespace": "x", "version_number": 1}
+
+        self.get_document(fake_doc, expected_status=404)
+        self.modify_document(fake_doc, expected_status=404)
 
         r = self.put("/documents", json={"document": {"data": {}}})
         assert r.status_code == 400, r.json
@@ -46,9 +48,9 @@ class Test_Document(BaseTest):
         self.login_user()
 
         v1 = self.create_document(expected_status=200).json["document"]
-        v2 = self.modify_document(v1, data={"value": "43"}, expected_status=200).json["document"]
+        v2 = self.modify_document(v1, comment="test", data={"value": "43"}, expected_status=200).json["document"]
 
-        self.assert_document(v2, user, comment="", data={"value": "43"})
+        self.assert_document(v2, user, comment="test", data={"value": "43"})
 
         r = self.get("documents")
         assert r.status_code == 200

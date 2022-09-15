@@ -3,10 +3,20 @@
   "type": "object",
   "properties": {
     "document": {
-      "$ref": "/cms/schemas/entities/document.json"
+      "allOf": [
+        {
+          "$ref": "/cms/schemas/entities/document.json"
+        },
+        {
+          "properties": {
+            "version_number": { "type": "number" }
+          },
+          "required": ["version_number"]
+        }
+      ]
     },
     "comment": { "type": "string" }
   },
-  "required": ["document"],
+  "required": ["document", "comment"],
   "additionalProperties": false
 }

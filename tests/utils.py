@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from cms import database
 from cms.models.user import User
 
@@ -131,10 +133,15 @@ class BaseTest:
 
         return r
 
-    def modify_document(self, document, data=None, expected_status=200):
-        document_id = document if isinstance(document, int) else document["id"]
+    def modify_document(self, document, data=None, comment="empty", expected_status=200):
+        document_id = document["id"]
+        new_version = deepcopy(document)
+        new_version["data"] = data if data else {}
 
-        r = self.post(f"/document/{document_id}", json={"document": {"namespace": "", "data": data if data else {}}})
+        r = self.post(
+            f"/document/{document_id}",
+            json={"comment": comment, "document": new_version},
+        )
 
         assert r.status_code == expected_status, r.json
 

@@ -1,8 +1,10 @@
 import json
+import logging
 
 from flask import request
 from flask_login import current_user
-from werkzeug.exceptions import NotFound, BadRequest, Forbidden
+from sqlalchemy.exc import IntegrityError
+from werkzeug.exceptions import NotFound, BadRequest, Forbidden, Conflict
 
 from cms import database
 from cms.decorators import allow
@@ -10,6 +12,8 @@ from cms.limiter import limiter
 from cms.models.document import Document, DocumentVersion
 from cms.models.log import add_log
 from cms.schemas import schema
+
+log = logging.getLogger(__name__)
 
 rule = "/document/<int:id>"
 
@@ -41,9 +45,29 @@ def post(id):
 
     comment = body.get("comment", "")
     data = body["document"]["data"]
+    version_number = body["document"]["version_number"]
 
-    version = DocumentVersion(document_id=document.id, user_id=current_user.id, comment=comment, data=json.dumps(data))
-    version.create()
+    old_version = document.as_dict()
+
+    if old_version["version_number"] != version_number:
+        raise Conflict("A new version exists")  # TODO give the new version
+
+    version = DocumentVersion(
+        document_id=document.id,
+        user_id=current_user.id,
+        comment=comment,
+        version_number=version_number + 1,
+        data=json.dumps(data),
+    )
+
+    try:
+        version.create()
+    except IntegrityError as e:
+        error_info = e.orig.args
+        if error_info[0] == "UNIQUE constraint failed: document_version.document_id, document_version.version_number":
+            raise Conflict("A new version exists")  # TODO give the new version
+        else:
+            raise
 
     return {"status": "ok", "document": version.as_dict()}
 

@@ -9,7 +9,7 @@ class Test_HideVersion(BaseTest):
         self.login_user("modo")
 
         doc_v1 = self.create_document(data="v1").json["document"]
-        doc_v2 = self.modify_document(doc_v1["id"], data="v2").json["document"]
+        doc_v2 = self.modify_document(doc_v1, data="v2").json["document"]
 
         self.hide_version(doc_v1)
 
@@ -85,7 +85,7 @@ class Test_HideVersion(BaseTest):
         self.login_user()
 
         doc_v1 = self.create_document(data="v1").json["document"]
-        doc_v2 = self.modify_document(doc_v1["id"], data="v2").json["document"]
+        doc_v2 = self.modify_document(doc_v1, data="v2").json["document"]
         document_id = doc_v1["id"]
 
         # state 1: only V2 is hidden (it's the last one)

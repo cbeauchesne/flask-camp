@@ -58,7 +58,7 @@ class Test_Protection(BaseTest):
         assert r.status_code == 200
 
         self.create_document(expected_status=403)
-        self.modify_document(doc["id"], expected_status=403)
+        self.modify_document(doc, expected_status=403)
 
         # Though, he can modify itself
         r = self.post(f"/user/{user.id}", json={"password": "updated"})
@@ -83,4 +83,4 @@ class Test_Protection(BaseTest):
         self.login_user()
 
         self.create_document(expected_status=200)
-        self.modify_document(doc["id"], data={"value": "42"}, expected_status=200)
+        self.modify_document(doc, data={"value": "42"}, expected_status=200)

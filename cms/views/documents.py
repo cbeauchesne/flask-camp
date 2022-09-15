@@ -58,7 +58,9 @@ def put():
     document = Document(namespace=namespace)
     document.create()
 
-    version = DocumentVersion(document_id=document.id, user_id=current_user.id, comment=comment, data=json.dumps(data))
+    version = DocumentVersion(
+        document_id=document.id, user_id=current_user.id, comment=comment, version_number=1, data=json.dumps(data)
+    )
     version.create()
 
     return {"status": "ok", "document": version.as_dict()}

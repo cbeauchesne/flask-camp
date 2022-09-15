@@ -14,8 +14,8 @@ class Test_DocumentVersions(BaseTest):
         doc1 = self.create_document(data={"value": "doc_1/v1"}).json["document"]
         doc2 = self.create_document(data={"value": "doc_2/v1"}).json["document"]
 
-        self.modify_document(doc1["id"], data={"value": "doc_1/v2"})
-        self.modify_document(doc2["id"], data={"value": "doc_2/v2"})
+        self.modify_document(doc1, data={"value": "doc_1/v2"})
+        self.modify_document(doc2, data={"value": "doc_2/v2"})
 
         r = self.get("/document_versions", query_string={"document_id": doc1["id"]})
         assert r.status_code == 200, r.json
@@ -33,12 +33,12 @@ class Test_DocumentVersions(BaseTest):
 
         self.login_user()
         doc = self.create_document(data={"value": "x"}).json["document"]
-        self.modify_document(doc["id"], data={"value": "y"})
+        self.modify_document(doc, data={"value": "y"})
         self.logout_user()
 
         self.login_user(user_2.name)
         doc = self.create_document(data={"value": "x"}).json["document"]
-        self.modify_document(doc["id"], data={"value": "y"})
+        self.modify_document(doc, data={"value": "y"})
         self.logout_user()
 
         r = self.get("/document_versions", query_string={"user_id": user_1.id})
