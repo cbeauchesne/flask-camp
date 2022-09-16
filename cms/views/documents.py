@@ -1,10 +1,9 @@
 import json
 
-from flask import request
+from flask import request, current_app
 from flask_login import current_user
 from werkzeug.exceptions import NotFound, BadRequest, Forbidden
 
-from cms import database
 from cms.decorators import allow
 from cms.limiter import limiter
 from cms.models.document import Document, DocumentVersion
@@ -32,7 +31,7 @@ def get():
 
     tag_filters_args = {k: v for k, v in tag_filters_args.items() if v is not None}
 
-    query = database.session.query(Document)
+    query = current_app.database.session.query(Document)
 
     if len(tag_filters_args) != 0:
         query = query.filter(Document.user_tags.any(**tag_filters_args))

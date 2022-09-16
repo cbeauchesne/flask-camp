@@ -6,7 +6,6 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Query
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized, NotFound
 
-from cms import database
 from cms.decorators import allow
 from cms.limiter import limiter
 from cms.models.user import User as UserModel

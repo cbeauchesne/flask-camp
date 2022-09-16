@@ -1,11 +1,9 @@
 from datetime import datetime
 
-from flask import request
+from flask import request, current_app
 from flask_login import current_user
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
-
-from cms import database
 
 from cms.models import BaseModel
 
@@ -18,7 +16,7 @@ def add_log(action, comment=None, target_user_id=None, document_id=None, version
     log = Log(
         action=action, comment=comment, target_user_id=target_user_id, document_id=document_id, version_id=version_id
     )
-    database.session.add(log)  # pylint: disable=no-member
+    current_app.database.session.add(log)  # pylint: disable=no-member
 
 
 class Log(BaseModel):

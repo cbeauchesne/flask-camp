@@ -12,11 +12,10 @@ class Test_Document(BaseTest):
         assert isinstance(document["version_id"], int)
         assert document["user"]["id"] == user.id
 
-    def test_errors(self):
+    def test_errors(self, user):
         self.create_document(expected_status=403)  # not logged
 
-        self.db_add_user()
-        self.login_user()
+        self.login_user(user)
 
         fake_doc = {"id": 1, "namespace": "x", "version_number": 1}
 
@@ -31,9 +30,8 @@ class Test_Document(BaseTest):
         assert r.status_code == 400, r.json
         assert r.json["description"] == "'data' is a required property on instance ['document']"
 
-    def test_creation(self):
-        user = self.db_add_user()
-        self.login_user()
+    def test_creation(self, user):
+        self.login_user(user)
 
         r = self.create_document(data={"value": "42"})
         self.assert_document(r.json["document"], user, data={"value": "42"})
@@ -43,9 +41,8 @@ class Test_Document(BaseTest):
         r = self.get_document(document_id)
         self.assert_document(r.json["document"], user, data={"value": "42"})
 
-    def test_modification(self):
-        user = self.db_add_user()
-        self.login_user()
+    def test_modification(self, user):
+        self.login_user(user)
 
         v1 = self.create_document(expected_status=200).json["document"]
         v2 = self.modify_document(v1, comment="test", data={"value": "43"}, expected_status=200).json["document"]
@@ -58,17 +55,15 @@ class Test_Document(BaseTest):
         assert r.json["count"] == 1
         assert r.json["documents"][0]["version_id"] == v2["version_id"]
 
-    def test_deletion_error(self):
+    def test_deletion_error(self, admin):
         self.delete_document(1, expected_status=403)
 
-        self.db_add_user(roles="admin")
-        self.login_user()
+        self.login_user(admin)
 
         self.delete_document(1, expected_status=404)
 
-    def test_deletion(self):
-        self.db_add_user(roles="admin")
-        self.login_user()
+    def test_deletion(self, admin):
+        self.login_user(admin)
 
         doc = self.create_document().json["document"]
         self.delete_document(doc, expected_status=200)

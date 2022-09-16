@@ -1,10 +1,9 @@
-from flask import request
+from flask import request, current_app
 from flask_login import login_user, logout_user, current_user
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Query
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized, NotFound
 
-from cms import database
 from cms.decorators import allow
 from cms.models.user import User as UserModel
 from cms.schemas import schema

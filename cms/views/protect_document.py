@@ -1,9 +1,8 @@
 import json
 
-from flask import request
+from flask import request, current_app
 from werkzeug.exceptions import NotFound, BadRequest
 
-from cms import database
 from cms.decorators import allow
 from cms.models.document import Document, DocumentVersion
 from cms.models.log import add_log
@@ -22,7 +21,7 @@ def put(id):
 
     doc.protected = True
     add_log("protect", document_id=id)
-    database.session.commit()
+    current_app.database.session.commit()
 
     return {"status": "ok"}
 
@@ -37,6 +36,6 @@ def delete(id):
 
     doc.protected = False
     add_log("unprotect", document_id=id)
-    database.session.commit()
+    current_app.database.session.commit()
 
     return {"status": "ok"}

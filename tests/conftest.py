@@ -1,20 +1,92 @@
+import logging
+import sys
+
 import pytest
 
+from cms import config
 from cms.application import Application
+from cms.models import BaseModel
 from cms.models.user import User
 
 from tests.utils import BaseTest
+
+app = Application(config.Testing)
+
+app.add_url_rule("/__testing/500", view_func=lambda: 1 / 0, endpoint="500")
+app.add_url_rule("/__testing/vuln/<int:id>", view_func=lambda id: User.get(id=id).as_dict(True), endpoint="vuln")
+
+logging.getLogger("sqlalchemy").addHandler(logging.StreamHandler(sys.stdout))
+logging.getLogger("sqlalchemy").setLevel(logging.INFO)
 
 
 @pytest.fixture(autouse=True)
 def setup_app():
 
-    app = Application(TESTING=True)
-
-    app.add_url_rule("/__testing/500", view_func=lambda: 1 / 0, endpoint="500")
-    app.add_url_rule("/__testing/vuln/<int:id>", view_func=lambda id: User.get(id=id).as_dict(True), endpoint="vuln")
-
     app.create_all()
+
     with app.test_client() as client:
         BaseTest.client = client
         yield
+
+    BaseModel.metadata.drop_all(bind=app.database.engine)
+
+
+def db_add_user(name="name", email=None, password="password", validate_email=True, roles=""):
+    with app.app_context():
+        instance = User(
+            name=name,
+            roles=roles
+            if isinstance(roles, (list, tuple))
+            else [
+                roles,
+            ],
+        )
+        instance.set_password(password)
+
+        instance.set_email(email if email else f"{name}@site.org")
+
+        if validate_email:
+            instance.validate_email(instance._email_token)
+
+        instance.create()
+
+        result = User(
+            id=instance.id,
+            name=instance.name,
+            _email=instance._email,
+            _email_to_validate=instance._email_to_validate,
+            _email_token=instance._email_token,
+            roles=instance.roles,
+        )
+
+    return result
+
+
+@pytest.fixture()
+def admin():
+    yield db_add_user(name="admin", roles="admin")
+
+
+@pytest.fixture()
+def moderator():
+    yield db_add_user(name="moderator", roles="moderator")
+
+
+@pytest.fixture()
+def user():
+    yield db_add_user()
+
+
+@pytest.fixture()
+def unvalidated_user():
+    yield db_add_user(validate_email=False)
+
+
+@pytest.fixture()
+def user_2():
+    yield db_add_user("user_2")
+
+
+@pytest.fixture()
+def database():
+    yield app.database

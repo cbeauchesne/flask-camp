@@ -2,7 +2,7 @@ from tests.utils import BaseTest
 
 
 class Test_UserCreation(BaseTest):
-    def test_typical_scenario(self):
+    def test_typical_scenario(self, database):
         name, email, password = "my_user", "a@b.c", "week password"
 
         r = self.put("/users", json={"name": name, "email": email, "password": password})
@@ -18,7 +18,7 @@ class Test_UserCreation(BaseTest):
         assert user["name"] == name
         assert user["roles"] == []
 
-        token = self.get_email_token(name)
+        token = self.get_email_token(name, database)
         assert token is not None
 
         r = self.post("/validate_email", json={"name": name, "token": token})
@@ -44,44 +44,39 @@ class Test_UserCreation(BaseTest):
 
         r = self.logout_user()
 
-    def test_errors_on_token_validation(self):
-        password = "weak password"
-        user = self.db_add_user(password=password, validate_email=False)
+    def test_errors_on_token_validation(self, unvalidated_user):
 
-        r = self.login_user(password=password, expected_status=401)
+        r = self.login_user(unvalidated_user, expected_status=401)
         assert r.json["description"] == "User's email is not validated"
 
-        r = self.post("/validate_email", json={"name": user.name})
+        r = self.post("/validate_email", json={"name": unvalidated_user.name})
         assert r.status_code == 400
         assert r.json["description"] == "'token' is a required property on instance "
 
-        r = self.post("/validate_email", json={"name": "not_the_name", "token": user._email_token})
+        r = self.post("/validate_email", json={"name": "not_the_name", "token": unvalidated_user._email_token})
         assert r.status_code == 404
 
-        r = self.post("/validate_email", json={"name": user.name, "token": "not the good one"})
+        r = self.post("/validate_email", json={"name": unvalidated_user.name, "token": "not the good one"})
         assert r.status_code == 401
         assert r.json["description"] == "Token doesn't match"
 
-        r = self.login_user(user.name, password, expected_status=401)
+        r = self.login_user(unvalidated_user, expected_status=401)
         assert r.json["description"] == "User's email is not validated"
 
-        r = self.post("/validate_email", json={"name": user.name, "token": user._email_token})
+        r = self.post("/validate_email", json={"name": unvalidated_user.name, "token": unvalidated_user._email_token})
         assert r.status_code == 200
 
-        r = self.post("/validate_email", json={"name": user.name, "token": user._email_token})
+        r = self.post("/validate_email", json={"name": unvalidated_user.name, "token": unvalidated_user._email_token})
         assert r.status_code == 400
         assert r.json["description"] == "There is no email to validate"
 
-        r = self.login_user(password=password, expected_status=200)
+        r = self.login_user(unvalidated_user, expected_status=200)
 
-    def test_login_errors(self):
-        password = "week password"
-        user = self.db_add_user(password=password)
-
-        r = self.login_user("not_the_name", password, expected_status=401)
+    def test_login_errors(self, user):
+        r = self.login_user("not_the_name", expected_status=401)
         assert r.json["description"] == "User [not_the_name] does not exists, or password is wrong"
 
-        r = self.login_user(user.name, "not the password", expected_status=401)
+        r = self.login_user(user, "not the password", expected_status=401)
         assert r.json["description"] == f"User [{user.name}] does not exists, or password is wrong"
 
         r = self.post("/login", json={"name": user.name})
@@ -91,14 +86,12 @@ class Test_UserCreation(BaseTest):
         r = self.delete("/login")
         assert r.status_code == 403
 
-    def test_notfound_errors(self):
-        self.db_add_user()
-        self.login_user()
+    def test_notfound_errors(self, user):
+        self.login_user(user)
         r = self.get("/user/42")
         assert r.status_code == 404
 
-    def test_anonymous_get(self):
-        user = self.db_add_user()
+    def test_anonymous_get(self, user):
         r = self.get(f"/user/{user.id}")
         assert r.status_code == 200
 
@@ -126,30 +119,28 @@ class Test_UserCreation(BaseTest):
 
 
 class Test_UserModification(BaseTest):
-    def test_change_password(self):
-        user = self.db_add_user(password="p1")
-        self.login_user(user.name, "p1")
+    def test_change_password(self, user):
+        self.login_user(user)
 
         r = self.post(f"/user/{user.id}", json={"password": "p2"})
         assert r.status_code == 200, r.json
 
         self.logout_user()
-        self.login_user(user.name, "p1", expected_status=401)
-        self.login_user(user.name, "p2", expected_status=200)
+        self.login_user(user, "p1", expected_status=401)
+        self.login_user(user, "p2", expected_status=200)
 
-    def test_change_email(self):
-        user = self.db_add_user()
-        self.login_user()
+    def test_change_email(self, database, user):
+        self.login_user(user)
 
         r = self.post(f"/user/{user.id}", json={"email": "other@email.com"})
         assert r.status_code == 200, r.json
 
         self.logout_user()
 
-        r = self.login_user()
+        r = self.login_user(user)
         assert r.json["user"]["email"] == user.email  # not yet validated
 
-        token = self.get_email_token(user.name)
+        token = self.get_email_token(user.name, database)
         r = self.post("/validate_email", json={"name": user.name, "token": token})
         assert r.status_code == 200, r.json
 
@@ -157,18 +148,15 @@ class Test_UserModification(BaseTest):
         assert r.status_code == 200, r.json
         assert r.json["user"]["email"] == "other@email.com", r.json
 
-    def test_errors(self):
-        self.db_add_user()
-        other_user = self.db_add_user("other user")
-        self.login_user()
+    def test_errors(self, user, user_2):
+        self.login_user(user)
 
-        r = self.post(f"/user/{other_user.id}", json={"password": "p2"})
+        r = self.post(f"/user/{user_2.id}", json={"password": "p2"})
         assert r.status_code == 403, r.json
         assert r.json["description"] == "You can't modify this user"
 
-    def test_email_error(self):
-        user = self.db_add_user()
-        self.login_user()
+    def test_email_error(self, user):
+        self.login_user(user)
 
         r = self.post(f"/user/{user.id}", json={"email": None, "password": "p"})
         assert r.status_code == 400, r.json
@@ -179,31 +167,26 @@ class Test_UserModification(BaseTest):
 
 
 class Test_UserUniqueness(BaseTest):
-    def test_username(self):
-        user = self.db_add_user()
+    def test_username(self, user):
 
         r = self.put("/users", json={"name": user.name, "email": "other@email.c", "password": "x"})
         assert r.status_code == 400, r.json
         assert r.json["description"] == "A user still exists with this name"
 
-    def test_email_at_creation(self):
-        user = self.db_add_user()
+    def test_email_at_creation(self, user):
 
         r = self.put("/users", json={"name": "other_name", "email": user._email, "password": "x"})
         assert r.status_code == 400, r.json
         assert r.json["description"] == "A user still exists with this email"
 
-    def test_email_at_modification(self):
-        user = self.db_add_user()
+    def test_email_at_modification(self, user, user_2):
 
         r = self.put("/users", json={"name": "other_user", "email": user._email, "password": "x"})
         assert r.status_code == 400, r.json
         assert r.json["description"] == "A user still exists with this email"
 
-        other_user = self.db_add_user(name="other_user")
-
-        self.login_user()
-        r = self.post(f"/user/{user.id}", json={"email": other_user._email})
+        self.login_user(user)
+        r = self.post(f"/user/{user.id}", json={"email": user_2._email})
         assert r.status_code == 400, r.json
         assert r.json["description"] == "A user still exists with this email"
 
@@ -212,27 +195,29 @@ class Test_UserUniqueness(BaseTest):
 
         self.logout_user()
 
-        self.login_user(other_user)
-        r = self.post(f"/user/{other_user.id}", json={"email": "mail@competition.fr"})
+        self.login_user(user_2)
+        r = self.post(f"/user/{user_2.id}", json={"email": "mail@competition.fr"})
         assert r.status_code == 200
         self.logout_user()
 
-    def test_do_not_validate_same_email(self):
-        user1 = self.db_add_user("user1", "a@b.c", validate_email=False)
-        user2 = self.db_add_user("user2", "a@b.c", validate_email=False)
+    def test_do_not_validate_same_email(self, database):
+        user1 = self.put("/users", json={"name": "user1", "email": "a@b.c", "password": "p"}).json["user"]
+        user2 = self.put("/users", json={"name": "user2", "email": "a@b.c", "password": "p"}).json["user"]
 
-        r = self.post("/validate_email", json={"name": user1.name, "token": user1._email_token})
+        token_1 = self.get_email_token(user1["name"], database)
+        token_2 = self.get_email_token(user2["name"], database)
+
+        r = self.post("/validate_email", json={"name": user1["name"], "token": token_1})
         assert r.status_code == 200, r.json
 
-        r = self.post("/validate_email", json={"name": user2.name, "token": user2._email_token})
+        r = self.post("/validate_email", json={"name": user2["name"], "token": token_2})
         assert r.status_code == 400, r.json
         assert r.json["description"] == "A user still exists with this email"
 
 
 class Test_Logout(BaseTest):
-    def test_main(self):
+    def test_main(self, user):
         self.logout_user(403)
-        self.db_add_user()
-        self.login_user()
+        self.login_user(user)
         self.logout_user()
         self.logout_user(403)

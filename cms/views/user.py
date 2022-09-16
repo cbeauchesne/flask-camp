@@ -1,10 +1,9 @@
-from flask import request
+from flask import request, current_app
 from flask_login import login_user, logout_user, current_user
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Query
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized, NotFound
 
-from cms import database
 from cms.decorators import allow
 from cms.models.log import add_log
 from cms.models.user import User as UserModel
@@ -75,7 +74,7 @@ def post(id):
             if not role in old_roles:
                 log_admin_action(action=f"add_role {role}", comment="", target_user_id=id)
 
-    database.session.commit()
+    current_app.database.session.commit()
 
     # personal data : user is current user or admin, so always true
     return {"status": "ok", "user": user.as_dict(include_personal_data=True)}

@@ -1,12 +1,11 @@
 """validate the user email with the validation token"""
 
-from flask import request
+from flask import request, current_app
 from flask_login import login_user, logout_user, current_user
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Query
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized, NotFound
 
-from cms import database
 from cms.decorators import allow
 from cms.limiter import limiter
 from cms.models.user import User as UserModel
@@ -28,7 +27,7 @@ def post():
     user.validate_email(data["token"])
 
     try:
-        database.session.commit()
+        current_app.database.session.commit()
     except IntegrityError as e:
         error_info = e.orig.args
         if error_info[0] == "UNIQUE constraint failed: user.email":

@@ -1,12 +1,11 @@
 import json
 import logging
 
-from flask import request
+from flask import request, current_app
 from flask_login import current_user
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import NotFound, BadRequest, Forbidden, Conflict
 
-from cms import database
 from cms.decorators import allow
 from cms.limiter import limiter
 from cms.models.document import Document, DocumentVersion
@@ -81,9 +80,9 @@ def delete(id):
     if document is None:
         raise NotFound()
 
-    database.session.delete(document)
+    current_app.database.session.delete(document)
 
     add_log("delete_document", document_id=document.id)
-    database.session.commit()
+    current_app.database.session.commit()
 
     return {"status": "ok"}

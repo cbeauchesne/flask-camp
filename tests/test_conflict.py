@@ -1,11 +1,9 @@
 from tests.utils import BaseTest
-from cms import database
 
 
 class Test_Conflict(BaseTest):
-    def test_basic(self):
-        self.db_add_user(roles="admin")
-        self.login_user()
+    def test_basic(self, admin):
+        self.login_user(admin)
 
         v0 = self.create_document().json["document"]
         v1 = self.modify_document(v0).json["document"]
@@ -23,7 +21,7 @@ class Test_Conflict(BaseTest):
         # now, v0 is the last version, so I can modify from it
         self.modify_document(v0, expected_status=200)
 
-    def test_race_condition(self):
+    def test_race_condition(self, user, database):
         # When an user try to modify the api does this :
         #
         # if last_version_number_in_db != user_version_number:
@@ -36,8 +34,7 @@ class Test_Conflict(BaseTest):
         # This test is not a real race condition test, but it triggers the
         # DB mechanism that prevent this scenario
 
-        self.db_add_user()
-        self.login_user()
+        self.login_user(user)
 
         v0 = self.create_document().json["document"]
         v1 = self.modify_document(v0).json["document"]

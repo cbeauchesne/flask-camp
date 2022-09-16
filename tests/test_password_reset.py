@@ -14,16 +14,15 @@ from tests.utils import BaseTest
 
 
 class Test_PasswordReset(BaseTest):
-    def test_simple(self):
-        user = self.db_add_user()
+    def test_simple(self, user, database):
         r = self.post("/reset_password", json={"email": user._email})
         assert r.status_code == 200
         assert "expiration_date" in r.json
 
-        self.login_user(expected_status=200)
+        self.login_user(user, expected_status=200)
         self.logout_user(expected_status=200)
 
-        token = self.get_login_token(user.name)
+        token = self.get_login_token(user.name, database)
         assert token is not None
         r = self.post("/login", json={"name": user.name, "token": token})
         assert r.status_code == 200, r.json
@@ -41,30 +40,27 @@ class Test_PasswordReset(BaseTest):
         r = self.post("/reset_password", json={"email": "i_do@not_exists.fr"})
         assert r.status_code == 200
 
-    def test_user_is_not_validated(self):
-        user = self.db_add_user(validate_email=False)
-        r = self.post("/reset_password", json={"email": user._email_to_validate})
+    def test_user_is_not_validated(self, unvalidated_user, database):
+        r = self.post("/reset_password", json={"email": unvalidated_user._email_to_validate})
         assert r.status_code == 200
-        assert self.get_login_token(user.name) is None
+        assert self.get_login_token(unvalidated_user.name, database) is None
 
-    def test_bad_token(self):
-        user = self.db_add_user()
+    def test_bad_token(self, user):
         r = self.post("/reset_password", json={"email": user._email})
         assert r.status_code == 200, r.json
 
         r = self.post("/login", json={"name": user.name, "token": "not the token"})
         assert r.status_code == 401, r.json
 
-    def test_several_request(self):
-        user = self.db_add_user()
+    def test_several_request(self, database, user):
 
         r = self.post("/reset_password", json={"email": user._email})
         assert r.status_code == 200
-        token_1 = self.get_login_token(user.name)
+        token_1 = self.get_login_token(user.name, database)
 
         r = self.post("/reset_password", json={"email": user._email})
         assert r.status_code == 200
-        token_2 = self.get_login_token(user.name)
+        token_2 = self.get_login_token(user.name, database)
 
         assert token_1 is not None
         assert token_2 is not None
@@ -76,11 +72,10 @@ class Test_PasswordReset(BaseTest):
         r = self.post("/login", json={"name": user.name, "token": token_2})
         assert r.status_code == 200
 
-    def test_expiration(self):
-        user = self.db_add_user()
+    def test_expiration(self, database, user):
 
         r = self.post("/reset_password", json={"email": user._email})
-        token = self.get_login_token(user.name)
+        token = self.get_login_token(user.name, database)
 
         with freeze_time(datetime.now() + timedelta(days=3)):
             r = self.post("/login", json={"name": user.name, "token": token})

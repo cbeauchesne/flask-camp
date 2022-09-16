@@ -1,7 +1,6 @@
-from flask import request
+from flask import request, current_app
 from werkzeug.exceptions import NotFound, BadRequest
 
-from cms import database
 from cms.schemas import schema
 from cms.decorators import allow
 from cms.models.document import DocumentVersion
@@ -34,7 +33,7 @@ def post(id):
 
     add_log("hide_version" if hidden else "unhide_version", version_id=version.id, document_id=version.document.id)
 
-    database.session.commit()
+    current_app.database.session.commit()
 
     return {"status": "ok"}
 
@@ -52,8 +51,8 @@ def delete(id):
         raise BadRequest("Can't delete last version of a document")
 
     add_log("delete_version", version_id=version.id, document_id=version.document.id)
-    database.session.delete(version)
+    current_app.database.session.delete(version)
 
-    database.session.commit()
+    current_app.database.session.commit()
 
     return {"status": "ok"}

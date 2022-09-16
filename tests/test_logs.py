@@ -15,9 +15,8 @@ class Test_Logs(BaseTest):
         r = self.get("/logs")
         assert r.status_code == 200
 
-    def test_hide_version(self):
-        moderator = self.db_add_user(roles="moderator")
-        self.login_user()
+    def test_hide_version(self, moderator):
+        self.login_user(moderator)
 
         doc = self.create_document().json["document"]
         self.modify_document(doc, data="v2")
@@ -45,11 +44,9 @@ class Test_Logs(BaseTest):
         r = self.get("/logs", query_string={"limit": 101})
         assert r.status_code == 400
 
-    def test_typical_scenario(self):
-        moderator = self.db_add_user(roles="moderator")
-        user = self.db_add_user("user")
+    def test_typical_scenario(self, user, moderator, admin):
 
-        self.login_user()
+        self.login_user(moderator)
         self.block_user(user)
         self.unblock_user(user)
 
@@ -60,8 +57,7 @@ class Test_Logs(BaseTest):
         self.unprotect_document(document_id=doc["id"])
 
         self.logout_user()
-        admin = self.db_add_user(name="admin", roles="admin")
-        self.login_user("admin")
+        self.login_user(admin)
 
         self.post(f"/user/{user.id}", json={"roles": ["moderator"]})
         self.post(f"/user/{user.id}", json={"roles": ["admin"]})

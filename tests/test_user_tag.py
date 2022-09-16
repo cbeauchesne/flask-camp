@@ -20,9 +20,8 @@ class Test_UserTag(BaseTest):
         r = self.post("/user_tags")
         assert r.status_code == 403
 
-    def test_add_modify_delete(self):
-        user = self.db_add_user()
-        self.login_user()
+    def test_add_modify_delete(self, user):
+        self.login_user(user)
 
         doc = self.create_document().json["document"]
 
@@ -48,11 +47,9 @@ class Test_UserTag(BaseTest):
         r = self.get("/user_tags")
         assert_tag(r.json["user_tags"][0], user, doc["id"], "y", "6a")
 
-    def test_get_tags(self):
-        user1 = self.db_add_user("user1")
-        user2 = self.db_add_user("user2")
+    def test_get_tags(self, user, user_2):
 
-        self.login_user(user1.name)
+        self.login_user(user)
         doc1 = self.create_document().json["document"]
         doc2 = self.create_document().json["document"]
 
@@ -62,7 +59,7 @@ class Test_UserTag(BaseTest):
         self.post("/user_tags", json={"name": "t2", "document_id": doc2["id"]})
 
         self.logout_user()
-        self.login_user(user2.name)
+        self.login_user(user_2)
 
         self.post("/user_tags", json={"name": "t1", "document_id": doc1["id"]})
         self.post("/user_tags", json={"name": "t2", "document_id": doc1["id"]})
@@ -72,7 +69,7 @@ class Test_UserTag(BaseTest):
         r = self.get("/user_tags")
         assert r.json["count"] == 8
 
-        r = self.get("/user_tags", query_string={"user_id": user1.id})
+        r = self.get("/user_tags", query_string={"user_id": user.id})
         assert r.json["count"] == 4
 
         r = self.get("/user_tags", query_string={"document_id": doc1["id"]})
@@ -81,21 +78,20 @@ class Test_UserTag(BaseTest):
         r = self.get("/user_tags", query_string={"name": "t1"})
         assert r.json["count"] == 4
 
-        r = self.get("/user_tags", query_string={"user_id": user1.id, "document_id": doc1["id"]})
+        r = self.get("/user_tags", query_string={"user_id": user.id, "document_id": doc1["id"]})
         assert r.json["count"] == 2
 
         r = self.get("/user_tags", query_string={"document_id": doc1["id"], "name": "t1"})
         assert r.json["count"] == 2
 
-        r = self.get("/user_tags", query_string={"user_id": user1.id, "name": "t1"})
+        r = self.get("/user_tags", query_string={"user_id": user.id, "name": "t1"})
         assert r.json["count"] == 2
 
-        r = self.get("/user_tags", query_string={"user_id": user1.id, "document_id": doc1["id"], "name": "t1"})
+        r = self.get("/user_tags", query_string={"user_id": user.id, "document_id": doc1["id"], "name": "t1"})
         assert r.json["count"] == 1
 
-    def test_get_documents(self):
-        self.db_add_user()
-        self.login_user()
+    def test_get_documents(self, user, user_2):
+        self.login_user(user)
         doc1 = self.create_document().json["document"]
         doc2 = self.create_document().json["document"]
         doc3 = self.create_document().json["document"]
@@ -104,22 +100,20 @@ class Test_UserTag(BaseTest):
         self.post("/user_tags", json={"name": "t2", "document_id": doc3["id"]})
         self.logout_user()
 
-        user2 = self.db_add_user("user2")
-        self.login_user(user2.name)
+        self.login_user(user_2)
         self.post("/user_tags", json={"name": "t1", "document_id": doc1["id"]})
 
         r = self.get("/documents", query_string={"tag_name": "t1"})
         assert r.json["count"] == 2
 
-        r = self.get("/documents", query_string={"tag_name": "t1", "tag_user_id": user2.id})
+        r = self.get("/documents", query_string={"tag_name": "t1", "tag_user_id": user_2.id})
         assert r.json["count"] == 1
 
         r = self.get("/documents", query_string={"tag_name": "t1", "tag_value": "6a"})
         assert r.json["count"] == 1
 
-    def test_errors(self):
-        self.db_add_user()
-        self.login_user()
+    def test_errors(self, user):
+        self.login_user(user)
 
         doc = self.create_document().json["document"]
 

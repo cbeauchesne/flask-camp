@@ -1,6 +1,6 @@
+from flask import current_app
 from werkzeug.exceptions import NotFound
 
-from cms import database
 from cms.decorators import allow
 from cms.models.user import User as UserModel
 from cms.models.log import add_log
@@ -22,7 +22,7 @@ def put(id):
 
     add_log(action="block", target_user_id=id)
 
-    database.session.commit()
+    current_app.database.session.commit()
 
     return {"status": "ok"}
 
@@ -39,6 +39,6 @@ def delete(id):
 
     add_log(action="unblock", target_user_id=id)
 
-    database.session.commit()
+    current_app.database.session.commit()
 
     return {"status": "ok"}

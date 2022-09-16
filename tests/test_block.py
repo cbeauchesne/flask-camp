@@ -5,20 +5,17 @@ from tests.utils import BaseTest
 
 
 class Test_Protection(BaseTest):
-    def test_not_allowed(self):
-        user = self.db_add_user()
+    def test_not_allowed(self, user):
+        self.block_user(user, 403)
+        self.unblock_user(user, 403)
+
+        self.login_user(user)
 
         self.block_user(user, 403)
         self.unblock_user(user, 403)
 
-        self.login_user()
-
-        self.block_user(user, 403)
-        self.unblock_user(user, 403)
-
-    def test_not_found(self):
-        self.db_add_user(roles="moderator")
-        self.login_user()
+    def test_not_found(self, moderator):
+        self.login_user(moderator)
 
         r = self.put("/block_user/42", json={"comment": "some comment"})
         assert r.status_code == 404, r.json
@@ -26,12 +23,9 @@ class Test_Protection(BaseTest):
         r = self.delete("/block_user/42", json={"comment": "some comment"})
         assert r.status_code == 404, r.json
 
-    def test_typical_scenario(self):
-        moderator = self.db_add_user(roles="moderator")
-        user = self.db_add_user(name="regular_user")
-
+    def test_typical_scenario(self, moderator, user):
         # log moderator, create a doc
-        self.login_user()
+        self.login_user(moderator)
 
         doc = self.create_document().json["document"]
 
@@ -48,7 +42,7 @@ class Test_Protection(BaseTest):
         self.logout_user()
 
         # user login and try to get/add/modify a doc
-        r = self.login_user(user.name)
+        r = self.login_user(user)
         assert r.status_code == 200
 
         r = self.get(f"/document/{doc['id']}")
@@ -68,9 +62,9 @@ class Test_Protection(BaseTest):
         r = self.get(f"/user/{moderator.id}")
         assert r.status_code == 200
 
-        # logout the user, login the admin, unblock the user
+        # logout the user, login the moderator, unblock the user
         self.logout_user()
-        self.login_user()
+        self.login_user(moderator)
 
         self.unblock_user(user)
         self.unblock_user(user)  # unblock him twice, it should not produce an error
@@ -80,7 +74,7 @@ class Test_Protection(BaseTest):
 
         # logout the admin, login the user, try to add/modify
         self.logout_user()
-        self.login_user()
+        self.login_user(user, password="updated")
 
         self.create_document(expected_status=200)
         self.modify_document(doc, data={"value": "42"}, expected_status=200)

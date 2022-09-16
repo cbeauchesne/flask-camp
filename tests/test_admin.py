@@ -2,11 +2,8 @@ from tests.utils import BaseTest
 
 
 class Test_Admin(BaseTest):
-    def test_right_attribution(self):
-        admin = self.db_add_user(roles="admin")
-        user = self.db_add_user("basic_user")
-
-        self.login_user(user.name)
+    def test_right_attribution(self, admin, user):
+        self.login_user(user)
 
         r = self.post(f"/user/{user.id}", json={"roles": ["moderator"]})
         assert r.status_code == 200, r.json
@@ -17,7 +14,7 @@ class Test_Admin(BaseTest):
 
         self.logout_user()
 
-        self.login_user(admin.name)
+        self.login_user(admin)
         r = self.post(f"/user/{user.id}", json={"roles": ["moderator"]})
         assert r.status_code == 200, r.json
         r = self.get(f"/user/{user.id}")

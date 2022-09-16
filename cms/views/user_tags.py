@@ -1,9 +1,8 @@
-from flask import request
+from flask import request, current_app
 from flask_login import current_user
 from sqlalchemy.orm import Query
 from werkzeug.exceptions import BadRequest, NotFound
 
-from cms import database
 from cms.decorators import allow
 from cms.models.user_tag import UserTag
 from cms.schemas import schema
@@ -59,11 +58,11 @@ def post():
     tag = UserTag.get(name=name, document_id=document_id, user_id=current_user.id)
     if tag is None:
         tag = UserTag(name=name, document_id=document_id, user_id=current_user.id)
-        database.session.add(tag)
+        current_app.database.session.add(tag)
 
     tag.value = value
 
-    database.session.commit()
+    current_app.database.session.commit()
 
     return {"status": "ok", "user_tag": tag.as_dict()}
 
@@ -81,7 +80,7 @@ def delete():
     if not tag:
         raise NotFound()
 
-    database.session.delete(tag)
-    database.session.commit()
+    current_app.database.session.delete(tag)
+    current_app.database.session.commit()
 
     return {"status": "ok"}

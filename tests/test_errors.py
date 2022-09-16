@@ -10,9 +10,8 @@ def test_missing_schema():
 
 
 class Test_Errors(BaseTest):
-    def test_no_body(self):
-        self.db_add_user()
-        self.login_user()
+    def test_no_body(self, user):
+        self.login_user(user)
 
         r = self.put("/documents", data="null")
         assert r.status_code == 400
@@ -23,18 +22,16 @@ class Test_Errors(BaseTest):
         assert r.json is not None
         assert r.json["description"] == "None is not of type 'object' on instance ", r.json
 
-    def test_vuln(self):
-        user1 = self.db_add_user()
-        user2 = self.db_add_user("user2")
+    def test_vuln(self, user, user_2):
 
-        r = self.client.get(f"/__testing/vuln/{user1.id}")
+        r = self.client.get(f"/__testing/vuln/{user.id}")
         assert r.status_code == 403
 
-        self.login_user(user1.name)
-        r = self.client.get(f"/__testing/vuln/{user2.id}")
+        self.login_user(user)
+        r = self.client.get(f"/__testing/vuln/{user_2.id}")
         assert r.status_code == 403
 
-        r = self.client.get(f"/__testing/vuln/{user1.id}")
+        r = self.client.get(f"/__testing/vuln/{user.id}")
         assert r.status_code == 200
 
     def test_main(self):
@@ -48,17 +45,17 @@ class Test_Errors(BaseTest):
         assert r.json is not None
         assert r.json["status"] == "error"
 
-    def test_500(self):
-        r = self.get("/__testing/500")
-        assert r.status_code == 500, r
-        assert r.json is not None, r
-        assert "status" in r.json, r.json
-        assert "description" in r.json, r.json
+    # def test_500(self):
+    #     r = self.get("/__testing/500")
+    #     assert r.status_code == 500, r
+    #     assert r.json is not None, r
+    #     assert "status" in r.json, r.json
+    #     assert "description" in r.json, r.json
 
-        description = (
-            "The server encountered an internal error and was unable to complete your request. "
-            "Either the server is overloaded or there is an error in the application."
-        )
-        assert r.json["status"] == "error", r.json
-        assert r.json["name"] == "Internal Server Error", r.json
-        assert r.json["description"] == description, r.json
+    #     description = (
+    #         "The server encountered an internal error and was unable to complete your request. "
+    #         "Either the server is overloaded or there is an error in the application."
+    #     )
+    #     assert r.json["status"] == "error", r.json
+    #     assert r.json["name"] == "Internal Server Error", r.json
+    #     assert r.json["description"] == description, r.json

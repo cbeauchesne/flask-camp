@@ -5,9 +5,11 @@ from flask import Flask
 from flask_login import LoginManager
 from werkzeug.exceptions import HTTPException
 
-from . import database
+from . import config
+from .database import Database
 from .limiter import limiter
 from .models.user import User as UserModel
+from .models import BaseModel
 
 from .views.account import user_login as user_login_view
 from .views.account import email_validation as email_validation_view
@@ -24,21 +26,30 @@ from .views import user as user_view
 from .views import users as users_view
 from .views import user_tags as user_tags_view
 
+
 logging.basicConfig(format="%(asctime)s [%(levelname)8s] %(message)s")
 log = logging.getLogger(__name__)
 
 
 class Application(Flask):
-    def __init__(self, **kwargs):
+    def __init__(self, config_object=None):
         super().__init__(__name__)
 
-        self.config.from_object(kwargs)
+        if config_object:
+            self.config.from_object(config_object)
+        elif self.debug:  # pragma: no cover
+            self.config.from_object(config.Development)
+        else:  # pragma: no cover
+            self.config.from_object(config.Production)
+
+        self.config.from_prefixed_env()
+
+        self.database = Database(database_uri=self.config["DATABASE_URI"])
 
         self._login_manager = LoginManager(self)
         self.secret_key = secrets.token_hex()
 
         limiter.init_app(self)
-        limiter.enabled = not kwargs.get("TESTING", False)
 
         @self.login_manager.user_loader  # pylint: disable=no-member
         def load_user(user_id):
@@ -46,7 +57,7 @@ class Application(Flask):
 
         @self.teardown_appcontext
         def shutdownsession(exception=None):  # pylint: disable=unused-argument
-            database.session.remove()
+            self.database.session.remove()
 
         @self.errorhandler(HTTPException)
         def rest_error_handler(e):
@@ -85,4 +96,4 @@ class Application(Flask):
                 )
 
     def create_all(self):
-        database.create_all()
+        self.database.create_all(BaseModel.metadata)

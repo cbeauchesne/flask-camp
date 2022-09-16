@@ -7,9 +7,8 @@ class Test_DocumentVersions(BaseTest):
         assert r.status_code == 200
         assert r.json["changes"] == []
 
-    def test_simple(self):
-        self.db_add_user()
-        self.login_user()
+    def test_simple(self, user):
+        self.login_user(user)
 
         doc1 = self.create_document(data={"value": "doc_1/v1"}).json["document"]
         doc2 = self.create_document(data={"value": "doc_2/v1"}).json["document"]
@@ -27,21 +26,19 @@ class Test_DocumentVersions(BaseTest):
         assert history["changes"][0]["data"] == {"value": "doc_1/v2"}
         assert history["changes"][1]["data"] == {"value": "doc_1/v1"}
 
-    def test_user_filter(self):
-        user_1 = self.db_add_user()
-        user_2 = self.db_add_user("user2")
+    def test_user_filter(self, user, user_2):
 
-        self.login_user()
+        self.login_user(user)
         doc = self.create_document(data={"value": "x"}).json["document"]
         self.modify_document(doc, data={"value": "y"})
         self.logout_user()
 
-        self.login_user(user_2.name)
+        self.login_user(user_2)
         doc = self.create_document(data={"value": "x"}).json["document"]
         self.modify_document(doc, data={"value": "y"})
         self.logout_user()
 
-        r = self.get("/document_versions", query_string={"user_id": user_1.id})
+        r = self.get("/document_versions", query_string={"user_id": user.id})
         assert r.status_code == 200, r.json
         history = r.json
         assert history["count"] == len(history["changes"]) == 2

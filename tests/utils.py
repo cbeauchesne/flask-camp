@@ -1,8 +1,5 @@
 from copy import deepcopy
 
-from cms import database
-from cms.models.user import User
-
 
 class BaseTest:
     client = None
@@ -41,35 +38,7 @@ class BaseTest:
 
         return r
 
-    def db_add_user(self, name="name", email=None, password="password", validate_email=True, roles=""):
-        user = User(
-            name=name,
-            roles=roles
-            if isinstance(roles, (list, tuple))
-            else [
-                roles,
-            ],
-        )
-        user.set_password(password)
-
-        user.set_email(email if email else f"{name}@site.org")
-
-        if validate_email:
-            user.validate_email(user._email_token)
-
-        user.create()
-
-        return User(
-            id=user.id,
-            name=user.name,
-            _email=user._email,
-            _email_to_validate=user._email_to_validate,
-            _email_token=user._email_token,
-            roles=user.roles,
-        )
-
-    def login_user(self, user="name", password="password", expected_status=200):
-
+    def login_user(self, user, password="password", expected_status=200):
         name = user if isinstance(user, str) else user.name
 
         r = self.post("/login", json={"name": name, "password": password})
@@ -82,13 +51,13 @@ class BaseTest:
         assert r.status_code == expected_status, r.json
         return r
 
-    def get_email_token(self, name):
+    def get_email_token(self, name, database):
         users = database.execute(f"SELECT id, email_token FROM user WHERE name='{name}'")
         user = list(users)[0]
 
         return user["email_token"]
 
-    def get_login_token(self, name):
+    def get_login_token(self, name, database):
         users = database.execute(f"SELECT id, login_token FROM user WHERE name='{name}'")
         user = list(users)[0]
 
