@@ -1,11 +1,18 @@
+import re
 from tests.utils import BaseTest
 
 
 class Test_UserCreation(BaseTest):
-    def test_typical_scenario(self, database):
+    def test_typical_scenario(self, mail):
         name, email, password = "my_user", "a@b.c", "week password"
 
-        r = self.put("/users", json={"name": name, "email": email, "password": password})
+        with mail.record_messages() as outbox:
+            r = self.put("/users", json={"name": name, "email": email, "password": password})
+            assert len(outbox) == 1
+            assert outbox[0].subject == "Welcome to example.com"
+            body = outbox[0].body
+            token = re.sub(r"^(.*email_token=)", "", body)
+
         assert r.status_code == 200, r.json
         assert r.json["status"] == "ok"
 
@@ -17,9 +24,6 @@ class Test_UserCreation(BaseTest):
         assert user["blocked"] is False
         assert user["name"] == name
         assert user["roles"] == []
-
-        token = self.get_email_token(name, database)
-        assert token is not None
 
         r = self.post("/validate_email", json={"name": name, "token": token})
         assert r.status_code == 200, r.json
@@ -129,18 +133,20 @@ class Test_UserModification(BaseTest):
         self.login_user(user, "p1", expected_status=401)
         self.login_user(user, "p2", expected_status=200)
 
-    def test_change_email(self, database, user):
+    def test_change_email(self, mail, user):
         self.login_user(user)
 
-        r = self.post(f"/user/{user.id}", json={"email": "other@email.com"})
-        assert r.status_code == 200, r.json
+        with mail.record_messages() as outbox:
+            r = self.post(f"/user/{user.id}", json={"email": "other@email.com"})
+            assert r.status_code == 200, r.json
+            assert len(outbox) == 1
+            token = re.sub(r"^(.*email_token=)", "", outbox[0].body)
 
         self.logout_user()
 
         r = self.login_user(user)
         assert r.json["user"]["email"] == user.email  # not yet validated
 
-        token = self.get_email_token(user.name, database)
         r = self.post("/validate_email", json={"name": user.name, "token": token})
         assert r.status_code == 200, r.json
 
@@ -200,12 +206,14 @@ class Test_UserUniqueness(BaseTest):
         assert r.status_code == 200
         self.logout_user()
 
-    def test_do_not_validate_same_email(self, database):
-        user1 = self.put("/users", json={"name": "user1", "email": "a@b.c", "password": "p"}).json["user"]
-        user2 = self.put("/users", json={"name": "user2", "email": "a@b.c", "password": "p"}).json["user"]
+    def test_do_not_validate_same_email(self, mail):
+        with mail.record_messages() as outbox:
+            user1 = self.put("/users", json={"name": "user1", "email": "a@b.c", "password": "p"}).json["user"]
+            token_1 = re.sub(r"^(.*email_token=)", "", outbox[0].body)
 
-        token_1 = self.get_email_token(user1["name"], database)
-        token_2 = self.get_email_token(user2["name"], database)
+        with mail.record_messages() as outbox:
+            user2 = self.put("/users", json={"name": "user2", "email": "a@b.c", "password": "p"}).json["user"]
+            token_2 = re.sub(r"^(.*email_token=)", "", outbox[0].body)
 
         r = self.post("/validate_email", json={"name": user1["name"], "token": token_1})
         assert r.status_code == 200, r.json

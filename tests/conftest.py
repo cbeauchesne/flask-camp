@@ -93,3 +93,8 @@ def user_2():
 @pytest.fixture()
 def database():
     yield app.database
+
+
+@pytest.fixture()
+def mail():
+    yield app.mail

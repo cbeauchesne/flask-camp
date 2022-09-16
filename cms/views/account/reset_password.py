@@ -1,10 +1,6 @@
 """ Views related to account operations """
 
 from flask import request
-from flask_login import login_user, logout_user, current_user
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Query
-from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized, NotFound
 
 from cms.decorators import allow
 from cms.limiter import limiter
@@ -31,5 +27,7 @@ def post():
 
     user.set_login_token()
     user.update()
+
+    user.send_login_token_mail()
 
     return {"status": "ok", "expiration_date": user.login_token_expiration_date.isoformat()}

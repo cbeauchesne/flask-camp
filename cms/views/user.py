@@ -1,8 +1,6 @@
 from flask import request, current_app
-from flask_login import login_user, logout_user, current_user
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Query
-from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized, NotFound
+from flask_login import current_user
+from werkzeug.exceptions import Forbidden, NotFound
 
 from cms.decorators import allow
 from cms.models.log import add_log
@@ -45,7 +43,8 @@ def post(id):
         log_admin_action = add_log
     else:
         # otherwise, do nothing
-        log_admin_action = lambda **kwargs: True
+        def log_admin_action(**kwargs):  # pylint: disable=unused-argument
+            pass
 
     data = request.get_json()
 
@@ -59,6 +58,7 @@ def post(id):
     if "email" in data:
         user.set_email(data["email"])
         log_admin_action(action="change_email", comment="", target_user_id=id)
+        user.send_email_change_mail()
 
     if "roles" in data and current_user.is_admin:
         new_roles = data["roles"]

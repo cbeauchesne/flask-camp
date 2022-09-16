@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import logging
 import secrets
 
+from flask import current_app
 from flask_login import current_user
 from sqlalchemy import Column, String, Text, Boolean, DateTime
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
@@ -37,19 +38,21 @@ class User(BaseModel):
     def __repr__(self):
         return f"<User {self.name}>"
 
-    @property
-    def email(self):
-
+    def _get_private_property(self, property_name):
         # last security fence, it should never happen
         if not current_user.is_authenticated:
-            log.error("Unexpected access to user._email")
+            log.error("Unexpected access to user.%s", property_name)
             raise Forbidden()
 
         if current_user.id != self.id and not current_user.is_admin and not current_user.is_moderator:
-            log.error("Unexpected access to user._email")
+            log.error("Unexpected access to user.%s", property_name)
             raise Forbidden()
 
-        return self._email
+        return getattr(self, property_name)
+
+    @property
+    def email(self):
+        return self._get_private_property("_email")
 
     @property
     def email_is_validated(self):
@@ -120,7 +123,15 @@ class User(BaseModel):
         self._email_token = secrets.token_hex(int(self.__class__._email_token.type.length / 2))
 
         log.info("Update %s's email", self)
-        # TODO send an email
+
+    def send_account_creation_mail(self):
+        current_app.send_account_creation_mail(self._email_to_validate, self._email_token, self)
+
+    def send_email_change_mail(self):
+        current_app.send_email_change_mail(self._email_to_validate, self._email_token, self)
+
+    def send_login_token_mail(self):
+        current_app.send_login_token_mail(self._email, self._login_token, self)
 
     def validate_email(self, token):
 

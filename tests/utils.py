@@ -51,18 +51,6 @@ class BaseTest:
         assert r.status_code == expected_status, r.json
         return r
 
-    def get_email_token(self, name, database):
-        users = database.execute(f"SELECT id, email_token FROM user WHERE name='{name}'")
-        user = list(users)[0]
-
-        return user["email_token"]
-
-    def get_login_token(self, name, database):
-        users = database.execute(f"SELECT id, login_token FROM user WHERE name='{name}'")
-        user = list(users)[0]
-
-        return user["login_token"]
-
     # helpers
     def create_document(self, namespace="x", data=None, expected_status=200):
         r = self.put("/documents", json={"document": {"namespace": namespace, "data": data if data else {}}})

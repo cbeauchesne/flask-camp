@@ -1,8 +1,6 @@
-from flask import request, current_app
-from flask_login import login_user, logout_user, current_user
+from flask import request
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Query
-from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized, NotFound
+from werkzeug.exceptions import BadRequest
 
 from cms.decorators import allow
 from cms.models.user import User as UserModel
@@ -26,8 +24,10 @@ def put():
     except IntegrityError as e:
         error_info = e.orig.args
         if error_info[0] == "UNIQUE constraint failed: user.name":
-            raise BadRequest("A user still exists with this name")
+            raise BadRequest("A user still exists with this name") from e
         else:
-            raise BadRequest(error_info[0])
+            raise BadRequest(error_info[0]) from e
+
+    user.send_account_creation_mail()
 
     return {"status": "ok", "user": user.as_dict()}

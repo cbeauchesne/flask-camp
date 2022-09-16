@@ -1,10 +1,8 @@
 """ Views related to account operations """
 
 from flask import request
-from flask_login import login_user, logout_user, current_user
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Query
-from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized, NotFound
+from flask_login import login_user, logout_user
+from werkzeug.exceptions import Unauthorized
 
 from cms.decorators import allow
 from cms.limiter import limiter

@@ -2,20 +2,20 @@
 
 Build a wiki API with all common features, regardless of the content of documents
 
-* [ ] All basic user features
+* [x] All basic user features
   * [x] create
   * [x] validate email
   * [x] login
   * [x] logout
   * [x] user name and email uniqueness
-  * [ ] send email to validate email address
-* [ ] modify user
+  * [x] send email to validate email address
+* [x] modify user
   * [x] modify password
   * [x] modify email
-  * [ ] send email to validate email address
-* [ ] password reset
+  * [x] send email to validate email address
+* [x] password reset
   * [x] password reset entry point and logic
-  * [ ] send email with a login token
+  * [x] send email with a login token
   * [x] login token can only be used once
   * [x] login token must expire after one hour
 * [x] rate limiting
@@ -27,8 +27,8 @@ Build a wiki API with all common features, regardless of the content of document
     * [x] add a document
     * [x] get list of document
       * [x] offset and limit feature
-      * [ ] use elasticsearch
-  * [ ] `/document` get, modify, delete a document
+      * [ ] use elasticsearch/redis
+  * [x] `/document` get, modify, delete a document
     * [x] Modify document
     * [x] manage edit conflict
   * [x] `/document_versions`
@@ -58,7 +58,7 @@ Build a wiki API with all common features, regardless of the content of document
 
 
 ## TODO
-email
+
 elastic search
 redis
 get all changes on document with an user flag ? /document_versions?flag=XX (AKA follow list ?)
@@ -86,6 +86,7 @@ Do not re-invent the wheel as a golden rule. So it uses :
 * Flask
 * Flask-Limiter
 * Flask-Login
+* Flask-Mail
 * SQLAlchemy
 * jsonschema
 
@@ -96,7 +97,7 @@ And on develpment side :
 * pylint
 * freezegun
 
-### Why not Flask-restful
+### Why not Flask-restful?
 
 It's not maintenaind anymore : https://github.com/flask-restful/flask-restful/issues/883
 

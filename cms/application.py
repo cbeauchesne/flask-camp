@@ -1,8 +1,8 @@
 import logging
-import secrets
 
 from flask import Flask
 from flask_login import LoginManager
+from flask_mail import Mail, Message
 from werkzeug.exceptions import HTTPException
 
 from . import config
@@ -47,7 +47,8 @@ class Application(Flask):
         self.database = Database(database_uri=self.config["DATABASE_URI"])
 
         self._login_manager = LoginManager(self)
-        self.secret_key = secrets.token_hex()
+
+        self.mail = Mail(self)
 
         limiter.init_app(self)
 
@@ -97,3 +98,36 @@ class Application(Flask):
 
     def create_all(self):
         self.database.create_all(BaseModel.metadata)
+
+    def send_account_creation_mail(self, email, token, user):
+        log.info("Send registration mail to user %s", user.name)
+        message = Message(
+            "Welcome to example.com",  # TODO
+            recipients=[email],
+            body=f"https://example.com?email_token={token}",
+            html=f'<a href="https://example.com?email_token={token}">click</a>',
+        )
+
+        self.mail.send(message)
+
+    def send_email_change_mail(self, email, token, user):
+        log.info("Send mail address update mail to user %s", user.name)
+        message = Message(
+            "Change email",  # TODO
+            recipients=[email],
+            body=f"https://example.com?email_token={token}",
+            html=f'<a href="https://example.com?email_token={token}">click</a>',
+        )
+
+        self.mail.send(message)
+
+    def send_login_token_mail(self, email, token, user):
+        log.info("Send login token mail to user %s", user.name)
+        message = Message(
+            "Login token email",  # TODO
+            recipients=[email],
+            body=f"https://example.com?login_token={token}",
+            html=f'<a href="https://example.com?login_token={token}">click</a>',
+        )
+
+        self.mail.send(message)
