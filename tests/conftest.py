@@ -3,20 +3,23 @@ import sys
 
 import pytest
 
-from cms import config
+from cms import config as cms_config
 from cms.application import Application
 from cms.models import BaseModel
 from cms.models.user import User
 
 from tests.utils import BaseTest
 
-app = Application(config.Testing)
+app = Application(cms_config.Testing)
 
 app.add_url_rule("/__testing/500", view_func=lambda: 1 / 0, endpoint="500")
 app.add_url_rule("/__testing/vuln/<int:id>", view_func=lambda id: User.get(id=id).as_dict(True), endpoint="vuln")
 
-logging.getLogger("sqlalchemy").addHandler(logging.StreamHandler(sys.stdout))
-logging.getLogger("sqlalchemy").setLevel(logging.INFO)
+
+def pytest_configure(config):
+    if config.getoption("-v") > 1:
+        logging.getLogger("sqlalchemy").addHandler(logging.StreamHandler(sys.stdout))
+        logging.getLogger("sqlalchemy").setLevel(logging.INFO)
 
 
 @pytest.fixture(autouse=True)

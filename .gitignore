@@ -10,3 +10,4 @@ __pycache__/
 /prof
 
 wb.py
+sqlite.db

@@ -6,12 +6,13 @@ class _BaseConfig:
 
 
 class Production(_BaseConfig):
-    DATABASE_URI = "mysql://user@localhost/foo"
+    # DATABASE_URI must be in FLASK_DATABASE_URI env var
     # SECRET_KEY must be set in FLASK_SECRET_KEY env var
+    pass
 
 
 class Development(_BaseConfig):
-    DATABASE_URI = "sqlite:////sqlite.db"
+    DATABASE_URI = "sqlite:///sqlite.db"
     SECRET_KEY = "not_very_secret"
 
 

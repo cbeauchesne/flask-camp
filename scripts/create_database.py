@@ -6,7 +6,7 @@ if __name__ == "__main__":
     from cms import config
     from cms.application import Application
 
-    app = Application(config.Testing)
+    app = Application(config.Development)
 
     logging.getLogger("sqlalchemy").addHandler(logging.StreamHandler(sys.stdout))
     logging.getLogger("sqlalchemy").setLevel(logging.INFO)
