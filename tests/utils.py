@@ -157,3 +157,22 @@ class BaseTest:
         assert r.status_code == expected_status, r.json
 
         return r
+
+    def add_user_tag(self, name, doc, value=None, expected_status=200):
+        payload = {"name": name, "document_id": doc["id"]}
+
+        if value is not None:
+            payload["value"] = value
+
+        r = self.post("/user_tags", json=payload)
+
+        assert r.status_code == expected_status, r.json
+
+        return r
+
+    def remove_user_tag(self, name, doc, expected_status=200):
+        r = self.delete("/user_tags", json={"name": name, "document_id": doc["id"]})
+
+        assert r.status_code == expected_status, r.json
+
+        return r

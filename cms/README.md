@@ -59,8 +59,8 @@ Build a wiki API with all common features, regardless of the content of document
 
 ## TODO
 
-elastic search
 redis
+elastic search
 get all changes on document with an user flag ? /document_versions?flag=XX (AKA follow list ?)
 edit conflict => give version
 Test rate limiter
