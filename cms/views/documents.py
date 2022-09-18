@@ -2,12 +2,11 @@ import json
 
 from flask import request, current_app
 from flask_login import current_user
-from werkzeug.exceptions import NotFound, BadRequest, Forbidden
+from werkzeug.exceptions import BadRequest
 
 from cms.decorators import allow
 from cms.limiter import limiter
 from cms.models.document import Document, DocumentVersion
-from cms.models.user_tag import UserTag
 from cms.schemas import schema
 
 rule = "/documents"

@@ -52,16 +52,15 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] hide/unhide version
   * [x] delete a document
   * [x] delete a document version
-* [ ] user flag: any user can add any flag/value to any document
+* [x] user flag: any user can add any flag/value to any document
   * [x] get all document with some user flag ? /documents?flag=XX
-  * [ ] get all versions on document with an user flag ? /document_versions?flag=XX (AKA follow list ?)
+  * [x] get all versions on document with an user flag ? /document_versions?flag=XX (AKA follow list ?)
 
 
 ## TODO
 
 redis
 elastic search
-get all changes on document with an user flag ? /document_versions?flag=XX (AKA follow list ?)
 edit conflict => give version
 Test rate limiter
 more test on delete

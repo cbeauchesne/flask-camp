@@ -6,6 +6,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, U
 from sqlalchemy.orm import relationship
 
 from cms.models import BaseModel
+from cms.models.user_tag import UserTag
 
 
 def _as_dict(document, version, include_hidden_data_for_staff=False):
@@ -72,11 +73,18 @@ class DocumentVersion(BaseModel):
     # This column give the nth version of a document
     # it starts at 1, and is incremented by 1 every new version
     # the api is responsible to increment it. By this, it prevents edit conflict
-    # version_number = Column(Integer, index=True, nullable=False)
     version_number = Column(Integer, nullable=False)
 
     hidden = Column(Boolean, default=False, nullable=False)
     data = Column(String)
+
+    user_tags = relationship(
+        "UserTag",
+        lazy="select",
+        foreign_keys="DocumentVersion.document_id",
+        primaryjoin=document_id == UserTag.document_id,
+        uselist=True,
+    )
 
     __table_args__ = (UniqueConstraint("document_id", "version_number", name="_document_version_uc"),)
 
