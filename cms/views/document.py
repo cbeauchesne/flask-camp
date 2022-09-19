@@ -1,10 +1,10 @@
 import json
 import logging
 
-from flask import request, current_app
+from flask import request, current_app, Response
 from flask_login import current_user
 from sqlalchemy.exc import IntegrityError
-from werkzeug.exceptions import NotFound, BadRequest, Forbidden, Conflict
+from werkzeug.exceptions import NotFound, Forbidden, Conflict
 
 from cms.decorators import allow
 from cms.limiter import limiter
@@ -24,7 +24,14 @@ def get(id):
     if document is None:
         raise NotFound()
 
-    return {"status": "ok", "document": document.as_dict()}
+    response = Response(
+        response=json.dumps({"status": "ok", "document": document.as_dict()}), content_type="application/json"
+    )
+
+    response.add_etag()
+    response.make_conditional(request)
+
+    return response
 
 
 @limiter.limit("2/second;10/minute;60/hour")
@@ -64,7 +71,7 @@ def post(id):
     except IntegrityError as e:
         error_info = e.orig.args
         if error_info[0] == "UNIQUE constraint failed: document_version.document_id, document_version.version_number":
-            raise Conflict("A new version exists")  # TODO give the new version
+            raise Conflict("A new version exists") from e  # TODO give the new version
         else:
             raise
 

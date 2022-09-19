@@ -5,14 +5,15 @@ class BaseTest:
     client = None
 
     def _assert_status_response(self, r):
-        assert r.json is not None, r
-        assert "status" in r.json, r.json
+        if r.status_code != 304:  # not modified : no body
+            assert r.json is not None, r
+            assert "status" in r.json, r.json
 
-        if r.status_code == 200:
-            assert r.json["status"] == "ok", r.json
-        else:
-            assert r.json["status"] == "error", r.json
-            assert "description" in r.json, r.json
+            if r.status_code == 200:
+                assert r.json["status"] == "ok", r.json
+            else:
+                assert r.json["status"] == "error", r.json
+                assert "description" in r.json, r.json
 
     def get(self, *args, **kwargs):
         r = BaseTest.client.get(*args, **kwargs)
@@ -59,11 +60,13 @@ class BaseTest:
 
         return r
 
-    def get_document(self, document, expected_status=200, data_should_be_present=True, version_should_be=None):
+    def get_document(
+        self, document, headers=None, expected_status=200, data_should_be_present=True, version_should_be=None
+    ):
         document_id = document if isinstance(document, int) else document["id"]
 
-        r = self.get(f"/document/{document_id}")
-        assert r.status_code == expected_status
+        r = self.get(f"/document/{document_id}", headers=headers)
+        assert r.status_code == expected_status, f"Status code is {r.status_code} i/o {expected_status}"
 
         if r.status_code == 200:
             if data_should_be_present:
