@@ -6,10 +6,11 @@ from flask_mail import Mail, Message
 from werkzeug.exceptions import HTTPException
 
 from . import config
-from .database import Database
 from .limiter import limiter
 from .models.user import User as UserModel
 from .models import BaseModel
+from .services.database import Database
+from .services.memory_cache import MemoryCache
 
 from .views.account import user_login as user_login_view
 from .views.account import email_validation as email_validation_view
@@ -32,7 +33,7 @@ log = logging.getLogger(__name__)
 
 
 class Application(Flask):
-    def __init__(self, config_object=None):
+    def __init__(self, config_object=None, memory_cache_instance=None):
         super().__init__(__name__)
 
         if config_object:
@@ -43,6 +44,8 @@ class Application(Flask):
             self.config.from_object(config.Production)
 
         self.config.from_prefixed_env()
+
+        self.memory_cache = MemoryCache(client=memory_cache_instance)
 
         self.database = Database(database_uri=self.config["DATABASE_URI"])
 

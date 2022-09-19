@@ -6,7 +6,7 @@ class BaseTest:
 
     def _assert_status_response(self, r):
         if r.status_code != 304:  # not modified : no body
-            assert r.json is not None, r
+            assert r.json is not None, r.data
             assert "status" in r.json, r.json
 
             if r.status_code == 200:
@@ -66,7 +66,7 @@ class BaseTest:
         document_id = document if isinstance(document, int) else document["id"]
 
         r = self.get(f"/document/{document_id}", headers=headers)
-        assert r.status_code == expected_status, f"Status code is {r.status_code} i/o {expected_status}"
+        assert r.status_code == expected_status, r.json
 
         if r.status_code == 200:
             if data_should_be_present:

@@ -3,6 +3,8 @@ import sys
 
 import pytest
 
+from fakeredis import FakeServer, FakeRedis
+
 from cms import config as cms_config
 from cms.application import Application
 from cms.models import BaseModel
@@ -10,7 +12,10 @@ from cms.models.user import User
 
 from tests.utils import BaseTest
 
-app = Application(cms_config.Testing)
+redis_server = FakeServer()
+redis_client = FakeRedis(server=redis_server)
+
+app = Application(cms_config.Testing, memory_cache_instance=redis_client)
 
 app.add_url_rule("/__testing/500", view_func=lambda: 1 / 0, endpoint="500")
 app.add_url_rule("/__testing/vuln/<int:id>", view_func=lambda id: User.get(id=id).as_dict(True), endpoint="vuln")
@@ -32,6 +37,7 @@ def setup_app():
         yield
 
     BaseModel.metadata.drop_all(bind=app.database.engine)
+    redis_client.flushall()
 
 
 def db_add_user(name="name", email=None, password="password", validate_email=True, roles=""):
@@ -98,3 +104,8 @@ def database():
 @pytest.fixture()
 def mail():
     yield app.mail
+
+
+@pytest.fixture()
+def memory_cache():
+    yield app.memory_cache

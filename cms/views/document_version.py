@@ -34,6 +34,7 @@ def post(id):
     add_log("hide_version" if hidden else "unhide_version", version_id=version.id, document_id=version.document.id)
 
     current_app.database.session.commit()
+    current_app.memory_cache.document.delete(version.document.id)
 
     return {"status": "ok"}
 

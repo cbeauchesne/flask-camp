@@ -19,13 +19,21 @@ rule = "/document/<int:id>"
 
 @allow("anonymous")
 def get(id):
-    document = Document.get(id=id)
 
-    if document is None:
-        raise NotFound()
+    document_as_dict = current_app.memory_cache.document.get(id)
+
+    if document_as_dict is None:  # document is not known by mem cache
+        document = Document.get(id=id)
+
+        if document is None:
+            raise NotFound()
+
+        document_as_dict = document.as_dict()
+        current_app.memory_cache.document.set(id, document_as_dict)
 
     response = Response(
-        response=json.dumps({"status": "ok", "document": document.as_dict()}), content_type="application/json"
+        response=json.dumps({"status": "ok", "document": document_as_dict}),
+        content_type="application/json",
     )
 
     response.add_etag()
@@ -75,7 +83,11 @@ def post(id):
         else:
             raise
 
-    return {"status": "ok", "document": version.as_dict()}
+    version_as_dict = version.as_dict()
+
+    current_app.memory_cache.document.set(id, version_as_dict)
+
+    return {"status": "ok", "document": version_as_dict}
 
 
 @allow("admin")
@@ -91,5 +103,7 @@ def delete(id):
 
     add_log("delete_document", document_id=document.id)
     current_app.database.session.commit()
+
+    current_app.memory_cache.document.delete(id)
 
     return {"status": "ok"}
