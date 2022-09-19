@@ -74,8 +74,9 @@ def post(id):
         data=json.dumps(data),
     )
 
+    current_app.database.session.add(version)
     try:
-        version.create()
+        current_app.database.session.commit()
     except IntegrityError as e:
         error_info = e.orig.args
         if error_info[0] == "UNIQUE constraint failed: document_version.document_id, document_version.version_number":

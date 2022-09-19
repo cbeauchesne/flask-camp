@@ -54,11 +54,14 @@ def put():
     data = body["document"]["data"]
 
     document = Document(namespace=namespace)
-    document.create()
 
     version = DocumentVersion(
-        document_id=document.id, user_id=current_user.id, comment=comment, version_number=1, data=json.dumps(data)
+        document=document, user=current_user, comment=comment, version_number=1, data=json.dumps(data)
     )
-    version.create()
+
+    current_app.database.session.add(document)
+    current_app.database.session.add(version)
+
+    current_app.database.session.commit()
 
     return {"status": "ok", "document": version.as_dict()}

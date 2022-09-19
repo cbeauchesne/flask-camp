@@ -22,15 +22,17 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] rate limiting on user login failures
   * [x] rate limiting on document creation
   * [x] rate limiting on document modification
+  * [x] use redis
 * [x] unique document type, shipping a namespace field.
   * [ ] `/documents`
     * [x] add a document
     * [x] get list of document
       * [x] offset and limit feature
-      * [ ] use elasticsearch/redis
+      * [ ] use elasticsearch
   * [x] `/document` get, modify, delete a document
     * [x] Modify document
     * [x] manage edit conflict
+    * [x] use redis
   * [x] `/document_versions`
     * [x] get a list of version
     * [x] all changes
@@ -70,13 +72,16 @@ more test!
 
 ## Golden rules
 
-* keep round API
-* explicit is better than implicit
-* 100% test coverage : test is ok <=> you can release
-* 80/20 usage: Do the 80%. do NOT the 20%
-* Do not reinvent the wheel
-* API is security/consitency, UI is usability
-* security: everything is forbidden, except if it's allowed
+Here is a list of golden rules.
+
+1. 100% test coverage : test is ok <=> you can release
+2. explicit is better than implicit
+3. keep it stupid and simple
+4. Do not reinvent the wheel
+5. 80/20 usage: Do the 80%. do NOT the 20%
+6. keep round API
+7. API is security/consitency, UI is usability
+8. security: everything is forbidden, except if it's allowed
 
 ## Stack
 
@@ -88,6 +93,7 @@ Do not re-invent the wheel as a golden rule. So it uses :
 * Flask-Mail
 * SQLAlchemy
 * jsonschema
+* redis
 
 And on develpment side :
 
@@ -95,6 +101,7 @@ And on develpment side :
 * black
 * pylint
 * freezegun
+* fakeredis
 
 ### Why not Flask-restful?
 
@@ -108,7 +115,6 @@ And it turns out that flask handle pretty well json requests and response out-of
 * Add/modify document
   * update DB
   * build document JSON
-  * update Elasticsearch with the serialized document
-* get document -> get in elastic search
-* get list of document -> get in elastic search
-* get list of document with filters -> get in elastic search
+  * update Redis with the serialized document
+* get document -> get in redis
+* get list of document -> get ids in elastic search, values in ES

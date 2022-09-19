@@ -5,6 +5,7 @@ if __name__ == "__main__":
     import sys
     from cms import config
     from cms.application import Application
+    from cms.models.user import User
 
     app = Application(config.Development)
 
@@ -12,3 +13,17 @@ if __name__ == "__main__":
     logging.getLogger("sqlalchemy").setLevel(logging.INFO)
 
     app.create_all()
+
+    user = User(
+        name="admin",
+        roles=[
+            "admin",
+        ],
+    )
+    with app.app_context():
+        user.set_password("password")
+        user.set_email("admin@example.com")
+        user.validate_email(user._email_token)
+
+        app.database.session.add(user)
+        app.database.session.commit()

@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, current_app
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import BadRequest
 
@@ -19,8 +19,10 @@ def put():
     user.set_password(data["password"])
     user.set_email(data["email"])
 
+    current_app.database.session.add(user)
+
     try:
-        user.create()
+        current_app.database.session.commit()
     except IntegrityError as e:
         error_info = e.orig.args
         if error_info[0] == "UNIQUE constraint failed: user.name":

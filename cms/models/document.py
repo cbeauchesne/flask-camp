@@ -84,6 +84,7 @@ class DocumentVersion(BaseModel):
         foreign_keys="DocumentVersion.document_id",
         primaryjoin=document_id == UserTag.document_id,
         uselist=True,
+        viewonly=True,
     )
 
     __table_args__ = (UniqueConstraint("document_id", "version_number", name="_document_version_uc"),)

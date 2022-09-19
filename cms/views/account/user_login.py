@@ -1,6 +1,6 @@
 """ Views related to account operations """
 
-from flask import request
+from flask import request, current_app
 from flask_login import login_user, logout_user
 from werkzeug.exceptions import Unauthorized
 
@@ -38,7 +38,7 @@ def post():
     else:
         raise Unauthorized(f"User [{name}] does not exists, or password is wrong")
 
-    user.update()
+    current_app.database.session.commit()
 
     return {"status": "ok", "user": user.as_dict(include_personal_data=True)}
 

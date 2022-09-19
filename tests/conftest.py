@@ -57,7 +57,8 @@ def db_add_user(name="name", email=None, password="password", validate_email=Tru
         if validate_email:
             instance.validate_email(instance._email_token)
 
-        instance.create()
+        app.database.session.add(instance)  # pylint: disable=no-member
+        app.database.session.commit()  # pylint: disable=no-member
 
         result = User(
             id=instance.id,

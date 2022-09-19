@@ -1,6 +1,6 @@
 from flask import current_app
 from sqlalchemy import Column, Integer
-from sqlalchemy.orm import Query, declarative_base
+from sqlalchemy.orm import declarative_base
 
 
 class BaseModel(declarative_base()):
@@ -8,21 +8,9 @@ class BaseModel(declarative_base()):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    def create(self):
-        if self.id is not None:
-            raise ValueError(f"{self} should not have an ID")  # pragma: no cover
-
-        current_app.database.session.add(self)  # pylint: disable=no-member
-        current_app.database.session.commit()  # pylint: disable=no-member
-
-    def update(self):
-        current_app.database.session.add(self)  # pylint: disable=no-member
-        current_app.database.session.commit()  # pylint: disable=no-member
-
     @classmethod
     def query(cls):
-        return Query(cls, session=current_app.database.session)
+        return current_app.database.session.query(cls)
 
-    @classmethod
-    def get(cls, **kwargs):
-        return cls.query().filter_by(**kwargs).first()
+    def get(self, **kwargs):
+        return self.query_.filter_by(**kwargs).first()

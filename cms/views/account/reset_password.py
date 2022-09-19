@@ -1,6 +1,6 @@
 """ Views related to account operations """
 
-from flask import request
+from flask import request, current_app
 
 from cms.decorators import allow
 from cms.limiter import limiter
@@ -26,7 +26,8 @@ def post():
         return {"status": "ok", "expiration_date": fake_user.login_token_expiration_date.isoformat()}
 
     user.set_login_token()
-    user.update()
+
+    current_app.database.session.commit()
 
     user.send_login_token_mail()
 
