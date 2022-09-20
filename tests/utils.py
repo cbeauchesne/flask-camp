@@ -82,7 +82,7 @@ class BaseTest:
     def get_document_version(self, version, expected_status=200, data_should_be_present=True):
         version_id = version if isinstance(version, int) else version["version_id"]
 
-        r = self.get(f"/document_version/{version_id}")
+        r = self.get(f"/version/{version_id}")
         assert r.status_code == expected_status
 
         if r.status_code == 200:
@@ -110,7 +110,7 @@ class BaseTest:
     def hide_version(self, version, expected_status=200):
         version_id = version if isinstance(version, int) else version["version_id"]
 
-        r = self.post(f"/document_version/{version_id}", json={"comment": "some comment", "hidden": True})
+        r = self.post(f"/version/{version_id}", json={"comment": "some comment", "hidden": True})
         assert r.status_code == expected_status, r.json
 
         return r
@@ -118,7 +118,7 @@ class BaseTest:
     def unhide_version(self, version, expected_status=200):
         version_id = version if isinstance(version, int) else version["version_id"]
 
-        r = self.post(f"/document_version/{version_id}", json={"comment": "some comment", "hidden": False})
+        r = self.post(f"/version/{version_id}", json={"comment": "some comment", "hidden": False})
         assert r.status_code == expected_status, r.json
 
         return r
@@ -148,7 +148,7 @@ class BaseTest:
     def delete_document_version(self, version, expected_status=200):
         version_id = version if isinstance(version, int) else version["version_id"]
 
-        r = self.delete(f"/document_version/{version_id}", json={"comment": "toto"})
+        r = self.delete(f"/version/{version_id}", json={"comment": "toto"})
         assert r.status_code == expected_status, r.json
 
         return r

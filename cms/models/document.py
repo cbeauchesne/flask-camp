@@ -59,7 +59,7 @@ class Document(BaseModel):
 
 
 class DocumentVersion(BaseModel):
-    __tablename__ = "document_version"
+    __tablename__ = "version"
 
     document_id = Column(Integer, ForeignKey("document.id"), index=True)
     document = relationship("Document")
@@ -87,7 +87,7 @@ class DocumentVersion(BaseModel):
         viewonly=True,
     )
 
-    __table_args__ = (UniqueConstraint("document_id", "version_number", name="_document_version_uc"),)
+    __table_args__ = (UniqueConstraint("document_id", "version_number", name="_version_uc"),)
 
     def __init__(self, **kwargs):
         kwargs["timestamp"] = datetime.now()

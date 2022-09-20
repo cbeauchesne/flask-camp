@@ -79,7 +79,7 @@ def post(id):
         current_app.database.session.commit()
     except IntegrityError as e:
         error_info = e.orig.args
-        if error_info[0] == "UNIQUE constraint failed: document_version.document_id, document_version.version_number":
+        if error_info[0] == "UNIQUE constraint failed: version.document_id, version.version_number":
             raise Conflict("A new version exists") from e  # TODO give the new version
         else:
             raise

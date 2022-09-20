@@ -14,4 +14,4 @@ class BaseModel(declarative_base()):
 
     @classmethod
     def get(cls, **kwargs):
-        return cls.query_.filter_by(**kwargs).first()
+        return cls.query().filter_by(**kwargs).first()

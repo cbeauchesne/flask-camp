@@ -60,12 +60,12 @@ class Test_Documents(BaseTest):
         assert r["documents"][0]["data"]["value"] == "doc 30"
         assert r["documents"][29]["data"]["value"] == "doc 59"
 
-        r = self.get("/document_versions").json
+        r = self.get("/versions").json
         assert r["count"] == 110
-        assert len(r["changes"]) == 30
+        assert len(r["versions"]) == 30
 
-        r = self.get("/document_versions", query_string={"limit": 1}).json
-        assert len(r["changes"]) == 1
+        r = self.get("/versions", query_string={"limit": 1}).json
+        assert len(r["versions"]) == 1
 
-        r = self.get("/document_versions", query_string={"limit": 101})
+        r = self.get("/versions", query_string={"limit": 101})
         assert r.status_code == 400

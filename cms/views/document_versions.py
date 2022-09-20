@@ -4,7 +4,7 @@ from werkzeug.exceptions import BadRequest
 from cms.decorators import allow
 from cms.models.document import DocumentVersion
 
-rule = "/document_versions"
+rule = "/versions"
 
 
 @allow("anonymous")
@@ -49,5 +49,5 @@ def get():
     return {
         "status": "ok",
         "count": count,
-        "changes": [version.as_dict() for version in versions],
+        "versions": [version.as_dict() for version in versions],
     }

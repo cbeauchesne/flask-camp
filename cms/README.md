@@ -33,13 +33,13 @@ Build a wiki API with all common features, regardless of the content of document
     * [x] Modify document
     * [x] manage edit conflict
     * [x] use redis
-  * [x] `/document_versions`
+  * [x] `/versions`
     * [x] get a list of version
     * [x] all changes
     * [x] all changes related to one document
     * [x] all changes made by one user
     * [x] offset and limit feature
-  * [x] `/document_version` get a given version of a doc
+  * [x] `/version` get a given version of a doc
 * [x] Moderator options
   * [x] protect/unprotect a document
   * [x] hide/unhide a document version
@@ -56,7 +56,7 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] delete a document version
 * [x] user flag: any user can add any flag/value to any document
   * [x] get all document with some user flag ? /documents?flag=XX
-  * [x] get all versions on document with an user flag ? /document_versions?flag=XX (AKA follow list ?)
+  * [x] get all versions on document with an user flag ? `/versions?flag=XX` (AKA follow list ?)
 
 
 ## TODO

@@ -40,7 +40,5 @@ class Test_Conflict(BaseTest):
         v1 = self.modify_document(v0).json["document"]
 
         # modify v0 in DB to simulate a v2
-        database.execute(
-            f"UPDATE document_version SET version_number={v1['version_number'] + 1} WHERE id={v0['version_id']}"
-        )
+        database.execute(f"UPDATE version SET version_number={v1['version_number'] + 1} WHERE id={v0['version_id']}")
         self.modify_document(v1, expected_status=409)

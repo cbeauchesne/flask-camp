@@ -6,7 +6,7 @@ from cms.decorators import allow
 from cms.models.document import DocumentVersion
 from cms.models.log import add_log
 
-rule = "/document_version/<int:id>"
+rule = "/version/<int:id>"
 
 
 @allow("anonymous")
