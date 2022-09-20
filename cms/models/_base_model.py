@@ -12,5 +12,6 @@ class BaseModel(declarative_base()):
     def query(cls):
         return current_app.database.session.query(cls)
 
-    def get(self, **kwargs):
-        return self.query_.filter_by(**kwargs).first()
+    @classmethod
+    def get(cls, **kwargs):
+        return cls.query_.filter_by(**kwargs).first()

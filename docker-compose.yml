@@ -1,0 +1,57 @@
+
+version: "3.7"
+services:
+  cms:
+    container_name: cms-container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./cms/:/app/cms
+    command: uwsgi --http :5000 -w app:app
+    ports:
+      - 5000:5000
+
+  redis:
+    image: redis/redis-stack:latest
+    # image: redis/redis-stack-server:latest  # prod ?
+    ports:
+      - 6379:6379
+      - 8001:8001
+
+# postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}
+
+# export db_host = localhost
+# export db_port = 5432
+# export db_user = www-data
+# export db_password = www-data
+
+
+  postgresql:
+    image: docker.io/c2corg/c2corg_pgsql:anon-2018-11-02
+    environment:
+      PGDATA: '/c2corg_anon'
+    # volumes:
+      # - ./docker-compose/pgsql-settings.d/:/c2corg_anon/pgsql-settings.d/
+      # - .:/v6_api
+    ports:
+      - 5432:5432
+
+  pg_ui:
+    image: dpage/pgadmin4:4.0
+    depends_on:
+      - postgresql
+    links:
+      - postgresql:postgresql
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=password
+
+      # do not require auth
+      - PGADMIN_CONFIG_SERVER_MODE=False
+      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+    ports:
+      - 5050:80
+    # volumes:
+    #   - ./config_system.py:/etc/pgadmin/config_system.py
+
