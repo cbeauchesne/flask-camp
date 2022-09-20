@@ -93,6 +93,9 @@ class Application(Flask):
 
         self.add_module(merge_view)
 
+        if self.config.get("INIT_DATABASE", None):
+            self.add_url_rule("/init_database", view_func=self.init_database, methods=["GET"])
+
     def add_module(self, module):
 
         for method in ["get", "post", "put", "delete"]:
@@ -102,6 +105,20 @@ class Application(Flask):
                 self.add_url_rule(
                     module.rule, view_func=function, methods=[method.upper()], endpoint=f"{method}_{module.__name__}"
                 )
+
+    def init_database(self):
+        log.info("Init database")
+        self.database.create_all(BaseModel.metadata)
+
+        user = UserModel(name="admin", roles=["admin"])
+        user.set_password("password")
+        user.set_email("admin@example.com")
+        user.validate_email(user._email_token)
+
+        self.database.session.add(user)
+        self.database.session.commit()
+
+        return {"status": "ok"}
 
     def create_all(self):
         self.database.create_all(BaseModel.metadata)
