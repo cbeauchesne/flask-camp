@@ -4,7 +4,7 @@ import logging
 from flask import request, current_app, Response
 from flask_login import current_user
 from sqlalchemy.exc import IntegrityError
-from werkzeug.exceptions import NotFound, Forbidden, Conflict
+from werkzeug.exceptions import NotFound, Forbidden, Conflict, BadRequest
 
 from cms.decorators import allow
 from cms.limiter import limiter
@@ -27,6 +27,9 @@ def get(id):
 
         if document is None:
             raise NotFound()
+
+        if document.redirect_to:
+            return Response(headers={"Location": f"/document/{document.redirect_to}"}, status=301)
 
         document_as_dict = document.as_dict()
         current_app.memory_cache.document.set(id, document_as_dict)
@@ -54,6 +57,9 @@ def post(id):
 
     if document.protected and not current_user.is_moderator:
         raise Forbidden("The document is protected")
+
+    if document.redirect_to:
+        raise BadRequest("The document is a redirection")
 
     body = request.get_json()
 

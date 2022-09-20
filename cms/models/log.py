@@ -8,13 +8,18 @@ from sqlalchemy.orm import relationship
 from cms.models import BaseModel
 
 
-def add_log(action, comment=None, target_user_id=None, document_id=None, version_id=None):
+def add_log(action, comment=None, target_user_id=None, document_id=None, merged_document_id=None, version_id=None):
 
     if comment is None:
         comment = request.get_json()["comment"]
 
     log = Log(
-        action=action, comment=comment, target_user_id=target_user_id, document_id=document_id, version_id=version_id
+        action=action,
+        comment=comment,
+        target_user_id=target_user_id,
+        document_id=document_id,
+        merged_document_id=merged_document_id,
+        version_id=version_id,
     )
     current_app.database.session.add(log)  # pylint: disable=no-member
 

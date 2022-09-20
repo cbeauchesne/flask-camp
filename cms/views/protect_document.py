@@ -1,5 +1,5 @@
 from flask import current_app
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import NotFound, BadRequest
 
 from cms.decorators import allow
 from cms.models.document import Document
@@ -17,6 +17,9 @@ def put(id):
     if doc is None:
         raise NotFound()
 
+    if doc.redirect_to is not None:
+        raise BadRequest()
+
     doc.protected = True
     add_log("protect", document_id=id)
     current_app.database.session.commit()
@@ -33,6 +36,9 @@ def delete(id):
 
     if doc is None:
         raise NotFound()
+
+    if doc.redirect_to is not None:
+        raise BadRequest()
 
     doc.protected = False
     add_log("unprotect", document_id=id)

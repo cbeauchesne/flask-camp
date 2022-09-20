@@ -5,7 +5,12 @@ class BaseTest:
     client = None
 
     def _assert_status_response(self, r):
-        if r.status_code != 304:  # not modified : no body
+        if r.status_code == 304:  # not modified : no body
+            assert r.data == b""
+        elif r.status_code == 301:  # Moved permanently : no body
+            assert r.data == b""
+            assert "Location" in r.headers
+        else:
             assert r.json is not None, r.data
             assert "status" in r.json, r.json
 
@@ -123,13 +128,17 @@ class BaseTest:
 
         return r
 
-    def protect_document(self, document_id, expected_status=200):
+    def protect_document(self, document, expected_status=200):
+        document_id = document if isinstance(document, int) else document["id"]
+
         r = self.put(f"/protect_document/{document_id}", json={"comment": "some comment"})
-        assert r.status_code == expected_status
+        assert r.status_code == expected_status, r
 
         return r
 
-    def unprotect_document(self, document_id, expected_status=200):
+    def unprotect_document(self, document, expected_status=200):
+        document_id = document if isinstance(document, int) else document["id"]
+
         r = self.delete(f"/protect_document/{document_id}", json={"comment": "some comment"})
         assert r.status_code == expected_status
 
@@ -177,5 +186,13 @@ class BaseTest:
         r = self.delete("/user_tags", json={"name": name, "document_id": doc["id"]})
 
         assert r.status_code == expected_status, r.json
+
+        return r
+
+    def merge_documents(self, document_to_merge, document_destination, expected_status=200):
+        payload = {"document_to_merge": document_to_merge["id"], "document_destination": document_destination["id"]}
+        r = self.post("/merge", json=payload)
+
+        assert r.status_code == expected_status
 
         return r

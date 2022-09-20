@@ -45,6 +45,8 @@ class Document(BaseModel):
     user_tags = relationship("UserTag", back_populates="document", lazy="select", cascade="all,delete")
     versions = relationship("DocumentVersion", back_populates="document", lazy="select", cascade="all,delete")
 
+    redirect_to = Column(Integer, ForeignKey("document.id"))
+
     def as_dict(self):
         version = (
             DocumentVersion.query()
@@ -52,7 +54,7 @@ class Document(BaseModel):
             .order_by(DocumentVersion.id.desc())
             .first()
         )
-        if version is None:
+        if version is None:  # can happen if all are hidden
             version = DocumentVersion.query().filter_by(document_id=self.id).order_by(DocumentVersion.id.desc()).first()
 
         return _as_dict(self, version)

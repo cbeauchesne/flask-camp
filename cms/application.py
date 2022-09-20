@@ -22,6 +22,7 @@ from .views import document as document_view
 from .views import documents as documents_view
 from .views import healthcheck as healthcheck_view
 from .views import logs as logs_view
+from .views import merge as merge_view
 from .views import protect_document as protect_document_view
 from .views import user as user_view
 from .views import users as users_view
@@ -88,6 +89,8 @@ class Application(Flask):
 
         self.add_module(user_tags_view)
         self.add_module(document_version_view)
+
+        self.add_module(merge_view)
 
     def add_module(self, module):
 

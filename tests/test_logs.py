@@ -53,8 +53,8 @@ class Test_Logs(BaseTest):
         doc = self.create_document().json["document"]
         doc_v2 = self.modify_document(doc, "v2").json["document"]
 
-        self.protect_document(document_id=doc["id"])
-        self.unprotect_document(document_id=doc["id"])
+        self.protect_document(doc)
+        self.unprotect_document(doc)
 
         self.logout_user()
         self.login_user(admin)
