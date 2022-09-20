@@ -24,11 +24,7 @@ def _as_dict(document, version, include_hidden_data_for_staff=False):
 
     if not version.hidden:
         result["data"] = json.loads(version.data)
-    elif (
-        include_hidden_data_for_staff
-        and current_user.is_authenticated
-        and (current_user.is_admin or current_user.is_moderator)
-    ):
+    elif include_hidden_data_for_staff and (current_user.is_admin or current_user.is_moderator):
         result["data"] = json.loads(version.data)
 
     return result

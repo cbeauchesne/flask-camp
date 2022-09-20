@@ -13,6 +13,18 @@ from cms.models import BaseModel
 log = logging.getLogger(__name__)
 
 
+class AnonymousUser:  # pylint: disable=too-few-public-methods
+    is_anonymous = True
+    is_authenticated = False
+    is_admin = False
+    is_moderator = False
+    id = None
+    roles = []
+
+    def get_id(self):
+        return None
+
+
 class User(BaseModel):
     __tablename__ = "user"
 
@@ -40,9 +52,6 @@ class User(BaseModel):
 
     def _get_private_property(self, property_name):
         # last security fence, it should never happen
-        if not current_user.is_authenticated:
-            log.error("Unexpected access to user.%s", property_name)
-            raise Forbidden()
 
         if current_user.id != self.id and not current_user.is_admin and not current_user.is_moderator:
             log.error("Unexpected access to user.%s", property_name)
@@ -91,11 +100,11 @@ class User(BaseModel):
 
     @property
     def is_authenticated(self):
-        return self.id is not None
+        return True
 
     @property
     def is_active(self):
-        return self.is_authenticated and self._email is not None
+        return self._email is not None
 
     def get_id(self):
         return str(self.id)

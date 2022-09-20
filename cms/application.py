@@ -7,7 +7,7 @@ from werkzeug.exceptions import HTTPException
 
 from . import config
 from .limiter import limiter
-from .models.user import User as UserModel
+from .models.user import User as UserModel, AnonymousUser
 from .models import BaseModel
 from .services.database import Database
 from .services.memory_cache import MemoryCache
@@ -51,12 +51,13 @@ class Application(Flask):
         self.database = Database(database_uri=self.config["DATABASE_URI"])
 
         self._login_manager = LoginManager(self)
+        self._login_manager.anonymous_user = AnonymousUser
 
         self.mail = Mail(self)
 
         limiter.init_app(self)
 
-        @self.login_manager.user_loader  # pylint: disable=no-member
+        @self._login_manager.user_loader  # pylint: disable=no-member
         def load_user(user_id):
             return UserModel.get(id=int(user_id))
 

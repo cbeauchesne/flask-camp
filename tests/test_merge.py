@@ -2,7 +2,6 @@ from tests.utils import BaseTest
 
 
 class Test_Merge(BaseTest):
-
     def get_versions(self, document=None):
         query_string = {}
 
