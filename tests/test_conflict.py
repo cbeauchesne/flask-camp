@@ -13,11 +13,11 @@ class Test_Conflict(BaseTest):
         self.modify_document(v0, expected_status=409)
         self.modify_document(v1, expected_status=409)
 
-        self.delete_document_version(v1)
+        self.delete_version(v1)
         # v1 is availabble in DB. Though, it should raise an error as v2 exists
         self.modify_document(v0, expected_status=409)
 
-        self.delete_document_version(v2)
+        self.delete_version(v2)
         # now, v0 is the last version, so I can modify from it
         self.modify_document(v0, expected_status=200)
 

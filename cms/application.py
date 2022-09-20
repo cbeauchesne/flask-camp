@@ -16,8 +16,8 @@ from .views.account import user_login as user_login_view
 from .views.account import email_validation as email_validation_view
 from .views.account import reset_password as reset_password_view
 from .views import block_user as block_user_view
-from .views import document_versions as document_versions_view
-from .views import document_version as document_version_view
+from .views import versions as versions_view
+from .views import version as version_view
 from .views import document as document_view
 from .views import documents as documents_view
 from .views import healthcheck as healthcheck_view
@@ -80,7 +80,8 @@ class Application(Flask):
 
         self.add_module(documents_view)
         self.add_module(document_view)
-        self.add_module(document_versions_view)
+        self.add_module(versions_view)
+        self.add_module(version_view)
 
         self.add_module(logs_view)
 
@@ -88,7 +89,6 @@ class Application(Flask):
         self.add_module(block_user_view)
 
         self.add_module(user_tags_view)
-        self.add_module(document_version_view)
 
         self.add_module(merge_view)
 

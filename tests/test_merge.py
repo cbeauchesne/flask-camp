@@ -3,7 +3,7 @@ from tests.utils import BaseTest
 
 class Test_Merge(BaseTest):
 
-    def get_document_versions(self, document=None):
+    def get_versions(self, document=None):
         query_string = {}
 
         if document:
@@ -28,8 +28,8 @@ class Test_Merge(BaseTest):
 
         self.merge_documents(document_to_merge=v1, document_destination=v2)
 
-        versions = self.get_document_versions(document=v2).json["versions"]
-        versions = self.get_document_versions().json["versions"]
+        versions = self.get_versions(document=v2).json["versions"]
+        versions = self.get_versions().json["versions"]
 
         assert len(versions) == 4
 
@@ -52,6 +52,7 @@ class Test_Merge(BaseTest):
         self.modify_document(v3, data="v3", expected_status=400)
 
         self.protect_document(v1, expected_status=400)
+        self.unprotect_document(v1, expected_status=400)
 
         self.logout_user()
         self.login_user(admin)

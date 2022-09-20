@@ -86,14 +86,14 @@ class Test_HideVersion(BaseTest):
 
         # for modo/admins
         self.get_document(document_id, data_should_be_present=True, version_should_be=doc_v1)
-        self.get_document_version(doc_v1, data_should_be_present=True)
-        self.get_document_version(doc_v2, data_should_be_present=True)
+        self.get_version(doc_v1, data_should_be_present=True)
+        self.get_version(doc_v2, data_should_be_present=True)
 
         # for other users
         self.logout_user()
         self.get_document(document_id, data_should_be_present=True, version_should_be=doc_v1)
-        self.get_document_version(doc_v1, data_should_be_present=True)
-        self.get_document_version(doc_v2, data_should_be_present=False)
+        self.get_version(doc_v1, data_should_be_present=True)
+        self.get_version(doc_v2, data_should_be_present=False)
 
         ## state 2 : V1 and V2 are hidden
         self.login_user(moderator)
@@ -101,11 +101,11 @@ class Test_HideVersion(BaseTest):
 
         # for modo/admins
         self.get_document(document_id, data_should_be_present=False)
-        self.get_document_version(doc_v1, data_should_be_present=True)
-        self.get_document_version(doc_v2, data_should_be_present=True)
+        self.get_version(doc_v1, data_should_be_present=True)
+        self.get_version(doc_v2, data_should_be_present=True)
 
         # for other users
         self.logout_user()
         self.get_document(document_id, data_should_be_present=False)
-        self.get_document_version(doc_v1, data_should_be_present=False)
-        self.get_document_version(doc_v2, data_should_be_present=False)
+        self.get_version(doc_v1, data_should_be_present=False)
+        self.get_version(doc_v2, data_should_be_present=False)

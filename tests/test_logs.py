@@ -64,7 +64,7 @@ class Test_Logs(BaseTest):
         self.post(f"/user/{user.id}", json={"roles": ["admin", "robot"]})
         self.post(f"/user/{user.id}", json={"roles": []})
 
-        self.delete_document_version(doc_v2)
+        self.delete_version(doc_v2)
         self.delete_document(doc)
 
         r = self.get("/logs")

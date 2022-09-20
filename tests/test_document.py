@@ -68,4 +68,4 @@ class Test_Document(BaseTest):
         doc = self.create_document().json["document"]
         self.delete_document(doc, expected_status=200)
         self.get_document(doc, expected_status=404)
-        self.get_document_version(doc, expected_status=404)
+        self.get_version(doc, expected_status=404)

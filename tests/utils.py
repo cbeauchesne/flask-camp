@@ -84,7 +84,7 @@ class BaseTest:
 
         return r
 
-    def get_document_version(self, version, expected_status=200, data_should_be_present=True):
+    def get_version(self, version, expected_status=200, data_should_be_present=True):
         version_id = version if isinstance(version, int) else version["version_id"]
 
         r = self.get(f"/version/{version_id}")
@@ -154,7 +154,7 @@ class BaseTest:
         assert r.status_code == expected_status, r.json
         return r
 
-    def delete_document_version(self, version, expected_status=200):
+    def delete_version(self, version, expected_status=200):
         version_id = version if isinstance(version, int) else version["version_id"]
 
         r = self.delete(f"/version/{version_id}", json={"comment": "toto"})

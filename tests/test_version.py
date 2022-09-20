@@ -54,7 +54,7 @@ class Test_DeleteVersion(BaseTest):
         self.logout_user()
         self.login_user(admin)
 
-        self.delete_document_version(v1, expected_status=200)
+        self.delete_version(v1, expected_status=200)
 
         r = self.get("/versions", query_string={"document_id": document_id})
         assert r.json["count"] == 2
@@ -63,19 +63,19 @@ class Test_DeleteVersion(BaseTest):
         self.login_user(admin)
 
         v0 = self.create_document().json["document"]
-        r = self.delete_document_version(v0, expected_status=400)
+        r = self.delete_version(v0, expected_status=400)
         assert r.json["description"] == "Can't delete last version of a document"
 
     def test_rights(self, user):
         self.login_user(user)
 
         v0 = self.create_document().json["document"]
-        self.delete_document_version(v0, expected_status=403)
+        self.delete_version(v0, expected_status=403)
 
     def test_not_found(self, admin):
         self.login_user(admin)
 
-        self.delete_document_version(42, expected_status=404)
+        self.delete_version(42, expected_status=404)
 
     def test_bad_format(self, admin):
         self.login_user(admin)
