@@ -12,7 +12,7 @@ rule = "/protect_document/<int:id>"
 @allow("moderator")
 @schema("cms/schemas/comment.json")
 def put(id):
-    doc = Document.query().filter_by(id=id).first()
+    doc = Document.query.filter_by(id=id).first()
 
     if doc is None:
         raise NotFound()
@@ -32,7 +32,7 @@ def put(id):
 @allow("moderator")
 @schema("cms/schemas/comment.json")
 def delete(id):
-    doc = Document.query().filter_by(id=id).first()
+    doc = Document.query.filter_by(id=id).first()
 
     if doc is None:
         raise NotFound()

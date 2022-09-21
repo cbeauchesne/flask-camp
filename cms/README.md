@@ -91,9 +91,12 @@ Do not re-invent the wheel as a golden rule. So it uses :
 * Flask-Limiter
 * Flask-Login
 * Flask-Mail
+* Flask-SQLAlchemy
 * SQLAlchemy
 * jsonschema
-* redis
+* redis 
+* postgresql as production DB
+* sqlite as test DB
 
 And on develpment side :
 
@@ -117,4 +120,4 @@ And it turns out that flask handle pretty well json requests and response out-of
   * build document JSON
   * update Redis with the serialized document
 * get document -> get in redis
-* get list of document -> get ids in elastic search, values in ES
+* get list of document -> get ids in elastic search, values in redis

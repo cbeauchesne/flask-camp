@@ -21,7 +21,7 @@ def add_log(action, comment=None, target_user_id=None, document_id=None, merged_
         merged_document_id=merged_document_id,
         version_id=version_id,
     )
-    current_app.database.session.add(log)  # pylint: disable=no-member
+    current_app.database.session.add(log)
 
 
 class Log(BaseModel):

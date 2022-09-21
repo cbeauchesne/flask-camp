@@ -45,13 +45,12 @@ class Document(BaseModel):
 
     def as_dict(self):
         version = (
-            DocumentVersion.query()
-            .filter_by(document_id=self.id, hidden=False)
+            DocumentVersion.query.filter_by(document_id=self.id, hidden=False)
             .order_by(DocumentVersion.id.desc())
             .first()
         )
         if version is None:  # can happen if all are hidden
-            version = DocumentVersion.query().filter_by(document_id=self.id).order_by(DocumentVersion.id.desc()).first()
+            version = DocumentVersion.query.filter_by(document_id=self.id).order_by(DocumentVersion.id.desc()).first()
 
         return _as_dict(self, version)
 

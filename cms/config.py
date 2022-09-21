@@ -3,10 +3,11 @@
 
 class _BaseConfig:
     TESTING = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
 class Production(_BaseConfig):
-    # DATABASE_URI must be in FLASK_DATABASE_URI env var
+    # SQLALCHEMY_DATABASE_URI must be in FLASK_SQLALCHEMY_DATABASE_URI env var
     # SECRET_KEY must be set in FLASK_SECRET_KEY env var
     # MAIL_DEFAULT_SENDER must be set in FLASK_MAIL_DEFAULT_SENDER env var
 
@@ -14,7 +15,7 @@ class Production(_BaseConfig):
 
 
 class Development(_BaseConfig):
-    DATABASE_URI = "sqlite:///sqlite.db"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///sqlite.db"
     SECRET_KEY = "not_very_secret"
 
     RATELIMIT_STORAGE_URI = "redis://localhost:6379"
@@ -25,7 +26,7 @@ class Development(_BaseConfig):
 class Testing(_BaseConfig):
     TESTING = True
 
-    DATABASE_URI = "sqlite://"
+    SQLALCHEMY_DATABASE_URI = "sqlite://"
     SECRET_KEY = "not_very_secret"
 
     RATELIMIT_ENABLED = False

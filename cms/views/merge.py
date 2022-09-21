@@ -23,11 +23,9 @@ def post():
 
     add_log("merge", comment="TODO", document_id=document_destination.id, merged_document_id=document_to_merge.id)
 
-    versions = (
-        DocumentVersion.query()
-        .filter(DocumentVersion.document_id.in_([document_destination.id, document_to_merge.id]))
-        .order_by(DocumentVersion.id.asc())
-    )
+    versions = DocumentVersion.query.filter(
+        DocumentVersion.document_id.in_([document_destination.id, document_to_merge.id])
+    ).order_by(DocumentVersion.id.asc())
 
     for i, version in enumerate(versions.all()):
         version.version_number = -(i + 1)
@@ -35,11 +33,11 @@ def post():
     current_app.database.session.flush()
 
     document_to_merge.redirect_to = document_destination.id
-    DocumentVersion.query().filter_by(document_id=document_to_merge.id).update({"document_id": document_destination.id})
+    DocumentVersion.query.filter_by(document_id=document_to_merge.id).update({"document_id": document_destination.id})
 
     current_app.database.session.flush()
 
-    DocumentVersion.query().filter_by(document_id=document_destination.id).update(
+    DocumentVersion.query.filter_by(document_id=document_destination.id).update(
         {DocumentVersion.version_number: -DocumentVersion.version_number}
     )
 

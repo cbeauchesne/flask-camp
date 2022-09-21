@@ -1,6 +1,5 @@
 from flask import request, current_app
 from flask_login import current_user
-from sqlalchemy.orm import Query
 from werkzeug.exceptions import BadRequest, NotFound
 
 from cms.decorators import allow
@@ -30,7 +29,7 @@ def get():
         value=request.args.get("value", default=None, type=str),
     )
 
-    query = UserTag.query()
+    query = UserTag.query
 
     if len(filters) != 0:
         query = query.filter_by(**filters)

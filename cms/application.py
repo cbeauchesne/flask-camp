@@ -5,11 +5,11 @@ from flask_login import LoginManager
 from flask_mail import Mail, Message
 from werkzeug.exceptions import HTTPException
 
+
 from . import config
 from .limiter import limiter
 from .models.user import User as UserModel, AnonymousUser
-from .models import BaseModel
-from .services.database import Database
+from .services.database import database
 from .services.memory_cache import MemoryCache
 
 from .views.account import user_login as user_login_view
@@ -48,7 +48,8 @@ class Application(Flask):
 
         self.memory_cache = MemoryCache(client=memory_cache_instance)
 
-        self.database = Database(database_uri=self.config["DATABASE_URI"])
+        self.database = database
+        database.init_app(self)
 
         self._login_manager = LoginManager(self)
         self._login_manager.anonymous_user = AnonymousUser
@@ -108,7 +109,7 @@ class Application(Flask):
 
     def init_database(self):
         log.info("Init database")
-        self.database.create_all(BaseModel.metadata)
+        self.database.create_all()
 
         user = UserModel(name="admin", roles=["admin"])
         user.set_password("password")
@@ -121,7 +122,7 @@ class Application(Flask):
         return {"status": "ok"}
 
     def create_all(self):
-        self.database.create_all(BaseModel.metadata)
+        self.database.create_all()
 
     def send_account_creation_mail(self, email, token, user):
         log.info("Send registration mail to user %s", user.name)

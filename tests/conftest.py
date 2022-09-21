@@ -7,7 +7,6 @@ from fakeredis import FakeServer, FakeRedis
 
 from cms import config as cms_config
 from cms.application import Application
-from cms.models import BaseModel
 from cms.models.user import User
 
 from tests.utils import BaseTest
@@ -30,13 +29,16 @@ def pytest_configure(config):
 @pytest.fixture(autouse=True)
 def setup_app():
 
-    app.create_all()
+    with app.app_context():
+        app.create_all()
 
     with app.test_client() as client:
         BaseTest.client = client
         yield
 
-    BaseModel.metadata.drop_all(bind=app.database.engine)
+    with app.app_context():
+        app.database.drop_all()
+
     redis_client.flushall()
 
 
@@ -57,8 +59,8 @@ def db_add_user(name="name", email=None, password="password", validate_email=Tru
         if validate_email:
             instance.validate_email(instance._email_token)
 
-        app.database.session.add(instance)  # pylint: disable=no-member
-        app.database.session.commit()  # pylint: disable=no-member
+        app.database.session.add(instance)
+        app.database.session.commit()
 
         result = User(
             id=instance.id,

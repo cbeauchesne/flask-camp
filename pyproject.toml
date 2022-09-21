@@ -4,6 +4,15 @@ line-length = 120
 [tool.pylint]
 max-line-length = 120
 disable = "missing-module-docstring,missing-class-docstring,missing-function-docstring,fixme,too-many-arguments,redefined-builtin"
+generated-members = ".*database\\.session\\..*"
 
 [tool.pylint.tests]
 disable = "invalid-name,protected-access,too-many-public-methods"
+
+[tool.pytest.ini_options]
+log_format = "%(asctime)s.%(msecs)03d %(levelname)s %(message)s"
+log_date_format = "%H:%M:%S"
+addopts = "--cov=cms --cov-report html --cov-report term --no-cov-on-fail --cov-fail-under=99.5"
+filterwarnings = [
+    "ignore::DeprecationWarning:flask_sqlalchemy.*:"
+]

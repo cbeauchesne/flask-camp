@@ -12,7 +12,7 @@ services:
     ports:
       - 5000:5000
     environment:
-      - FLASK_DATABASE_URI=postgresql://cms_user:cms_user@pg:5432/cms
+      - FLASK_SQLALCHEMY_DATABASE_URI=postgresql://cms_user:cms_user@pg:5432/cms
       - FLASK_INIT_DATABASE=True
     depends_on:
       pg:
