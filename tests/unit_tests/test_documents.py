@@ -1,4 +1,4 @@
-from tests.utils import BaseTest
+from tests.unit_tests.utils import BaseTest
 
 
 class Test_Documents(BaseTest):
@@ -37,26 +37,26 @@ class Test_Documents(BaseTest):
         assert r["count"] == 110
         assert len(r["documents"]) == 30
 
-        r = self.get("/documents", query_string={"limit": 1}).json
+        r = self.get("/documents", params={"limit": 1}).json
         assert len(r["documents"]) == 1
 
-        r = self.get("/documents", query_string={"limit": 0}).json
+        r = self.get("/documents", params={"limit": 0}).json
         assert len(r["documents"]) == 0
 
-        r = self.get("/documents", query_string={"limit": 100}).json
+        r = self.get("/documents", params={"limit": 100}).json
         assert len(r["documents"]) == 100
 
-        r = self.get("/documents", query_string={"limit": 101})
+        r = self.get("/documents", params={"limit": 101})
         assert r.status_code == 400
 
-        r = self.get("/documents", query_string={"limit": "nan"}).json
+        r = self.get("/documents", params={"limit": "nan"}).json
         assert len(r["documents"]) == 30
 
         r = self.get("/documents").json
         assert r["documents"][0]["data"]["value"] == "doc 0"
         assert r["documents"][29]["data"]["value"] == "doc 29"
 
-        r = self.get("/documents", query_string={"offset": 30}).json
+        r = self.get("/documents", params={"offset": 30}).json
         assert r["documents"][0]["data"]["value"] == "doc 30"
         assert r["documents"][29]["data"]["value"] == "doc 59"
 
@@ -64,8 +64,8 @@ class Test_Documents(BaseTest):
         assert r["count"] == 110
         assert len(r["versions"]) == 30
 
-        r = self.get("/versions", query_string={"limit": 1}).json
+        r = self.get("/versions", params={"limit": 1}).json
         assert len(r["versions"]) == 1
 
-        r = self.get("/versions", query_string={"limit": 101})
+        r = self.get("/versions", params={"limit": 101})
         assert r.status_code == 400

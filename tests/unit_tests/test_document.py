@@ -1,5 +1,5 @@
 import json
-from tests.utils import BaseTest
+from tests.unit_tests.utils import BaseTest
 
 
 class Test_Document(BaseTest):
@@ -33,7 +33,7 @@ class Test_Document(BaseTest):
     def test_creation(self, user):
         self.login_user(user)
 
-        r = self.create_document(data={"value": "42"})
+        r = self.create_document(namespace="x", data={"value": "42"})
         self.assert_document(r.json["document"], user, data={"value": "42"})
 
         document_id = r.json["document"]["id"]
@@ -44,7 +44,7 @@ class Test_Document(BaseTest):
     def test_modification(self, user):
         self.login_user(user)
 
-        v1 = self.create_document(expected_status=200).json["document"]
+        v1 = self.create_document(namespace="x", expected_status=200).json["document"]
         v2 = self.modify_document(v1, comment="test", data={"value": "43"}, expected_status=200).json["document"]
 
         self.assert_document(v2, user, comment="test", data={"value": "43"})

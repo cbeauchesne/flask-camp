@@ -4,7 +4,7 @@
 # get changes on document with some tag for user X
 # get changes on document with some tag value for user X
 
-from tests.utils import BaseTest
+from tests.unit_tests.utils import BaseTest
 
 
 def assert_tag(tag, user, document_id, name, value):
@@ -69,25 +69,25 @@ class Test_UserTag(BaseTest):
         r = self.get("/user_tags")
         assert r.json["count"] == 8
 
-        r = self.get("/user_tags", query_string={"user_id": user.id})
+        r = self.get("/user_tags", params={"user_id": user.id})
         assert r.json["count"] == 4
 
-        r = self.get("/user_tags", query_string={"document_id": doc1["id"]})
+        r = self.get("/user_tags", params={"document_id": doc1["id"]})
         assert r.json["count"] == 4
 
-        r = self.get("/user_tags", query_string={"name": "t1"})
+        r = self.get("/user_tags", params={"name": "t1"})
         assert r.json["count"] == 4
 
-        r = self.get("/user_tags", query_string={"user_id": user.id, "document_id": doc1["id"]})
+        r = self.get("/user_tags", params={"user_id": user.id, "document_id": doc1["id"]})
         assert r.json["count"] == 2
 
-        r = self.get("/user_tags", query_string={"document_id": doc1["id"], "name": "t1"})
+        r = self.get("/user_tags", params={"document_id": doc1["id"], "name": "t1"})
         assert r.json["count"] == 2
 
-        r = self.get("/user_tags", query_string={"user_id": user.id, "name": "t1"})
+        r = self.get("/user_tags", params={"user_id": user.id, "name": "t1"})
         assert r.json["count"] == 2
 
-        r = self.get("/user_tags", query_string={"user_id": user.id, "document_id": doc1["id"], "name": "t1"})
+        r = self.get("/user_tags", params={"user_id": user.id, "document_id": doc1["id"], "name": "t1"})
         assert r.json["count"] == 1
 
     def test_get_documents(self, user, user_2):
@@ -105,13 +105,13 @@ class Test_UserTag(BaseTest):
         self.login_user(user_2)
         self.add_user_tag("t1", doc1)
 
-        r = self.get("/documents", query_string={"tag_name": "t1"})
+        r = self.get("/documents", params={"tag_name": "t1"})
         assert r.json["count"] == 2
 
-        r = self.get("/documents", query_string={"tag_name": "t1", "tag_user_id": user_2.id})
+        r = self.get("/documents", params={"tag_name": "t1", "tag_user_id": user_2.id})
         assert r.json["count"] == 1
 
-        r = self.get("/documents", query_string={"tag_name": "t1", "tag_value": "6a"})
+        r = self.get("/documents", params={"tag_name": "t1", "tag_value": "6a"})
         assert r.json["count"] == 1
 
     def test_errors(self, user):
@@ -122,5 +122,5 @@ class Test_UserTag(BaseTest):
         r = self.delete("/user_tags", json={"name": "x", "document_id": doc["id"]})
         assert r.status_code == 404
 
-        r = self.get("/user_tags", query_string={"limit": 101})
+        r = self.get("/user_tags", params={"limit": 101})
         assert r.status_code == 400

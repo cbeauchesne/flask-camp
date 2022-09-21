@@ -1,4 +1,4 @@
-from tests.utils import BaseTest
+from tests.unit_tests.utils import BaseTest
 
 
 class Test_DocumentVersions(BaseTest):
@@ -16,7 +16,7 @@ class Test_DocumentVersions(BaseTest):
         self.modify_document(doc1, data={"value": "doc_1/v2"})
         self.modify_document(doc2, data={"value": "doc_2/v2"})
 
-        r = self.get("/versions", query_string={"document_id": doc1["id"]})
+        r = self.get("/versions", params={"document_id": doc1["id"]})
         assert r.status_code == 200, r.json
         history = r.json
         assert history["count"] == len(history["versions"]) == 2
@@ -38,7 +38,7 @@ class Test_DocumentVersions(BaseTest):
         self.modify_document(doc, data={"value": "y"})
         self.logout_user()
 
-        r = self.get("/versions", query_string={"user_id": user.id})
+        r = self.get("/versions", params={"user_id": user.id})
         assert r.status_code == 200, r.json
         history = r.json
         assert history["count"] == len(history["versions"]) == 2
@@ -59,13 +59,13 @@ class Test_DocumentVersions(BaseTest):
         r = self.get("/versions")
         assert r.json["count"] == 3
 
-        r = self.get("/versions", query_string={"tag_name": "follow_list"})
+        r = self.get("/versions", params={"tag_name": "follow_list"})
         assert r.json["count"] == 2
 
-        r = self.get("/versions", query_string={"tag_name": "follow_list", "tag_user_id": user.id})
+        r = self.get("/versions", params={"tag_name": "follow_list", "tag_user_id": user.id})
         assert r.json["count"] == 1
         assert r.json["versions"][0]["id"] == doc1["id"]
 
-        r = self.get("/versions", query_string={"tag_name": "follow_list", "tag_user_id": user_2.id})
+        r = self.get("/versions", params={"tag_name": "follow_list", "tag_user_id": user_2.id})
         assert r.json["count"] == 1
         assert r.json["versions"][0]["id"] == doc2["id"]

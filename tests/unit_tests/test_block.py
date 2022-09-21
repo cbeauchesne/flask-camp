@@ -1,4 +1,4 @@
-from tests.utils import BaseTest
+from tests.unit_tests.utils import BaseTest
 
 
 # TODO : test block when user is currently logged in

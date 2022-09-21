@@ -1,4 +1,4 @@
-from tests.utils import BaseTest
+from tests.unit_tests.utils import BaseTest
 
 
 class Test_GetVersion(BaseTest):
@@ -48,7 +48,7 @@ class Test_DeleteVersion(BaseTest):
         v1 = self.modify_document(v0, data={"value": "43"}).json["document"]
         self.modify_document(v1, data={"value": "43"})
 
-        r = self.get("/versions", query_string={"document_id": document_id})
+        r = self.get("/versions", params={"document_id": document_id})
         assert r.json["count"] == 3
 
         self.logout_user()
@@ -56,7 +56,7 @@ class Test_DeleteVersion(BaseTest):
 
         self.delete_version(v1, expected_status=200)
 
-        r = self.get("/versions", query_string={"document_id": document_id})
+        r = self.get("/versions", params={"document_id": document_id})
         assert r.json["count"] == 2
 
     def test_not_the_last_one(self, admin):

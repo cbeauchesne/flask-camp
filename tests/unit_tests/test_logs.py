@@ -1,4 +1,4 @@
-from tests.utils import BaseTest
+from tests.unit_tests.utils import BaseTest
 
 
 def _assert_log(log, action, user, document_id=None, version_id=None, target_user_id=None):
@@ -41,7 +41,7 @@ class Test_Logs(BaseTest):
         assert logs[-2]["user"]["id"] == moderator.id
 
     def test_errors(self):
-        r = self.get("/logs", query_string={"limit": 101})
+        r = self.get("/logs", params={"limit": 101})
         assert r.status_code == 400
 
     def test_typical_scenario(self, user, moderator, admin):

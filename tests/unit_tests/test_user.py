@@ -1,5 +1,5 @@
 import re
-from tests.utils import BaseTest
+from tests.unit_tests.utils import BaseTest
 
 
 class Test_UserCreation(BaseTest):

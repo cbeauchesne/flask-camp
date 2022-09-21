@@ -1,7 +1,7 @@
 import pytest
 
 from cms.schemas import schema
-from tests.utils import BaseTest
+from tests.unit_tests.utils import BaseTest
 
 
 def test_missing_schema():

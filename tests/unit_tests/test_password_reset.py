@@ -11,7 +11,7 @@ import re
 
 from freezegun import freeze_time
 
-from tests.utils import BaseTest
+from tests.unit_tests.utils import BaseTest
 
 
 class Test_PasswordReset(BaseTest):

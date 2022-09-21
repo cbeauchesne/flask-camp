@@ -9,7 +9,7 @@ from cms import config as cms_config
 from cms.application import Application
 from cms.models.user import User
 
-from tests.utils import BaseTest
+from tests.unit_tests.utils import BaseTest
 
 redis_server = FakeServer()
 redis_client = FakeRedis(server=redis_server)

@@ -1,4 +1,4 @@
-from tests.utils import BaseTest
+from tests.unit_tests.utils import BaseTest
 
 
 class Test_Merge(BaseTest):
@@ -8,7 +8,7 @@ class Test_Merge(BaseTest):
         if document:
             query_string["document_id"] = document["id"]
 
-        r = self.get("/versions", query_string=query_string)
+        r = self.get("/versions", params=query_string)
         assert r.status_code == 200
 
         return r
