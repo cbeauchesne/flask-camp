@@ -21,8 +21,9 @@ class AnonymousUser:  # pylint: disable=too-few-public-methods
     id = None
     roles = []
 
-    def get_id(self):
-        return None
+    # useless ?
+    # def get_id(self):
+    #     return None
 
 
 class User(BaseModel):

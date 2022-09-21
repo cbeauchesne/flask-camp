@@ -32,3 +32,5 @@ class Testing(_BaseConfig):
     RATELIMIT_STORAGE_URI = "memory://"
 
     MAIL_DEFAULT_SENDER = "do-not-reply@example.com"
+
+    INIT_DATABASE = "True"

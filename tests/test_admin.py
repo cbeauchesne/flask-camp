@@ -19,3 +19,11 @@ class Test_Admin(BaseTest):
         assert r.status_code == 200, r.json
         r = self.get(f"/user/{user.id}")
         assert r.json["user"]["roles"] == ["moderator"]
+
+    def test_init_database(self):
+        r = self.get("/init_database")
+        assert r.status_code == 200
+
+        r = self.get("/user/1")
+        assert r.status_code == 200
+        assert r.json["user"]["name"] == "admin"
