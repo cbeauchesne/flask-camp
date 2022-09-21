@@ -11,14 +11,14 @@ class Production(_BaseConfig):
     # SECRET_KEY must be set in FLASK_SECRET_KEY env var
     # MAIL_DEFAULT_SENDER must be set in FLASK_MAIL_DEFAULT_SENDER env var
 
-    RATELIMIT_STORAGE_URI = "memory://"  # TODO
+    RATELIMIT_STORAGE_URI = "redis://redis:6379"
 
 
 class Development(_BaseConfig):
     SQLALCHEMY_DATABASE_URI = "sqlite:///sqlite.db"
     SECRET_KEY = "not_very_secret"
 
-    RATELIMIT_STORAGE_URI = "redis://localhost:6379"
+    RATELIMIT_STORAGE_URI = "memory://"
 
     MAIL_DEFAULT_SENDER = "do-not-reply@example.com"
 
