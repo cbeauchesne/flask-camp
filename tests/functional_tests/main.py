@@ -40,3 +40,6 @@ if __name__ == "__main__":
     anonymous.init_database()
 
     admin.login_user("admin", "password")
+
+    user = Client("user1")
+    user.create_user("user", "a@b.c", "pass")

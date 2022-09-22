@@ -18,14 +18,29 @@ class ClientInterface:
     def assert_status_code(response, expected_status):
         pass
 
-    def create_user(self, name, email, password, expected_status=200):
+    def create_user(self, name="user", email="user@example.com", password="password", expected_status=200):
         r = self.put("/users", json={"name": name, "email": email, "password": password})
         self.assert_status_code(r, expected_status)
 
         return r
 
+    def validate_email(self, user, token, expected_status=200):
+        name = user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
+        r = self.post("/validate_email", json={"name": name, "token": token})
+        self.assert_status_code(r, expected_status)
+
+        return r
+
+    def resend_email_validation(self, user, expected_status=200):
+        name = user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
+
+        r = self.get("/validate_email", params={"name": name})
+        self.assert_status_code(r, expected_status)
+
+        return r
+
     def login_user(self, user, password="password", expected_status=200):
-        name = user if isinstance(user, str) else user.name
+        name = user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
 
         r = self.post("/login", json={"name": name, "password": password})
         self.assert_status_code(r, expected_status)

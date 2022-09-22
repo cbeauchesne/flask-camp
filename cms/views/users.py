@@ -1,3 +1,5 @@
+import logging
+
 from flask import request, current_app
 from flask_login import current_user
 from sqlalchemy.exc import IntegrityError
@@ -6,6 +8,8 @@ from werkzeug.exceptions import BadRequest
 from cms.decorators import allow
 from cms.models.user import User as UserModel
 from cms.schemas import schema
+
+log = logging.getLogger(__name__)
 
 rule = "/users"
 
@@ -35,6 +39,9 @@ def put():
         else:
             raise BadRequest(error_info[0]) from e
 
-    user.send_account_creation_mail()
+    try:
+        user.send_account_creation_mail()
+    except:  # pylint: disable=bare-except
+        log.exception("Fail to send mail", exc_info=True)
 
     return {"status": "ok", "user": user.as_dict()}

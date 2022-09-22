@@ -112,3 +112,16 @@ def mail():
 @pytest.fixture()
 def memory_cache():
     yield app.memory_cache
+
+
+@pytest.fixture()
+def cant_send_mail():
+    def raise_exception(*args, **kwargs):
+        raise Exception("That was not expcted!")
+
+    original_send = app.mail.send
+    app.mail.send = raise_exception
+
+    yield
+
+    app.mail.send = original_send

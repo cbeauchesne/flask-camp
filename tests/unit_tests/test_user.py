@@ -1,4 +1,5 @@
 import re
+import pytest
 from tests.unit_tests.utils import BaseTest
 
 
@@ -119,6 +120,49 @@ class Test_UserCreation(BaseTest):
     def test_create_while_logged(self, user):
         self.login_user(user)
         self.create_user("other", "a@b.c", "p", 400)
+
+    def test_admin_can_resend_email(self, admin, mail):
+        user = self.create_user().json["user"]
+
+        self.login_user(admin)
+
+        with mail.record_messages() as outbox:
+            self.resend_email_validation(user)
+            assert len(outbox) == 1
+            assert outbox[0].subject == "Welcome to example.com"
+            body = outbox[0].body
+            token = re.sub(r"^(.*email_token=)", "", body)
+
+        self.logout_user()
+        self.validate_email(user, token)
+
+        self.login_user(user)
+
+    def test_resend_validation_mail_errors(self, admin, moderator, user):
+        new_user = self.create_user().json["user"]
+
+        self.resend_email_validation(new_user, expected_status=403)
+
+        self.login_user(user)
+        self.resend_email_validation(new_user, expected_status=403)
+
+        self.login_user(moderator)
+        self.resend_email_validation(new_user, expected_status=403)
+
+        self.login_user(admin)
+        self.resend_email_validation(new_user, expected_status=200)
+
+        r = self.get("/validate_email", params={"name": "not_the_name"})
+        assert r.status_code == 404
+
+        r = self.get("/validate_email")
+        assert r.status_code == 400
+
+    @pytest.mark.usefixtures("cant_send_mail")
+    def test_mail_error(self, mail):
+        with mail.record_messages() as outbox:
+            self.create_user(expected_status=200)
+            assert len(outbox) == 0
 
 
 class Test_UserModification(BaseTest):

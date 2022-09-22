@@ -98,7 +98,7 @@ class Application(Flask):
             self.add_url_rule("/init_database", view_func=self.init_database, methods=["GET"])
 
         if self.config.get("ERRORS_LOG_FILE", ""):
-            self.logger.warn("Log errors to %s", self.config["ERRORS_LOG_FILE"])
+            self.logger.warning("Log errors to %s", self.config["ERRORS_LOG_FILE"])
             handler = logging.FileHandler(self.config["ERRORS_LOG_FILE"])
             handler.setLevel(logging.ERROR)
             self.logger.addHandler(handler)
