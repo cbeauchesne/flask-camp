@@ -35,3 +35,5 @@ class Testing(_BaseConfig):
     MAIL_DEFAULT_SENDER = "do-not-reply@example.com"
 
     INIT_DATABASE = "True"
+
+    ERRORS_LOG_FILE = "logs/testing_errors.log"

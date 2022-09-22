@@ -1,4 +1,4 @@
-#  docker-compose up --scale cms=3
+# FLASK_ERRORS_LOG_FILE=logs/errors.log FLASK_SECRET_KEY=not-secret FLASK_INIT_DATABASE=True docker-compose up --scale cms=3
 
 version: "3.7"
 services:
@@ -20,10 +20,13 @@ services:
     user: www-data
     volumes:
       - ./cms/:/app/cms
+      - ./logs/:/app/logs
     command: uwsgi --http :5000 -w app:app --enable-threads
     environment:
       - FLASK_SQLALCHEMY_DATABASE_URI=postgresql://cms_user:cms_user@pg:5432/cms
-      - FLASK_INIT_DATABASE=True
+      - FLASK_INIT_DATABASE=${FLASK_INIT_DATABASE:-False}
+      - FLASK_ERRORS_LOG_FILE=${FLASK_ERRORS_LOG_FILE:-}
+      - FLASK_SECRET_KEY
     depends_on:
       pg:
         condition: service_healthy
@@ -36,8 +39,6 @@ services:
     image: redis:latest
     expose:
       - "6379"
-    # ports:
-    #   - 6379:6379
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
       interval: 1s

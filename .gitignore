@@ -13,3 +13,5 @@ wb.py
 sqlite.db
 
 /data/
+
+/logs/

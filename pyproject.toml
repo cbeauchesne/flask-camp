@@ -4,7 +4,10 @@ line-length = 120
 [tool.pylint]
 max-line-length = 120
 disable = "missing-module-docstring,missing-class-docstring,missing-function-docstring,fixme,too-many-arguments,redefined-builtin"
-generated-members = ".*database\\.session\\..*"
+generated-members = [
+    ".*database\\.session\\..*",
+    ".*self\\.logger\\..*"
+]
 
 [tool.pylint.tests]
 disable = "invalid-name,protected-access,too-many-public-methods"
