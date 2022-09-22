@@ -4,13 +4,14 @@ from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from cms.models import BaseModel
+from cms.models.user import User
 
 
 class UserTag(BaseModel):
     __tablename__ = "user_tag"
 
-    user_id = Column(Integer, ForeignKey("user.id"), index=True, nullable=False)
-    user = relationship("User", foreign_keys=[user_id])
+    user_id = Column(Integer, ForeignKey(User.id), index=True, nullable=False)
+    user = relationship(User, foreign_keys=[user_id])
 
     document_id = Column(Integer, ForeignKey("document.id"), index=True, nullable=False)
     document = relationship("Document", foreign_keys=[document_id])

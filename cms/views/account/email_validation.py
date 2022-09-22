@@ -47,7 +47,7 @@ def post():
         current_app.database.session.commit()
     except IntegrityError as e:
         error_info = e.orig.args
-        if error_info[0] == "UNIQUE constraint failed: user.email":
+        if error_info[0] == "UNIQUE constraint failed: user_account.email":
             raise BadRequest("A user still exists with this email") from e
         else:
             raise BadRequest(error_info[0]) from e

@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 
 from cms.models import BaseModel
 from cms.models.user_tag import UserTag
+from cms.models.user import User
 
 
 def _as_dict(document, version, include_hidden_data_for_staff=False):
@@ -38,7 +39,7 @@ class Document(BaseModel):
 
     protected = Column(Boolean, nullable=False, default=False)
 
-    user_tags = relationship("UserTag", back_populates="document", lazy="select", cascade="all,delete")
+    user_tags = relationship(UserTag, back_populates="document", lazy="select", cascade="all,delete")
     versions = relationship("DocumentVersion", back_populates="document", lazy="select", cascade="all,delete")
 
     redirect_to = Column(Integer, ForeignKey("document.id"))
@@ -61,8 +62,8 @@ class DocumentVersion(BaseModel):
     document_id = Column(Integer, ForeignKey("document.id"), index=True)
     document = relationship("Document")
 
-    user_id = Column(Integer, ForeignKey("user.id"), index=True)
-    user = relationship("User")
+    user_id = Column(Integer, ForeignKey(User.id), index=True)
+    user = relationship(User)
 
     timestamp = Column(DateTime)
     comment = Column(String)

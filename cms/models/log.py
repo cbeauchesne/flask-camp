@@ -6,6 +6,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 
 from cms.models import BaseModel
+from cms.models.user import User
 
 
 def add_log(action, comment=None, target_user_id=None, document_id=None, merged_document_id=None, version_id=None):
@@ -29,14 +30,14 @@ class Log(BaseModel):
 
     timestamp = Column(DateTime, nullable=False)
 
-    user_id = Column(Integer, ForeignKey("user.id"), index=True)
-    user = relationship("User", foreign_keys=[user_id])
+    user_id = Column(Integer, ForeignKey(User.id), index=True)
+    user = relationship(User, foreign_keys=[user_id])
 
     action = Column(String(32), nullable=False, index=True)
     comment = Column(String(128), nullable=False, index=True)
 
-    target_user_id = Column(Integer, ForeignKey("user.id"), index=True)
-    target_user = relationship("User", foreign_keys=[target_user_id])
+    target_user_id = Column(Integer, ForeignKey(User.id), index=True)
+    target_user = relationship(User, foreign_keys=[target_user_id])
 
     # no foreign keys: deletion are possible
     document_id = Column(Integer, index=True)

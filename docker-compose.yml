@@ -27,6 +27,7 @@ services:
       - FLASK_SECRET_KEY
       - FLASK_MAIL_DEFAULT_SENDER
       - FLASK_MAIL_SUPPRESS_SEND
+      - FLASK_RATELIMIT_ENABLED
     depends_on:
       pg:
         condition: service_healthy

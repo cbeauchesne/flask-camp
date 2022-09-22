@@ -12,7 +12,8 @@ if __name__ == "__main__":
     logging.getLogger("sqlalchemy").addHandler(logging.StreamHandler(sys.stdout))
     logging.getLogger("sqlalchemy").setLevel(logging.INFO)
 
-    app.create_all()
+    with app.app_context():
+        app.create_all()
 
     user = User(
         name="admin",
