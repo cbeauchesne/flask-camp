@@ -18,6 +18,9 @@ class ClientInterface:
     def assert_status_code(response, expected_status):
         pass
 
+    def init_database(self):
+        return self.get("/init_database")
+
     def create_user(self, name="user", email="user@example.com", password="password", expected_status=200):
         r = self.put("/users", json={"name": name, "email": email, "password": password})
         self.assert_status_code(r, expected_status)

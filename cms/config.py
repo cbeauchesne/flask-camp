@@ -10,7 +10,8 @@ class Production(_BaseConfig):
     # SQLALCHEMY_DATABASE_URI must be in FLASK_SQLALCHEMY_DATABASE_URI env var
     # SECRET_KEY must be set in FLASK_SECRET_KEY env var
     # MAIL_DEFAULT_SENDER must be set in FLASK_MAIL_DEFAULT_SENDER env var
-
+    REDIS_HOST = "redis"
+    REDIS_PORT = 6379
     RATELIMIT_STORAGE_URI = "redis://redis:6379"
 
 

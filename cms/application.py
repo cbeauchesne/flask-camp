@@ -46,7 +46,11 @@ class Application(Flask):
 
         self.config.from_prefixed_env()
 
-        self.memory_cache = MemoryCache(client=memory_cache_instance)
+        self.memory_cache = MemoryCache(
+            host=self.config.get("REDIS_HOST", None),
+            port=self.config.get("REDIS_PORT", None),
+            client=memory_cache_instance,
+        )
 
         self.database = database
         database.init_app(self)

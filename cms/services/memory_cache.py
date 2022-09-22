@@ -20,10 +20,12 @@ class _MemoryCacheCollection:
 
 
 class MemoryCache:
-    def __init__(self, client=None):
+    def __init__(self, host, port, client=None):
         if client:
             self._client = client  # used for testing
-        else:
-            self._client = RedisClient()  # pragma: no cover
+        else:  # pragma: no cover
+            host = host if host else "localhost"
+            port = port if port else 6379
+            self._client = RedisClient(host=host, port=port)
 
         self.document = _MemoryCacheCollection("document", self._client)
