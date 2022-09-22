@@ -1,18 +1,13 @@
 ## Install
 
-```
+``` bash
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt -r dev-requirements.txt
 ```
 
-## Run development server
+## Unit tests
 
-```
-flask --debug run
-```
-
-## Test
-```
+``` bash
 pytest
 ```
