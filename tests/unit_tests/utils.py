@@ -30,7 +30,9 @@ class BaseTest(ClientInterface):
 
     @staticmethod
     def assert_status_code(response, expected_status):
-        assert response.status_code == expected_status
+        assert (
+            response.status_code == expected_status
+        ), f"Status error: {response.status_code} i/o {expected_status}\n{response.data}"
 
     def _assert_status_response(self, r):
         if r.status_code == 304:  # not modified : no body

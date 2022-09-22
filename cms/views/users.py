@@ -1,4 +1,5 @@
 from flask import request, current_app
+from flask_login import current_user
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import BadRequest
 
@@ -13,6 +14,10 @@ rule = "/users"
 @schema("cms/schemas/create_user.json")
 def put():
     """create an user"""
+
+    if current_user.is_authenticated:
+        raise BadRequest()
+
     data = request.get_json()
 
     user = UserModel(name=data["name"])

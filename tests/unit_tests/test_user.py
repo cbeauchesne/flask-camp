@@ -7,7 +7,7 @@ class Test_UserCreation(BaseTest):
         name, email, password = "my_user", "a@b.c", "week password"
 
         with mail.record_messages() as outbox:
-            r = self.put("/users", json={"name": name, "email": email, "password": password})
+            r = self.create_user(name, email, password)
             assert len(outbox) == 1
             assert outbox[0].subject == "Welcome to example.com"
             body = outbox[0].body
@@ -100,26 +100,25 @@ class Test_UserCreation(BaseTest):
         assert r.status_code == 200
 
     def test_name_errors(self):
-        r = self.put("/users", json={"name": "", "email": "a@b.c", "password": "p"})
-        assert r.status_code == 400, r.json
-        r = self.put("/users", json={"name": " dodo", "email": "a@b.c", "password": "p"})
-        assert r.status_code == 400, r.json
-        r = self.put("/users", json={"name": "abc", "email": "a@b.c", "password": "p"})
-        assert r.status_code == 400, r.json
-        r = self.put("/users", json={"name": "@xxx", "email": "a@b.c", "password": "p"})
-        assert r.status_code == 400, r.json
-        r = self.put("/users", json={"name": "xxx@xxx", "email": "a@b.c", "password": "p"})
-        assert r.status_code == 400, r.json
-        r = self.put("/users", json={"name": "x" * 1000, "email": "a@b.c", "password": "p"})
-        assert r.status_code == 400, r.json
+        email, password = "valid@email.com", "password"
+
+        self.create_user("", email, password, 400)
+        self.create_user(" starting_space", email, password, 400)
+        self.create_user("abc", email, password, 400)  # too short
+        self.create_user("@xxxx", email, password, 400)  # can't contains an @
+        self.create_user("aaa@aaa", email, password, 400)  # same
+        self.create_user("x" * 1000, email, password, 400)  # too long
 
     def test_email_error(self):
-        r = self.put("/users", json={"name": "xxxx", "email": None, "password": "p"})
-        assert r.status_code == 400, r.json
-        r = self.put("/users", json={"name": "xxxx", "email": "", "password": "p"})
-        assert r.status_code == 400, r.json
-        r = self.put("/users", json={"name": "xxxx", "email": "a.fr", "password": "p"})
-        assert r.status_code == 400, r.json
+        name, password = "valid_name", "password"
+
+        self.create_user(name, None, password, 400)
+        self.create_user(name, "", password, 400)
+        self.create_user(name, "a.fr", password, 400)
+
+    def test_create_while_logged(self, user):
+        self.login_user(user)
+        self.create_user("other", "a@b.c", "p", 400)
 
 
 class Test_UserModification(BaseTest):
@@ -174,23 +173,14 @@ class Test_UserModification(BaseTest):
 
 class Test_UserUniqueness(BaseTest):
     def test_username(self, user):
-
-        r = self.put("/users", json={"name": user.name, "email": "other@email.c", "password": "x"})
-        assert r.status_code == 400, r.json
+        r = self.create_user(user.name, "other@email.c", "password", expected_status=400)
         assert r.json["description"] == "A user still exists with this name"
 
     def test_email_at_creation(self, user):
-
-        r = self.put("/users", json={"name": "other_name", "email": user._email, "password": "x"})
-        assert r.status_code == 400, r.json
+        r = self.create_user("other_name", user._email, "password", expected_status=400)
         assert r.json["description"] == "A user still exists with this email"
 
     def test_email_at_modification(self, user, user_2):
-
-        r = self.put("/users", json={"name": "other_user", "email": user._email, "password": "x"})
-        assert r.status_code == 400, r.json
-        assert r.json["description"] == "A user still exists with this email"
-
         self.login_user(user)
         r = self.post(f"/user/{user.id}", json={"email": user_2._email})
         assert r.status_code == 400, r.json
@@ -208,17 +198,17 @@ class Test_UserUniqueness(BaseTest):
 
     def test_do_not_validate_same_email(self, mail):
         with mail.record_messages() as outbox:
-            user1 = self.put("/users", json={"name": "user1", "email": "a@b.c", "password": "p"}).json["user"]
+            user_1 = self.create_user("user1", "a@b.c", "p").json["user"]
             token_1 = re.sub(r"^(.*email_token=)", "", outbox[0].body)
 
         with mail.record_messages() as outbox:
-            user2 = self.put("/users", json={"name": "user2", "email": "a@b.c", "password": "p"}).json["user"]
+            user_2 = self.create_user("user2", "a@b.c", "p").json["user"]
             token_2 = re.sub(r"^(.*email_token=)", "", outbox[0].body)
 
-        r = self.post("/validate_email", json={"name": user1["name"], "token": token_1})
+        r = self.post("/validate_email", json={"name": user_1["name"], "token": token_1})
         assert r.status_code == 200, r.json
 
-        r = self.post("/validate_email", json={"name": user2["name"], "token": token_2})
+        r = self.post("/validate_email", json={"name": user_2["name"], "token": token_2})
         assert r.status_code == 400, r.json
         assert r.json["description"] == "A user still exists with this email"
 

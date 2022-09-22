@@ -18,6 +18,12 @@ class ClientInterface:
     def assert_status_code(response, expected_status):
         raise NotImplementedError()
 
+    def create_user(self, name, email, password, expected_status=200):
+        r = self.put("/users", json={"name": name, "email": email, "password": password})
+        self.assert_status_code(r, expected_status)
+
+        return r
+
     def login_user(self, user, password="password", expected_status=200):
         name = user if isinstance(user, str) else user.name
 
