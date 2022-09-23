@@ -12,7 +12,7 @@ def _assert_log(log, action, user, document_id=None, version_id=None, target_use
 
 class Test_Logs(BaseTest):
     def test_anonymous_get(self):
-        self.get("/logs", expected_status=200)
+        self.get_logs()
 
     def test_hide_version(self, moderator):
         self.login_user(moderator)
@@ -23,7 +23,7 @@ class Test_Logs(BaseTest):
         self.hide_version(doc)
         self.unhide_version(doc)
 
-        r = self.get("/logs", expected_status=200)
+        r = self.get_logs()
         assert r.json["count"] == 2, r.json
 
         logs = r.json["logs"]
@@ -38,7 +38,7 @@ class Test_Logs(BaseTest):
         assert logs[-2]["user"]["id"] == moderator.id
 
     def test_errors(self):
-        self.get("/logs", params={"limit": 101}, expected_status=400)
+        self.get_logs(limit=101, expected_status=400)
 
     def test_typical_scenario(self, user, moderator, admin):
 
@@ -55,15 +55,15 @@ class Test_Logs(BaseTest):
         self.logout_user()
         self.login_user(admin)
 
-        self.post(f"/user/{user.id}", json={"roles": ["moderator"]})
-        self.post(f"/user/{user.id}", json={"roles": ["admin"]})
-        self.post(f"/user/{user.id}", json={"roles": ["admin", "robot"]})
-        self.post(f"/user/{user.id}", json={"roles": []})
+        self.modify_user(user, roles=["moderator"])
+        self.modify_user(user, roles=["admin"])
+        self.modify_user(user, roles=["admin", "robot"])
+        self.modify_user(user, roles=[])
 
         self.delete_version(doc_v2)
         self.delete_document(doc)
 
-        r = self.get("/logs", expected_status=200)
+        r = self.get_logs()
         assert r.json["count"] == 12, r.json
 
         logs = r.json["logs"]

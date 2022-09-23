@@ -11,7 +11,7 @@ class Test_HideVersion(BaseTest):
 
         self.hide_version(doc_v1)
 
-        changes = self.get("/versions", params={"document_id": doc_v1["id"]}).json["versions"]
+        changes = self.get_versions(document=doc_v1).json["versions"]
         assert changes[1]["version_id"] == doc_v1["version_id"]
         assert changes[1]["hidden"] is True
         assert changes[1]["data"] == "v1"
@@ -21,7 +21,7 @@ class Test_HideVersion(BaseTest):
 
         self.logout_user()
 
-        changes = self.get("/versions", params={"document_id": doc_v1["id"]}).json["versions"]
+        changes = self.get_versions(document=doc_v1).json["versions"]
         assert changes[1]["hidden"] is True
         assert "data" not in changes[1]
 
@@ -29,7 +29,7 @@ class Test_HideVersion(BaseTest):
         assert changes[0]["data"] == "v2"
 
         self.login_user(user)
-        changes = self.get("/versions", params={"document_id": doc_v1["id"]}).json["versions"]
+        changes = self.get_versions(document=doc_v1).json["versions"]
         assert changes[1]["hidden"] is True
         assert "data" not in changes[1]
         assert changes[0]["hidden"] is False
@@ -39,7 +39,7 @@ class Test_HideVersion(BaseTest):
         self.login_user(moderator)
         self.unhide_version(doc_v1)
 
-        changes = self.get("/versions", params={"document_id": doc_v1["id"]}).json["versions"]
+        changes = self.get_versions(document=doc_v1).json["versions"]
         assert changes[1]["hidden"] is False
         assert changes[1]["data"] == "v1"
         assert changes[0]["hidden"] is False
@@ -47,7 +47,7 @@ class Test_HideVersion(BaseTest):
 
         self.logout_user()
 
-        changes = self.get("/versions", params={"document_id": doc_v1["id"]}).json["versions"]
+        changes = self.get_versions(document=doc_v1).json["versions"]
         assert changes[1]["hidden"] is False
         assert changes[1]["data"] == "v1"
         assert changes[0]["hidden"] is False

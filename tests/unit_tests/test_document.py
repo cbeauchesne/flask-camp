@@ -47,7 +47,7 @@ class Test_Document(BaseTest):
 
         self.assert_document(v2, user, comment="test", data={"value": "43"})
 
-        r = self.get("documents", expected_status=200)
+        r = self.get_documents()
         assert r.json["status"] == "ok"
         assert r.json["count"] == 1
         assert r.json["documents"][0]["version_id"] == v2["version_id"]

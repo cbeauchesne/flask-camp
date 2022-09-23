@@ -29,15 +29,15 @@ class Test_PasswordReset(BaseTest):
         self.login_user(user, expected_status=200)
         self.logout_user(expected_status=200)
 
-        r = self.post("/login", json={"name": user.name, "token": token}, expected_status=200)
+        self.login_user(user, token=token, expected_status=200)
 
-        r = self.get(f"/user/{user.id}")
+        r = self.get_user(user)
         assert r.json["user"]["email"] == user._email
 
         self.logout_user(expected_status=200)
 
         # test unique usage
-        self.post("/login", json={"name": user.name, "token": token}, expected_status=401)
+        self.login_user(user, token=token, expected_status=401)
 
     def test_email_not_found(self, mail):
         with mail.record_messages() as outbox:
@@ -51,7 +51,7 @@ class Test_PasswordReset(BaseTest):
 
     def test_bad_token(self, user):
         self.post("/reset_password", json={"email": user._email}, expected_status=200)
-        self.post("/login", json={"name": user.name, "token": "not the token"}, expected_status=401)
+        self.login_user(user, token="not the token", expected_status=401)
 
     def test_several_request(self, mail, user):
         token_1 = self.reset_password(mail, user)
@@ -61,12 +61,12 @@ class Test_PasswordReset(BaseTest):
         assert token_2 is not None
         assert token_1 != token_2
 
-        self.post("/login", json={"name": user.name, "token": token_1}, expected_status=401)
-        self.post("/login", json={"name": user.name, "token": token_2}, expected_status=200)
+        self.login_user(user, token=token_1, expected_status=401)
+        self.login_user(user, token=token_2, expected_status=200)
 
     def test_expiration(self, user, mail):
 
         token = self.reset_password(mail, user)
 
         with freeze_time(datetime.now() + timedelta(days=3)):
-            self.post("/login", json={"name": user.name, "token": token}, expected_status=401)
+            self.login_user(user, token=token, expected_status=401)

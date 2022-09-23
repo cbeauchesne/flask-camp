@@ -11,30 +11,30 @@ class Test_Protection(BaseTest):
     def test_typical_scenario(self, user, moderator):
         self.login_user(user)
         v0 = self.create_document().json["document"]
-        document_id = v0["id"]
+        document = v0  # more clear
 
         # try to protect a doc without being an moderator
-        r = self.protect_document(document_id, 403)
+        r = self.protect_document(document, 403)
         self.logout_user()
 
         # protect doc
         self.login_user(moderator)
-        r = self.protect_document(document_id)
+        r = self.protect_document(document)
 
-        r = self.get(f"/document/{document_id}")
+        r = self.get_document(document)
         assert r.json["document"]["protected"] is True
         self.logout_user()
 
         self.login_user(user)
-        self.protect_document(document_id, expected_status=403)  # unprotect doc without being an moderator
+        self.protect_document(document, expected_status=403)  # unprotect doc without being an moderator
         self.modify_document(v0, expected_status=403)  # edit protected doc without being an moderator
         self.logout_user()
 
         self.login_user(moderator)
         v1 = self.modify_document(v0, data={"value": "43"}, expected_status=200).json["document"]  # edit protected doc
-        self.unprotect_document(document_id, expected_status=200)  # unprotect doc
+        self.unprotect_document(document, expected_status=200)  # unprotect doc
 
-        r = self.get(f"/document/{document_id}")
+        r = self.get_document(document)
         assert r.json["document"]["protected"] is False
         self.logout_user()
 

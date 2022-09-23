@@ -7,7 +7,6 @@ class Test_ETag(BaseTest):
 
         doc = self.create_document(data={"value": "42"}).json["document"]
         r = self.get_document(doc)
-
         assert "ETag" in r.headers, r.headers
         etag = r.headers["ETag"]
 

@@ -3,7 +3,7 @@ from tests.unit_tests.utils import BaseTest
 
 class Test_DocumentVersions(BaseTest):
     def test_main(self):
-        r = self.get("/versions", expected_status=200)
+        r = self.get_versions(expected_status=200)
         assert r.json["versions"] == []
 
     def test_simple(self, user):
@@ -15,7 +15,7 @@ class Test_DocumentVersions(BaseTest):
         self.modify_document(doc1, data={"value": "doc_1/v2"})
         self.modify_document(doc2, data={"value": "doc_2/v2"})
 
-        r = self.get("/versions", params={"document_id": doc1["id"]}, expected_status=200)
+        r = self.get_versions(document=doc1, expected_status=200)
         history = r.json
         assert history["count"] == len(history["versions"]) == 2
         assert history["versions"][0]["version_id"] > history["versions"][1]["version_id"]
@@ -36,7 +36,7 @@ class Test_DocumentVersions(BaseTest):
         self.modify_document(doc, data={"value": "y"})
         self.logout_user()
 
-        r = self.get("/versions", params={"user_id": user.id}, expected_status=200)
+        r = self.get_versions(user=user, expected_status=200)
 
         history = r.json
         assert history["count"] == len(history["versions"]) == 2
@@ -54,16 +54,16 @@ class Test_DocumentVersions(BaseTest):
         self.add_user_tag("other", doc3)
         self.logout_user()
 
-        r = self.get("/versions")
+        r = self.get_versions()
         assert r.json["count"] == 3
 
-        r = self.get("/versions", params={"tag_name": "follow_list"})
+        r = self.get_versions(tag_name="follow_list")
         assert r.json["count"] == 2
 
-        r = self.get("/versions", params={"tag_name": "follow_list", "tag_user_id": user.id})
+        r = self.get_versions(tag_name="follow_list", tag_user=user)
         assert r.json["count"] == 1
         assert r.json["versions"][0]["id"] == doc1["id"]
 
-        r = self.get("/versions", params={"tag_name": "follow_list", "tag_user_id": user_2.id})
+        r = self.get_versions(tag_name="follow_list", tag_user=user_2)
         assert r.json["count"] == 1
         assert r.json["versions"][0]["id"] == doc2["id"]

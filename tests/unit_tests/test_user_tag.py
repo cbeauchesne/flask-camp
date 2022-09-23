@@ -26,23 +26,23 @@ class Test_UserTag(BaseTest):
 
         self.add_user_tag("x", doc, expected_status=200)
 
-        r = self.get("/user_tags")
+        r = self.get_user_tags()
         assert_tag(r.json["user_tags"][0], user, doc["id"], "x", None)
 
         self.add_user_tag("y", doc, "6a", expected_status=200)
 
-        r = self.get("/user_tags")
+        r = self.get_user_tags()
         assert_tag(r.json["user_tags"][0], user, doc["id"], "x", None)
         assert_tag(r.json["user_tags"][1], user, doc["id"], "y", "6a")
 
         r = self.add_user_tag("x", doc, "6b", expected_status=200)
-        r = self.get("/user_tags")
+        r = self.get_user_tags()
         assert_tag(r.json["user_tags"][0], user, doc["id"], "x", "6b")
         assert_tag(r.json["user_tags"][1], user, doc["id"], "y", "6a")
 
-        r = self.remove_user_tag("x", doc, expected_status=200)
+        r = self.remove_user_tag("x", document=doc, expected_status=200)
 
-        r = self.get("/user_tags")
+        r = self.get_user_tags()
         assert_tag(r.json["user_tags"][0], user, doc["id"], "y", "6a")
 
     def test_get_tags(self, user, user_2):
@@ -64,28 +64,28 @@ class Test_UserTag(BaseTest):
         self.add_user_tag("t1", doc2)
         self.add_user_tag("t2", doc2)
 
-        r = self.get("/user_tags")
+        r = self.get_user_tags()
         assert r.json["count"] == 8
 
-        r = self.get("/user_tags", params={"user_id": user.id})
+        r = self.get_user_tags(user=user)
         assert r.json["count"] == 4
 
-        r = self.get("/user_tags", params={"document_id": doc1["id"]})
+        r = self.get_user_tags(document=doc1)
         assert r.json["count"] == 4
 
-        r = self.get("/user_tags", params={"name": "t1"})
+        r = self.get_user_tags(name="t1")
         assert r.json["count"] == 4
 
-        r = self.get("/user_tags", params={"user_id": user.id, "document_id": doc1["id"]})
+        r = self.get_user_tags(user=user, document=doc1)
         assert r.json["count"] == 2
 
-        r = self.get("/user_tags", params={"document_id": doc1["id"], "name": "t1"})
+        r = self.get_user_tags(document=doc1, name="t1")
         assert r.json["count"] == 2
 
-        r = self.get("/user_tags", params={"user_id": user.id, "name": "t1"})
+        r = self.get_user_tags(user=user, name="t1")
         assert r.json["count"] == 2
 
-        r = self.get("/user_tags", params={"user_id": user.id, "document_id": doc1["id"], "name": "t1"})
+        r = self.get_user_tags(user=user, document=doc1, name="t1")
         assert r.json["count"] == 1
 
     def test_get_documents(self, user, user_2):
@@ -103,13 +103,13 @@ class Test_UserTag(BaseTest):
         self.login_user(user_2)
         self.add_user_tag("t1", doc1)
 
-        r = self.get("/documents", params={"tag_name": "t1"})
+        r = self.get_documents(tag_name="t1")
         assert r.json["count"] == 2
 
-        r = self.get("/documents", params={"tag_name": "t1", "tag_user_id": user_2.id})
+        r = self.get_documents(tag_name="t1", tag_user=user_2)
         assert r.json["count"] == 1
 
-        r = self.get("/documents", params={"tag_name": "t1", "tag_value": "6a"})
+        r = self.get_documents(tag_name="t1", tag_value="6a")
         assert r.json["count"] == 1
 
     def test_errors(self, user):
@@ -117,5 +117,5 @@ class Test_UserTag(BaseTest):
 
         doc = self.create_document().json["document"]
 
-        self.delete("/user_tags", json={"name": "x", "document_id": doc["id"]}, expected_status=404)
-        self.get("/user_tags", params={"limit": 101}, expected_status=400)
+        self.remove_user_tag(name="x", document=doc, expected_status=404)
+        self.get_user_tags(limit=101, expected_status=400)
