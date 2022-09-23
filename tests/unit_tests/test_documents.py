@@ -5,24 +5,21 @@ class Test_Documents(BaseTest):
     def test_basic(self, user):
         self.login_user(user)
 
-        r = self.get("documents")
-        assert r.status_code == 200
+        r = self.get("documents", expected_status=200)
         assert r.json["status"] == "ok"
         assert r.json["count"] == 0
         assert r.json["documents"] == []
 
         self.create_document(data={"value": "42"})
 
-        r = self.get("documents")
-        assert r.status_code == 200
+        r = self.get("documents", expected_status=200)
         assert r.json["status"] == "ok"
         assert r.json["count"] == 1
         assert len(r.json["documents"]) == 1
         assert r.json["documents"][0]["data"] == {"value": "42"}
 
         self.create_document()
-        r = self.get("documents")
-        assert r.status_code == 200
+        r = self.get("documents", expected_status=200)
         assert r.json["status"] == "ok"
         assert r.json["count"] == 2
         assert len(r.json["documents"]) == 2
@@ -46,8 +43,7 @@ class Test_Documents(BaseTest):
         r = self.get("/documents", params={"limit": 100}).json
         assert len(r["documents"]) == 100
 
-        r = self.get("/documents", params={"limit": 101})
-        assert r.status_code == 400
+        self.get("/documents", params={"limit": 101}, expected_status=400)
 
         r = self.get("/documents", params={"limit": "nan"}).json
         assert len(r["documents"]) == 30
@@ -67,5 +63,4 @@ class Test_Documents(BaseTest):
         r = self.get("/versions", params={"limit": 1}).json
         assert len(r["versions"]) == 1
 
-        r = self.get("/versions", params={"limit": 101})
-        assert r.status_code == 400
+        self.get("/versions", params={"limit": 101}, expected_status=400)

@@ -17,11 +17,8 @@ class Test_Protection(BaseTest):
     def test_not_found(self, moderator):
         self.login_user(moderator)
 
-        r = self.put("/block_user/42", json={"comment": "some comment"})
-        assert r.status_code == 404, r.json
-
-        r = self.delete("/block_user/42", json={"comment": "some comment"})
-        assert r.status_code == 404, r.json
+        self.put("/block_user/42", json={"comment": "some comment"}, expected_status=404)
+        self.delete("/block_user/42", json={"comment": "some comment"}, expected_status=404)
 
     def test_typical_scenario(self, moderator, user):
         # log moderator, create a doc
@@ -42,25 +39,20 @@ class Test_Protection(BaseTest):
         self.logout_user()
 
         # user login and try to get/add/modify a doc
-        r = self.login_user(user)
-        assert r.status_code == 200
+        r = self.login_user(user, expected_status=200)
 
-        r = self.get(f"/document/{doc['id']}")
-        assert r.status_code == 200
+        r = self.get(f"/document/{doc['id']}", expected_status=200)
 
-        r = self.get("/documents")
-        assert r.status_code == 200
+        r = self.get("/documents", expected_status=200)
 
         self.create_document(expected_status=403)
         self.modify_document(doc, expected_status=403)
 
         # Though, he can modify itself
-        r = self.post(f"/user/{user.id}", json={"password": "updated"})
-        assert r.status_code == 200
+        r = self.post(f"/user/{user.id}", json={"password": "updated"}, expected_status=200)
 
         # even get users, or one user
-        r = self.get(f"/user/{moderator.id}")
-        assert r.status_code == 200
+        r = self.get(f"/user/{moderator.id}", expected_status=200)
 
         # logout the user, login the moderator, unblock the user
         self.logout_user()

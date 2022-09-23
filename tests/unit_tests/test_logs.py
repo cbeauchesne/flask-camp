@@ -12,8 +12,7 @@ def _assert_log(log, action, user, document_id=None, version_id=None, target_use
 
 class Test_Logs(BaseTest):
     def test_anonymous_get(self):
-        r = self.get("/logs")
-        assert r.status_code == 200
+        self.get("/logs", expected_status=200)
 
     def test_hide_version(self, moderator):
         self.login_user(moderator)
@@ -24,9 +23,7 @@ class Test_Logs(BaseTest):
         self.hide_version(doc)
         self.unhide_version(doc)
 
-        r = self.get("/logs")
-
-        assert r.status_code == 200
+        r = self.get("/logs", expected_status=200)
         assert r.json["count"] == 2, r.json
 
         logs = r.json["logs"]
@@ -41,8 +38,7 @@ class Test_Logs(BaseTest):
         assert logs[-2]["user"]["id"] == moderator.id
 
     def test_errors(self):
-        r = self.get("/logs", params={"limit": 101})
-        assert r.status_code == 400
+        self.get("/logs", params={"limit": 101}, expected_status=400)
 
     def test_typical_scenario(self, user, moderator, admin):
 
@@ -67,9 +63,7 @@ class Test_Logs(BaseTest):
         self.delete_version(doc_v2)
         self.delete_document(doc)
 
-        r = self.get("/logs")
-
-        assert r.status_code == 200
+        r = self.get("/logs", expected_status=200)
         assert r.json["count"] == 12, r.json
 
         logs = r.json["logs"]

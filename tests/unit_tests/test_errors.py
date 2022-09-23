@@ -13,41 +13,34 @@ class Test_Errors(BaseTest):
     def test_no_body(self, user):
         self.login_user(user)
 
-        r = self.put("/documents", data="null")
-        assert r.status_code == 400
+        r = self.put("/documents", data="null", expected_status=400)
         assert r.json is not None
 
-        r = self.put("/documents", data="null", headers={"Content-Type": "application/json"})
-        assert r.status_code == 400
+        r = self.put("/documents", data="null", headers={"Content-Type": "application/json"}, expected_status=400)
         assert r.json is not None
         assert r.json["description"] == "None is not of type 'object' on instance ", r.json
 
     def test_vuln(self, user, user_2):
 
-        r = self.client.get(f"/__testing/vuln/{user.id}")
-        assert r.status_code == 403
+        self.get(f"/__testing/vuln/{user.id}", expected_status=403)
 
         self.login_user(user)
-        r = self.client.get(f"/__testing/vuln/{user_2.id}")
-        assert r.status_code == 403
+        self.get(f"/__testing/vuln/{user_2.id}", expected_status=403)
 
-        r = self.client.get(f"/__testing/vuln/{user.id}")
-        assert r.status_code == 200
+        self.get(f"/__testing/vuln/{user.id}")
 
     def test_main(self):
-        r = self.get("/do_not_exists")
-        assert r.status_code == 404
+        r = self.get("/do_not_exists", expected_status=404)
         assert r.json is not None
         assert r.json["status"] == "error"
 
-        r = self.delete("/healthcheck")
-        assert r.status_code == 405
+        r = self.delete("/healthcheck", expected_status=405)
         assert r.json is not None
         assert r.json["status"] == "error"
 
     # def test_500(self):
-    #     r = self.get("/__testing/500")
-    #     assert r.status_code == 500, r
+    #     r = self.get("/__testing/500", expected_status=500)
+
     #     assert r.json is not None, r
     #     assert "status" in r.json, r.json
     #     assert "description" in r.json, r.json

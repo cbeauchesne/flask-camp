@@ -2,17 +2,6 @@ from tests.unit_tests.utils import BaseTest
 
 
 class Test_Merge(BaseTest):
-    def get_versions(self, document=None):
-        query_string = {}
-
-        if document:
-            query_string["document_id"] = document["id"]
-
-        r = self.get("/versions", params=query_string)
-        assert r.status_code == 200
-
-        return r
-
     def test_main(self, moderator, admin):
         self.login_user(moderator)
 

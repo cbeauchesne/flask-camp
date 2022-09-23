@@ -3,8 +3,7 @@ from tests.unit_tests.utils import BaseTest
 
 class Test_DocumentVersions(BaseTest):
     def test_main(self):
-        r = self.get("/versions")
-        assert r.status_code == 200
+        r = self.get("/versions", expected_status=200)
         assert r.json["versions"] == []
 
     def test_simple(self, user):
@@ -16,8 +15,7 @@ class Test_DocumentVersions(BaseTest):
         self.modify_document(doc1, data={"value": "doc_1/v2"})
         self.modify_document(doc2, data={"value": "doc_2/v2"})
 
-        r = self.get("/versions", params={"document_id": doc1["id"]})
-        assert r.status_code == 200, r.json
+        r = self.get("/versions", params={"document_id": doc1["id"]}, expected_status=200)
         history = r.json
         assert history["count"] == len(history["versions"]) == 2
         assert history["versions"][0]["version_id"] > history["versions"][1]["version_id"]
@@ -38,8 +36,8 @@ class Test_DocumentVersions(BaseTest):
         self.modify_document(doc, data={"value": "y"})
         self.logout_user()
 
-        r = self.get("/versions", params={"user_id": user.id})
-        assert r.status_code == 200, r.json
+        r = self.get("/versions", params={"user_id": user.id}, expected_status=200)
+
         history = r.json
         assert history["count"] == len(history["versions"]) == 2
 

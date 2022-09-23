@@ -17,8 +17,7 @@ def assert_tag(tag, user, document_id, name, value):
 
 class Test_UserTag(BaseTest):
     def test_not_anonymous(self):
-        r = self.post("/user_tags")
-        assert r.status_code == 403
+        self.post("/user_tags", expected_status=403)
 
     def test_add_modify_delete(self, user):
         self.login_user(user)
@@ -36,8 +35,7 @@ class Test_UserTag(BaseTest):
         assert_tag(r.json["user_tags"][0], user, doc["id"], "x", None)
         assert_tag(r.json["user_tags"][1], user, doc["id"], "y", "6a")
 
-        r = self.add_user_tag("x", doc, "6b")
-        assert r.status_code == 200
+        r = self.add_user_tag("x", doc, "6b", expected_status=200)
         r = self.get("/user_tags")
         assert_tag(r.json["user_tags"][0], user, doc["id"], "x", "6b")
         assert_tag(r.json["user_tags"][1], user, doc["id"], "y", "6a")
@@ -119,8 +117,5 @@ class Test_UserTag(BaseTest):
 
         doc = self.create_document().json["document"]
 
-        r = self.delete("/user_tags", json={"name": "x", "document_id": doc["id"]})
-        assert r.status_code == 404
-
-        r = self.get("/user_tags", params={"limit": 101})
-        assert r.status_code == 400
+        self.delete("/user_tags", json={"name": "x", "document_id": doc["id"]}, expected_status=404)
+        self.get("/user_tags", params={"limit": 101}, expected_status=400)

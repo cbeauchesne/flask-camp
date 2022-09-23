@@ -2,175 +2,151 @@ from copy import deepcopy
 
 
 class ClientInterface:
-    def get(self, url, params=None, headers=None):
+    def get(self, url, params=None, headers=None, expected_status=None):
         raise NotImplementedError()
 
-    def post(self, url, params=None, json=None, headers=None):
+    def post(self, url, params=None, json=None, headers=None, expected_status=None):
         raise NotImplementedError()
 
-    def put(self, url, params=None, data=None, json=None, headers=None):
+    def put(self, url, params=None, data=None, json=None, headers=None, expected_status=None):
         raise NotImplementedError()
 
-    def delete(self, url, params=None, json=None, headers=None):
+    def delete(self, url, params=None, json=None, headers=None, expected_status=None):
         raise NotImplementedError()
 
-    @staticmethod
-    def assert_status_code(response, expected_status):
-        pass
+    def init_database(self, expected_status=None):
+        return self.get("/init_database", expected_status=expected_status)
 
-    def init_database(self):
-        return self.get("/init_database")
+    def create_user(self, name="user", email=None, password="password", expected_status=None):
+        email = f"{name}@example.com" if email is None else email
 
-    def create_user(self, name="user", email="user@example.com", password="password", expected_status=200):
-        r = self.put("/users", json={"name": name, "email": email, "password": password})
-        self.assert_status_code(r, expected_status)
+        return self.put(
+            "/users", expected_status=expected_status, json={"name": name, "email": email, "password": password}
+        )
 
-        return r
-
-    def validate_email(self, user, token, expected_status=200):
+    def validate_email(self, user, token, expected_status=None):
         name = user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
-        r = self.post("/validate_email", json={"name": name, "token": token})
-        self.assert_status_code(r, expected_status)
+        return self.post("/validate_email", expected_status=expected_status, json={"name": name, "token": token})
 
-        return r
-
-    def resend_email_validation(self, user, expected_status=200):
+    def resend_email_validation(self, user, expected_status=None):
         name = user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
 
-        r = self.get("/validate_email", params={"name": name})
-        self.assert_status_code(r, expected_status)
+        return self.get("/validate_email", expected_status=expected_status, params={"name": name})
 
-        return r
-
-    def login_user(self, user, password="password", expected_status=200):
+    def login_user(self, user, password="password", expected_status=None):
         name = user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
 
-        r = self.post("/login", json={"name": name, "password": password})
-        self.assert_status_code(r, expected_status)
+        return self.post("/login", expected_status=expected_status, json={"name": name, "password": password})
 
-        return r
+    def logout_user(self, expected_status=None):
+        return self.delete("/login", expected_status=expected_status)
 
-    def logout_user(self, expected_status=200):
-        r = self.delete("/login")
-        self.assert_status_code(r, expected_status)
-        return r
+    def modify_user(self, user, password=None, email=None, roles=None, expected_status=None):
+        user_id = user if isinstance(user, int) else user["id"] if isinstance(user, dict) else user.id
+        payload = {}
 
-    def create_document(self, namespace="", data=None, expected_status=200):
-        r = self.put("/documents", json={"document": {"namespace": namespace, "data": data if data else {}}})
-        self.assert_status_code(r, expected_status)
+        if roles is not None:
+            payload["roles"] = roles
 
-        return r
+        if password is not None:
+            payload["password"] = password
 
-    def get_document(self, document, headers=None, expected_status=200):
+        if email is not None:
+            payload["email"] = email
+
+        return self.post(f"/user/{user_id}", expected_status=expected_status, json=payload)
+
+    def create_document(self, namespace="", data=None, expected_status=None):
+        return self.put(
+            "/documents",
+            expected_status=expected_status,
+            json={"document": {"namespace": namespace, "data": data if data else {}}},
+        )
+
+    def get_document(self, document, headers=None, expected_status=None):
         document_id = document if isinstance(document, int) else document["id"]
 
-        r = self.get(f"/document/{document_id}", headers=headers)
-        self.assert_status_code(r, expected_status)
+        return self.get(f"/document/{document_id}", expected_status=expected_status, headers=headers)
 
-        return r
-
-    def get_version(self, version, expected_status=200):
+    def get_version(self, version, expected_status=None):
         version_id = version if isinstance(version, int) else version["version_id"]
 
-        r = self.get(f"/version/{version_id}")
-        self.assert_status_code(r, expected_status)
+        return self.get(f"/version/{version_id}", expected_status=expected_status)
 
-        return r
+    def get_versions(self, document=None, expected_status=None):
+        params = {}
 
-    def modify_document(self, document, comment="default comment", data=None, expected_status=200):
+        if document:
+            params["document_id"] = document["id"]
+
+        return self.get("/versions", params=params, expected_status=expected_status)
+
+    def modify_document(self, document, comment="default comment", data=None, expected_status=None):
         document_id = document["id"]
         new_version = deepcopy(document)
         new_version["data"] = data if data else {}
 
-        r = self.post(
+        return self.post(
             f"/document/{document_id}",
+            expected_status=expected_status,
             json={"comment": comment, "document": new_version},
         )
 
-        self.assert_status_code(r, expected_status)
-
-        return r
-
-    def hide_version(self, version, expected_status=200):
+    def hide_version(self, version, expected_status=None):
         version_id = version if isinstance(version, int) else version["version_id"]
 
-        r = self.post(f"/version/{version_id}", json={"comment": "some comment", "hidden": True})
-        self.assert_status_code(r, expected_status)
+        return self.post(
+            f"/version/{version_id}", expected_status=expected_status, json={"comment": "some comment", "hidden": True}
+        )
 
-        return r
-
-    def unhide_version(self, version, expected_status=200):
+    def unhide_version(self, version, expected_status=None):
         version_id = version if isinstance(version, int) else version["version_id"]
 
-        r = self.post(f"/version/{version_id}", json={"comment": "some comment", "hidden": False})
-        self.assert_status_code(r, expected_status)
+        return self.post(
+            f"/version/{version_id}", expected_status=expected_status, json={"comment": "some comment", "hidden": False}
+        )
 
-        return r
-
-    def protect_document(self, document, expected_status=200):
+    def protect_document(self, document, expected_status=None):
         document_id = document if isinstance(document, int) else document["id"]
 
-        r = self.put(f"/protect_document/{document_id}", json={"comment": "some comment"})
-        self.assert_status_code(r, expected_status)
+        return self.put(
+            f"/protect_document/{document_id}", expected_status=expected_status, json={"comment": "some comment"}
+        )
 
-        return r
-
-    def unprotect_document(self, document, expected_status=200):
+    def unprotect_document(self, document, expected_status=None):
         document_id = document if isinstance(document, int) else document["id"]
 
-        r = self.delete(f"/protect_document/{document_id}", json={"comment": "some comment"})
-        self.assert_status_code(r, expected_status)
+        return self.delete(
+            f"/protect_document/{document_id}", expected_status=expected_status, json={"comment": "some comment"}
+        )
 
-        return r
+    def block_user(self, user, expected_status=None):
+        return self.put(f"/block_user/{user.id}", expected_status=expected_status, json={"comment": "Some comment"})
 
-    def block_user(self, user, expected_status=200):
-        r = self.put(f"/block_user/{user.id}", json={"comment": "Some comment"})
-        self.assert_status_code(r, expected_status)
-        return r
+    def unblock_user(self, user, expected_status=None):
+        return self.delete(f"/block_user/{user.id}", expected_status=expected_status, json={"comment": "Some comment"})
 
-    def unblock_user(self, user, expected_status=200):
-        r = self.delete(f"/block_user/{user.id}", json={"comment": "Some comment"})
-        self.assert_status_code(r, expected_status)
-        return r
-
-    def delete_version(self, version, expected_status=200):
+    def delete_version(self, version, expected_status=None):
         version_id = version if isinstance(version, int) else version["version_id"]
 
-        r = self.delete(f"/version/{version_id}", json={"comment": "toto"})
-        self.assert_status_code(r, expected_status)
+        return self.delete(f"/version/{version_id}", expected_status=expected_status, json={"comment": "toto"})
 
-        return r
-
-    def delete_document(self, document, expected_status=200):
+    def delete_document(self, document, expected_status=None):
         document_id = document if isinstance(document, int) else document["id"]
 
-        r = self.delete(f"/document/{document_id}", json={"comment": "comment"})
-        self.assert_status_code(r, expected_status)
+        return self.delete(f"/document/{document_id}", expected_status=expected_status, json={"comment": "comment"})
 
-        return r
-
-    def add_user_tag(self, name, doc, value=None, expected_status=200):
+    def add_user_tag(self, name, doc, value=None, expected_status=None):
         payload = {"name": name, "document_id": doc["id"]}
 
         if value is not None:
             payload["value"] = value
 
-        r = self.post("/user_tags", json=payload)
+        return self.post("/user_tags", expected_status=expected_status, json=payload)
 
-        self.assert_status_code(r, expected_status)
+    def remove_user_tag(self, name, doc, expected_status=None):
+        return self.delete("/user_tags", expected_status=expected_status, json={"name": name, "document_id": doc["id"]})
 
-        return r
-
-    def remove_user_tag(self, name, doc, expected_status=200):
-        r = self.delete("/user_tags", json={"name": name, "document_id": doc["id"]})
-        self.assert_status_code(r, expected_status)
-
-        return r
-
-    def merge_documents(self, document_to_merge, document_destination, expected_status=200):
+    def merge_documents(self, document_to_merge, document_destination, expected_status=None):
         payload = {"document_to_merge": document_to_merge["id"], "document_destination": document_destination["id"]}
-        r = self.post("/merge", json=payload)
-
-        self.assert_status_code(r, expected_status)
-
-        return r
+        return self.post("/merge", expected_status=expected_status, json=payload)

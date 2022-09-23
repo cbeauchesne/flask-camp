@@ -3,8 +3,7 @@ from tests.unit_tests.utils import BaseTest
 
 class Test_GetVersion(BaseTest):
     def test_errors(self):
-        r = self.get("/version/42")
-        assert r.status_code == 404
+        self.get("/version/42", expected_status=404)
 
     def test_main(self, user, moderator):
         self.login_user(user)
@@ -14,26 +13,22 @@ class Test_GetVersion(BaseTest):
 
         self.logout_user()
 
-        r = self.get(f"/version/{v0['version_id']}")
-        assert r.status_code == 200
+        r = self.get(f"/version/{v0['version_id']}", expected_status=200)
         assert r.json["document"]["data"] == {}
 
-        r = self.get(f"/version/{v1['version_id']}")
-        assert r.status_code == 200
+        r = self.get(f"/version/{v1['version_id']}", expected_status=200)
         assert r.json["document"]["data"] == {"value": "43"}
 
         self.login_user(moderator)
 
         self.hide_version(v0)
 
-        r = self.get(f"/version/{v0['version_id']}")
-        assert r.status_code == 200
+        r = self.get(f"/version/{v0['version_id']}", expected_status=200)
         assert r.json["document"]["data"] == {}
 
         self.login_user(user)
 
-        r = self.get(f"/version/{v0['version_id']}")
-        assert r.status_code == 200
+        r = self.get(f"/version/{v0['version_id']}", expected_status=200)
         assert "data" not in r.json["document"]
         assert r.json["document"]["hidden"] is True
 
@@ -80,8 +75,5 @@ class Test_DeleteVersion(BaseTest):
     def test_bad_format(self, admin):
         self.login_user(admin)
 
-        r = self.delete("/version/200", json={"commentt": "toto"})
-        assert r.status_code == 400, r.json
-
-        r = self.delete("/version/200")
-        assert r.status_code == 400, r.json
+        self.delete("/version/200", json={"commentt": "toto"}, expected_status=400)
+        self.delete("/version/200", expected_status=400)

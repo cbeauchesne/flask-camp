@@ -4,32 +4,34 @@ from tests.utils import ClientInterface
 class BaseTest(ClientInterface):
     client = None
 
-    def get(self, url, params=None, headers=None):
+    def get(self, url, params=None, headers=None, expected_status=None):
         r = BaseTest.client.get(url, query_string=params, headers=headers)
-        self._assert_status_response(r)
+        self.assert_status_code(r, expected_status)
 
         return r
 
-    def post(self, url, params=None, json=None, headers=None):
+    def post(self, url, params=None, json=None, headers=None, expected_status=None):
         r = BaseTest.client.post(url, query_string=params, json=json, headers=headers)
-        self._assert_status_response(r)
+        self.assert_status_code(r, expected_status)
 
         return r
 
-    def put(self, url, params=None, data=None, json=None, headers=None):
+    def put(self, url, params=None, data=None, json=None, headers=None, expected_status=None):
         r = BaseTest.client.put(url, query_string=params, data=data, json=json, headers=headers)
-        self._assert_status_response(r)
+        self.assert_status_code(r, expected_status)
 
         return r
 
-    def delete(self, url, params=None, json=None, headers=None):
+    def delete(self, url, params=None, json=None, headers=None, expected_status=None):
         r = BaseTest.client.delete(url, query_string=params, json=json, headers=headers)
-        self._assert_status_response(r)
+        self.assert_status_code(r, expected_status)
 
         return r
 
     @staticmethod
     def assert_status_code(response, expected_status):
+        expected_status = 200 if expected_status is None else expected_status
+
         assert (
             response.status_code == expected_status
         ), f"Status error: {response.status_code} i/o {expected_status}\n{response.data}"

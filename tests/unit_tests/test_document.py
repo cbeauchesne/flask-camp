@@ -22,12 +22,10 @@ class Test_Document(BaseTest):
         self.get_document(fake_doc, expected_status=404)
         self.modify_document(fake_doc, expected_status=404)
 
-        r = self.put("/documents", json={"document": {"data": {}}})
-        assert r.status_code == 400, r.json
+        r = self.put("/documents", json={"document": {"data": {}}}, expected_status=400)
         assert r.json["description"] == "'namespace' is a required property on instance ['document']"
 
-        r = self.put("/documents", json={"document": {"namespace": "x"}})
-        assert r.status_code == 400, r.json
+        r = self.put("/documents", json={"document": {"namespace": "x"}}, expected_status=400)
         assert r.json["description"] == "'data' is a required property on instance ['document']"
 
     def test_creation(self, user):
@@ -49,8 +47,7 @@ class Test_Document(BaseTest):
 
         self.assert_document(v2, user, comment="test", data={"value": "43"})
 
-        r = self.get("documents")
-        assert r.status_code == 200
+        r = self.get("documents", expected_status=200)
         assert r.json["status"] == "ok"
         assert r.json["count"] == 1
         assert r.json["documents"][0]["version_id"] == v2["version_id"]
