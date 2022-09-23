@@ -62,7 +62,6 @@ Build a wiki API with all common features, regardless of the content of document
 ## TODO
 
 elastic search
-edit conflict => give version
 Test rate limiter
 rate limit must be configurable
 rate limit must be configurable by role

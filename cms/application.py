@@ -72,7 +72,10 @@ class Application(Flask):
 
         @self.errorhandler(HTTPException)
         def rest_error_handler(e):
-            return {"status": "error", "name": e.name, "description": e.description}, e.code
+            result = {"status": "error", "name": e.name, "description": e.description}
+            if hasattr(e, "data"):
+                result["data"] = e.data
+            return result, e.code
 
         self.add_module(healthcheck_view)
 

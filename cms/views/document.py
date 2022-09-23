@@ -17,6 +17,15 @@ log = logging.getLogger(__name__)
 rule = "/document/<int:id>"
 
 
+class EditConflict(Conflict):
+    def __init__(self, your_version, last_version):
+        super().__init__("A new version exists")
+        self.data = {
+            "last_version": last_version,
+            "your_version": your_version,
+        }
+
+
 @allow("anonymous")
 def get(id):
 
@@ -67,10 +76,10 @@ def post(id):
     data = body["document"]["data"]
     version_number = body["document"]["version_number"]
 
-    old_version = document.as_dict()
+    last_version = document.as_dict()
 
-    if old_version["version_number"] != version_number:
-        raise Conflict("A new version exists")  # TODO give the new version
+    if last_version["version_number"] != version_number:
+        raise EditConflict(last_version=last_version, your_version=body["document"])
 
     version = DocumentVersion(
         document_id=document.id,
@@ -86,7 +95,7 @@ def post(id):
     except IntegrityError as e:
         error_info = e.orig.args
         if error_info[0] == "UNIQUE constraint failed: version.document_id, version.version_number":
-            raise Conflict("A new version exists") from e  # TODO give the new version
+            raise EditConflict(last_version=None, your_version=body["document"]) from e
         else:
             raise
 
