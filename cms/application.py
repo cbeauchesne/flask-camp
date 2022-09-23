@@ -1,4 +1,5 @@
 import logging
+import collections
 
 from flask import Flask
 from flask_login import LoginManager
@@ -77,6 +78,8 @@ class Application(Flask):
                 result["data"] = e.data
             return result, e.code
 
+        self._map = collections.defaultdict(dict)
+
         self.add_module(healthcheck_view)
 
         self.add_module(users_view)
@@ -101,6 +104,8 @@ class Application(Flask):
 
         self.add_module(merge_view)
 
+        self.add_url_rule("/", view_func=lambda: self._map, methods=["GET"])
+
         if self.config.get("INIT_DATABASE", None) == "True":
             self.add_url_rule("/init_database", view_func=self.init_database, methods=["GET"])
 
@@ -119,6 +124,8 @@ class Application(Flask):
                 self.add_url_rule(
                     module.rule, view_func=function, methods=[method.upper()], endpoint=f"{method}_{module.__name__}"
                 )
+
+                self._map[module.rule][method.upper()] = function.__doc__
 
     def init_database(self):
         log.info("Init database")
