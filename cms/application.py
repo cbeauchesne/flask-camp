@@ -1,4 +1,3 @@
-import collections
 import logging
 import sys
 import warnings
@@ -26,6 +25,7 @@ from .views import version as version_view
 from .views import document as document_view
 from .views import documents as documents_view
 from .views import healthcheck as healthcheck_view
+from .views import home as home_view
 from .views import logs as logs_view
 from .views import merge as merge_view
 from .views import protect_document as protect_document_view
@@ -97,11 +97,7 @@ class Application(Flask):
                 result["data"] = e.data
             return result, e.code
 
-        self._map = collections.defaultdict(dict)
-
         self._init_url_rules()
-
-        self.add_url_rule("/", view_func=lambda: self._map, methods=["GET"])
 
         if self.config.get("INIT_DATABASE", None) == "True":
             self.add_url_rule("/init_database", view_func=self.init_database, methods=["GET"])
@@ -113,6 +109,8 @@ class Application(Flask):
             self.logger.addHandler(handler)
 
     def _init_url_rules(self):
+        self.add_module(home_view)
+
         self.add_module(healthcheck_view)
 
         self.add_module(users_view)
@@ -159,8 +157,6 @@ class Application(Flask):
                 self.add_url_rule(
                     module.rule, view_func=function, methods=[method.upper()], endpoint=f"{method}_{module.__name__}"
                 )
-
-                self._map[module.rule][method.upper()] = function.__doc__
 
     def init_database(self):
         log.info("Init database")
