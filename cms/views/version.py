@@ -11,6 +11,7 @@ rule = "/version/<int:id>"
 
 @allow("anonymous")
 def get(id):
+    """Get a given version of a document"""
 
     version = DocumentVersion.get(id=id)
 
@@ -23,6 +24,7 @@ def get(id):
 @allow("moderator")
 @schema("cms/schemas/modify_version.json")
 def post(id):
+    """Modify a version of a document. This only possible modification is hide/unhide a version"""
     version = DocumentVersion.get(id=id)
 
     if version is None:
@@ -42,7 +44,7 @@ def post(id):
 @allow("admin")
 @schema("cms/schemas/comment.json")
 def delete(id):
-
+    """Delete a version of a document (only for admins)"""
     version = DocumentVersion.get(id=id)
 
     if version is None:

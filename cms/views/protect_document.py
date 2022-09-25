@@ -12,6 +12,7 @@ rule = "/protect_document/<int:id>"
 @allow("moderator")
 @schema("cms/schemas/comment.json")
 def put(id):
+    """Protect a document. The document won't be editable anymore, excpet for moderators"""
     doc = Document.query.filter_by(id=id).first()
 
     if doc is None:
@@ -32,6 +33,7 @@ def put(id):
 @allow("moderator")
 @schema("cms/schemas/comment.json")
 def delete(id):
+    """Un-protect a document"""
     doc = Document.query.filter_by(id=id).first()
 
     if doc is None:

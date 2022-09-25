@@ -28,7 +28,7 @@ class EditConflict(Conflict):
 
 @allow("anonymous")
 def get(id):
-
+    """Get a document"""
     document_as_dict = current_app.memory_cache.document.get(id)
 
     if document_as_dict is None:  # document is not known by mem cache
@@ -109,7 +109,7 @@ def post(id):
 @allow("admin")
 @schema("cms/schemas/comment.json")
 def delete(id):
-    """delete a document"""
+    """Delete a document"""
     document = Document.get(id=id)
 
     if document is None:

@@ -14,7 +14,7 @@ rule = "/documents"
 
 @allow("anonymous")
 def get():
-    # returns all documents
+    """Get a list of documents"""
 
     limit = request.args.get("limit", default=30, type=int)
     offset = request.args.get("offset", default=0, type=int)

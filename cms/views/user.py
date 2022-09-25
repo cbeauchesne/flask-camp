@@ -13,6 +13,7 @@ rule = "/user/<int:id>"
 
 @allow("anonymous")
 def get(id):
+    """Get an user"""
     user = UserModel.get(id=id)
 
     if user is None:
@@ -35,6 +36,7 @@ def get(id):
 @allow("blocked")
 @schema("cms/schemas/modify_user.json")
 def post(id):
+    """Modify an user"""
     if id != current_user.id and not current_user.is_admin:
         raise Forbidden("You can't modify this user")
 

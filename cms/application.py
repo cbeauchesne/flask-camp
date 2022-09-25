@@ -40,7 +40,7 @@ log = logging.getLogger(__name__)
 
 class Application(Flask):
     def __init__(self, config_object=None):
-        super().__init__(__name__)
+        super().__init__(__name__, static_folder=None)
 
         if config_object:
             self.config.from_object(config_object)
@@ -159,6 +159,8 @@ class Application(Flask):
                 )
 
     def init_database(self):
+        """Will init database with an admin user"""
+
         log.info("Init database")
         self.database.create_all()
 

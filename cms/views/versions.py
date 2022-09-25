@@ -9,7 +9,7 @@ rule = "/versions"
 
 @allow("anonymous")
 def get():
-    # returns all changes
+    """GEt a list of versions"""
     filters = {}
 
     limit = request.args.get("limit", default=30, type=int)

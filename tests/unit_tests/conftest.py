@@ -11,8 +11,17 @@ from tests.unit_tests.utils import BaseTest
 
 app = Application(cms_config.Testing)
 
-app.add_url_rule("/__testing/500", view_func=lambda: 1 / 0, endpoint="500")
-app.add_url_rule("/__testing/vuln/<int:id>", view_func=lambda id: User.get(id=id).as_dict(True), endpoint="vuln")
+
+@app.route("/__testing/500", methods=["GET"])
+def testing_500():
+    """This function will raise a 500 response"""
+    return 1 / 0
+
+
+@app.route("/__testing/vuln/<int:user_id>", methods=["GET"])
+def testing_vuln(user_id):
+    """Calling this method without being authentified as user_id mys raise a Forbidden response"""
+    return User.get(id=user_id).as_dict(include_personal_data=True)
 
 
 def pytest_configure(config):

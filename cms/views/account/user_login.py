@@ -17,6 +17,7 @@ rule = "/login"
 @allow("anonymous")
 @schema("cms/schemas/login_user.json")
 def post():
+    """Authentificate an user"""
     data = request.get_json()
 
     name = data["name"]
@@ -45,6 +46,7 @@ def post():
 
 @allow("blocked")
 def delete():
+    """Logout current user"""
     logout_user()
 
     return {"status": "ok"}

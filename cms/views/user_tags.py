@@ -15,7 +15,7 @@ def _build_filters(**kwargs):
 
 @allow("anonymous")
 def get():
-
+    """Get user tag list"""
     limit = request.args.get("limit", default=100, type=int)
     offset = request.args.get("offset", default=0, type=int)
 
@@ -69,6 +69,7 @@ def post():
 @allow("blocked")
 @schema("cms/schemas/delete_user_tag.json")
 def delete():
+    """Delete an user tag"""
     data = request.get_json()
 
     document_id = data["document_id"]

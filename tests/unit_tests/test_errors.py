@@ -27,7 +27,7 @@ class Test_Errors(BaseTest):
         self.login_user(user)
         self.get(f"/__testing/vuln/{user_2.id}", expected_status=403)
 
-        self.get(f"/__testing/vuln/{user.id}")
+        self.get(f"/__testing/vuln/{user.id}", expected_status=200)
 
     def test_main(self):
         r = self.get("/do_not_exists", expected_status=404)

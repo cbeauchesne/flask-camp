@@ -12,6 +12,7 @@ rule = "/block_user/<int:id>"
 @allow("moderator")
 @schema("cms/schemas/comment.json")
 def put(id):
+    """Block an user"""
 
     user = UserModel.get(id=id)
 
@@ -30,6 +31,7 @@ def put(id):
 @allow("moderator")
 @schema("cms/schemas/comment.json")
 def delete(id):
+    """Unblock an user"""
     user = UserModel.get(id=id)
 
     if not user:

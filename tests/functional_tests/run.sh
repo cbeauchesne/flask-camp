@@ -10,4 +10,11 @@ export FLASK_REDIS_HOST=redis
 export FLASK_REDIS_PORT=6379
 
 docker-compose down
-docker-compose up --scale cms=3
+docker-compose up --scale cms=3 -d
+
+python tests/functional_tests/main.py
+
+docker-compose logs > logs/functional_tests.log
+docker-compose down
+
+
