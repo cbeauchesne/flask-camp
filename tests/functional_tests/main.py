@@ -62,9 +62,9 @@ if __name__ == "__main__":
     admin.login_user("admin")
 
     moderator = Client("moderator", domain="http://localhost:5000")
-    moderator_id = moderator.create_user("moderator").json()["user"]["id"]
+    moderator.create_user("moderator")
     moderator.validate_email("moderator", get_email_token("moderator"))
-    admin.modify_user(moderator_id, roles=["moderator"])
+    admin.modify_user("moderator", roles=["moderator"])
     moderator.login_user("moderator")
 
     user = Client("user", domain="http://localhost:5000")
@@ -78,5 +78,11 @@ if __name__ == "__main__":
     doc = user.create_document().json()["document"]
     user.protect_document(doc, expected_status=403)
     moderator.protect_document(doc)
+
+    user.modify_document(doc, expected_status=403)
+    moderator.modify_document(doc, expected_status=200)
+
+    doc_2 = user.create_document().json()["document"]
+    user.modify_document(doc_2, expected_status=200)
 
     # admin.block_user(user)

@@ -5,6 +5,10 @@ def _get_user_id(user):
     return user if isinstance(user, int) else user["id"] if isinstance(user, dict) else user.id
 
 
+def _get_user_name(user):
+    return user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
+
+
 class ClientInterface:
     def get(self, url, params=None, headers=None, expected_status=None):
         raise NotImplementedError()
@@ -52,11 +56,11 @@ class ClientInterface:
         return self.delete("/login", expected_status=expected_status)
 
     def get_user(self, user, expected_status=None):
-        user_id = _get_user_id(user)
-        return self.get(f"/user/{user_id}", expected_status=expected_status)
+        user_name = _get_user_name(user)
+        return self.get(f"/user/{user_name}", expected_status=expected_status)
 
     def modify_user(self, user, password=None, email=None, roles=None, expected_status=None):
-        user_id = _get_user_id(user)
+        user_name = _get_user_name(user)
         payload = {}
 
         if roles is not None:
@@ -68,7 +72,7 @@ class ClientInterface:
         if email is not None:
             payload["email"] = email
 
-        return self.post(f"/user/{user_id}", expected_status=expected_status, json=payload)
+        return self.post(f"/user/{user_name}", expected_status=expected_status, json=payload)
 
     def create_document(self, namespace="", data=None, expected_status=None):
         return self.put(
@@ -169,12 +173,12 @@ class ClientInterface:
         )
 
     def block_user(self, user, comment="Some comment", expected_status=None):
-        user_id = _get_user_id(user)
-        return self.put(f"/block_user/{user_id}", expected_status=expected_status, json={"comment": comment})
+        user_name = _get_user_name(user)
+        return self.put(f"/block_user/{user_name}", expected_status=expected_status, json={"comment": comment})
 
     def unblock_user(self, user, comment="Some comment", expected_status=None):
-        user_id = _get_user_id(user)
-        return self.delete(f"/block_user/{user_id}", expected_status=expected_status, json={"comment": comment})
+        user_name = _get_user_name(user)
+        return self.delete(f"/block_user/{user_name}", expected_status=expected_status, json={"comment": comment})
 
     def delete_version(self, version, expected_status=None):
         version_id = version if isinstance(version, int) else version["version_id"]

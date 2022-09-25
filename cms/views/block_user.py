@@ -6,22 +6,22 @@ from cms.models.user import User as UserModel
 from cms.models.log import add_log
 from cms.schemas import schema
 
-rule = "/block_user/<int:id>"
+rule = "/block_user/<string:user_name>"
 
 
 @allow("moderator")
 @schema("cms/schemas/comment.json")
-def put(id):
+def put(user_name):
     """Block an user"""
 
-    user = UserModel.get(id=id)
+    user = UserModel.get(name=user_name)
 
     if not user:
         raise NotFound()
 
     user.blocked = True
 
-    add_log(action="block", target_user_id=id)
+    add_log(action="block", target_user_id=user.id)
 
     current_app.database.session.commit()
 
@@ -30,16 +30,16 @@ def put(id):
 
 @allow("moderator")
 @schema("cms/schemas/comment.json")
-def delete(id):
+def delete(user_name):
     """Unblock an user"""
-    user = UserModel.get(id=id)
+    user = UserModel.get(name=user_name)
 
     if not user:
         raise NotFound()
 
     user.blocked = False
 
-    add_log(action="unblock", target_user_id=id)
+    add_log(action="unblock", target_user_id=user.id)
 
     current_app.database.session.commit()
 

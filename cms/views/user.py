@@ -8,13 +8,13 @@ from cms.models.user import User as UserModel
 from cms.schemas import schema
 
 
-rule = "/user/<int:id>"
+rule = "/user/<string:user_name>"
 
 
 @allow("anonymous")
-def get(id):
+def get(user_name):
     """Get an user"""
-    user = UserModel.get(id=id)
+    user = UserModel.get(name=user_name)
 
     if user is None:
         raise NotFound()
@@ -35,12 +35,12 @@ def get(id):
 
 @allow("blocked")
 @schema("cms/schemas/modify_user.json")
-def post(id):
+def post(user_name):
     """Modify an user"""
-    if id != current_user.id and not current_user.is_admin:
+    if user_name != current_user.name and not current_user.is_admin:
         raise Forbidden("You can't modify this user")
 
-    if current_user.is_admin and id != current_user.id:
+    if current_user.is_admin and user_name != current_user.name:
         # if an admin modify an user, log actions
         log_admin_action = add_log
     else:
@@ -50,16 +50,16 @@ def post(id):
 
     data = request.get_json()
 
-    user = UserModel.get(id=id)
+    user = UserModel.get(name=user_name)
 
     if "password" in data:
         # TODO check current password
         user.set_password(data["password"])
-        log_admin_action(action="change_password", comment="", target_user_id=id)
+        log_admin_action(action="change_password", comment="", target_user_id=user.id)
 
     if "email" in data:
         user.set_email(data["email"])
-        log_admin_action(action="change_email", comment="", target_user_id=id)
+        log_admin_action(action="change_email", comment="", target_user_id=user.id)
         user.send_email_change_mail()
 
     if "roles" in data and current_user.is_admin:
@@ -70,11 +70,11 @@ def post(id):
 
         for role in old_roles:
             if not role in new_roles:
-                log_admin_action(action=f"remove_role {role}", comment="", target_user_id=id)
+                log_admin_action(action=f"remove_role {role}", comment="", target_user_id=user.id)
 
         for role in new_roles:
             if not role in old_roles:
-                log_admin_action(action=f"add_role {role}", comment="", target_user_id=id)
+                log_admin_action(action=f"add_role {role}", comment="", target_user_id=user.id)
 
     current_app.database.session.commit()
 

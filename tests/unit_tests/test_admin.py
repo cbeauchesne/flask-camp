@@ -18,5 +18,5 @@ class Test_Admin(BaseTest):
     def test_init_database(self):
         self.init_database(expected_status=200)
 
-        r = self.get_user(1, expected_status=200)
+        r = self.get_user("admin", expected_status=200)
         assert r.json["user"]["name"] == "admin"
