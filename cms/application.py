@@ -1,9 +1,13 @@
-import logging
 import collections
+import logging
+import sys
+import warnings
 
+from fakeredis import FakeRedis
 from flask import Flask
 from flask_login import LoginManager
 from flask_mail import Mail, Message
+from redis import Redis as RedisClient
 from werkzeug.exceptions import HTTPException
 
 
@@ -35,7 +39,7 @@ log = logging.getLogger(__name__)
 
 
 class Application(Flask):
-    def __init__(self, config_object=None, memory_cache_instance=None):
+    def __init__(self, config_object=None):
         super().__init__(__name__)
 
         if config_object:
@@ -47,11 +51,26 @@ class Application(Flask):
 
         self.config.from_prefixed_env()
 
-        self.memory_cache = MemoryCache(
-            host=self.config.get("REDIS_HOST", None),
-            port=self.config.get("REDIS_PORT", None),
-            client=memory_cache_instance,
-        )
+        if self.config.get("SECRET_KEY", None) is None:  # pragma: no cover
+            warnings.warn("Please set FLASK_SECRET_KEY environment variable")
+            sys.exit(1)
+
+        if self.config.get("MAIL_DEFAULT_SENDER", None) is None:
+            if not self.testing:
+                warnings.warn(
+                    "FLASK_MAIL_DEFAULT_SENDER environment variable is not set, defaulting to do-not-reply@example.com"
+                )
+            self.config["MAIL_DEFAULT_SENDER"] = "do-not-reply@example.com"
+
+        if self.config.get("SQLALCHEMY_DATABASE_URI", None) is None:
+            if not self.testing:
+                warnings.warn("FLASK_SQLALCHEMY_DATABASE_URI environment variable is not set, defaulting to memory")
+            self.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
+
+        ###############################################################################################################
+        # init services
+
+        self._init_memory_cache()
 
         self.database = database
         database.init_app(self)
@@ -80,29 +99,7 @@ class Application(Flask):
 
         self._map = collections.defaultdict(dict)
 
-        self.add_module(healthcheck_view)
-
-        self.add_module(users_view)
-        self.add_module(user_view)
-
-        self.add_module(user_login_view)
-
-        self.add_module(email_validation_view)
-        self.add_module(reset_password_view)
-
-        self.add_module(documents_view)
-        self.add_module(document_view)
-        self.add_module(versions_view)
-        self.add_module(version_view)
-
-        self.add_module(logs_view)
-
-        self.add_module(protect_document_view)
-        self.add_module(block_user_view)
-
-        self.add_module(user_tags_view)
-
-        self.add_module(merge_view)
+        self._init_url_rules()
 
         self.add_url_rule("/", view_func=lambda: self._map, methods=["GET"])
 
@@ -114,6 +111,44 @@ class Application(Flask):
             handler = logging.FileHandler(self.config["ERRORS_LOG_FILE"])
             handler.setLevel(logging.ERROR)
             self.logger.addHandler(handler)
+
+    def _init_url_rules(self):
+        self.add_module(healthcheck_view)
+
+        self.add_module(users_view)
+        self.add_module(user_view)
+
+        self.add_module(user_login_view)
+        self.add_module(email_validation_view)
+        self.add_module(reset_password_view)
+
+        self.add_module(documents_view)
+        self.add_module(document_view)
+        self.add_module(versions_view)
+        self.add_module(version_view)
+
+        self.add_module(user_tags_view)
+
+        self.add_module(logs_view)
+
+        self.add_module(protect_document_view)
+        self.add_module(block_user_view)
+        self.add_module(merge_view)
+
+    def _init_memory_cache(self):
+        redis_host = self.config.get("REDIS_HOST", None)
+        redis_port = self.config.get("REDIS_PORT", 6379)
+
+        if redis_host is None:
+            if not self.testing and not self.debug:
+                warnings.warn("FLASK_REDIS_HOST environment variable is not set, defaulting to fake-redis-client")
+            self.config["RATELIMIT_STORAGE_URI"] = "memory://"
+            memory_cache_instance = FakeRedis()
+        else:  # pragma: no cover
+            self.config["RATELIMIT_STORAGE_URI"] = f"redis://{redis_host}:{redis_port}"
+            memory_cache_instance = RedisClient(host=redis_host, port=redis_port)
+
+        self.memory_cache = MemoryCache(client=memory_cache_instance)
 
     def add_module(self, module):
 

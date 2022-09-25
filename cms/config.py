@@ -7,34 +7,37 @@ class _BaseConfig:
 
 
 class Production(_BaseConfig):
-    # SQLALCHEMY_DATABASE_URI must be in FLASK_SQLALCHEMY_DATABASE_URI env var
-    # SECRET_KEY must be set in FLASK_SECRET_KEY env var
-    # MAIL_DEFAULT_SENDER must be set in FLASK_MAIL_DEFAULT_SENDER env var
-    REDIS_HOST = "redis"
-    REDIS_PORT = 6379
-    RATELIMIT_STORAGE_URI = "redis://redis:6379"
+    ## Mandatory conf in environment variables:
+    # FLASK_SECRET_KEY
+
+    ## It'll work, but you may want to configure it:
+    # FLASK_SQLALCHEMY_DATABASE_URI (default: memory)
+    # FLASK_REDIS_HOST (default: memory)
+    # FLASK_MAIL_DEFAULT_SENDER (default: do-not-reply@example.com)
+
+    ## Optional but common configuration:
+    # FLASK_RATELIMIT_DEFAULT. Exemple : "20000 per day,2000 per hour,300 per minute,10 per second"
+    # FLASK_REDIS_PORT. If it's not 6379
+
+    pass
 
 
 class Development(_BaseConfig):
     SQLALCHEMY_DATABASE_URI = "sqlite:///sqlite.db"
     SECRET_KEY = "not_very_secret"
 
-    RATELIMIT_STORAGE_URI = "memory://"
-
     MAIL_DEFAULT_SENDER = "do-not-reply@example.com"
 
+    ERRORS_LOG_FILE = "logs/testing_errors.log"
 
-class Testing(_BaseConfig):
+
+class Testing(Development):
     TESTING = True
 
-    SQLALCHEMY_DATABASE_URI = "sqlite://"
-    SECRET_KEY = "not_very_secret"
+    SQLALCHEMY_DATABASE_URI = None
 
-    RATELIMIT_ENABLED = False
-    RATELIMIT_STORAGE_URI = "memory://"
-
-    MAIL_DEFAULT_SENDER = "do-not-reply@example.com"
+    MAIL_DEFAULT_SENDER = None
 
     INIT_DATABASE = "True"
 
-    ERRORS_LOG_FILE = "logs/testing_errors.log"
+    RATELIMIT_ENABLED = False

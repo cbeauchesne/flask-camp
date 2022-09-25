@@ -1,7 +1,5 @@
 import json
 
-from redis import Redis as RedisClient
-
 
 class _MemoryCacheCollection:
     def __init__(self, name, client):
@@ -20,12 +18,9 @@ class _MemoryCacheCollection:
 
 
 class MemoryCache:
-    def __init__(self, host, port, client=None):
-        if client:
-            self._client = client  # used for testing
-        else:  # pragma: no cover
-            host = host if host else "localhost"
-            port = port if port else 6379
-            self._client = RedisClient(host=host, port=port)
-
+    def __init__(self, client):
+        self._client = client
         self.document = _MemoryCacheCollection("document", self._client)
+
+    def flushall(self):
+        self._client.flushall()
