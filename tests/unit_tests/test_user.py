@@ -31,6 +31,9 @@ class Test_UserCreation(BaseTest):
         r = self.get_user(user)
         assert "email" not in r.json["user"]  # email is a private value
 
+        r = self.get_user_roles(user)
+        assert r.json["roles"] == []
+
         r = self.login_user(name, password, expected_status=200)
 
         assert len(r.json["user"]) == 6, r.json["user"]
@@ -41,7 +44,7 @@ class Test_UserCreation(BaseTest):
         assert r.json["user"]["email"] == email
         assert r.json["user"]["roles"] == []
 
-        r = self.logout_user()
+        self.logout_user()
 
     def test_errors_on_token_validation(self, unvalidated_user):
 

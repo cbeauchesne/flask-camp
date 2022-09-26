@@ -1,0 +1,6 @@
+{
+  "description": "Comments are string with min length of 3, and max length of 128",
+  "type": "string",
+  "maxLength": 128,
+  "minLength": 3
+}

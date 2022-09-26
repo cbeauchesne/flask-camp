@@ -1,0 +1,6 @@
+{
+  "description": "Roles are string with min length of 3, and max length of 16",
+  "type": "string",
+  "maxLength": 16,
+  "minLength": 3
+}

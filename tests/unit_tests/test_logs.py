@@ -55,10 +55,12 @@ class Test_Logs(BaseTest):
         self.logout_user()
         self.login_user(admin)
 
-        self.modify_user(user, roles=["moderator"])
-        self.modify_user(user, roles=["admin"])
-        self.modify_user(user, roles=["admin", "robot"])
-        self.modify_user(user, roles=[])
+        self.add_user_role(user, "moderator", "comment")
+        self.remove_user_role(user, "moderator", "comment")
+        self.add_user_role(user, "admin", "comment")
+        self.add_user_role(user, "robot", "comment")
+        self.remove_user_role(user, "admin", "comment")
+        self.remove_user_role(user, "robot", "comment")
 
         self.delete_version(doc_v2)
         self.delete_document(doc)

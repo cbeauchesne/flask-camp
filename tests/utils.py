@@ -58,12 +58,9 @@ class ClientInterface:
         user_id = _get_user_id(user)
         return self.get(f"/user/{user_id}", expected_status=expected_status)
 
-    def modify_user(self, user, password=None, email=None, roles=None, expected_status=None):
+    def modify_user(self, user, password=None, email=None, expected_status=None):
         user_id = _get_user_id(user)
         payload = {}
-
-        if roles is not None:
-            payload["roles"] = roles
 
         if password is not None:
             payload["password"] = password
@@ -72,6 +69,23 @@ class ClientInterface:
             payload["email"] = email
 
         return self.post(f"/user/{user_id}", expected_status=expected_status, json=payload)
+
+    def add_user_role(self, user, role, comment, expected_status=None):
+        user_id = _get_user_id(user)
+
+        return self.post(f"/roles/{user_id}", json={"role": role, "comment": comment}, expected_status=expected_status)
+
+    def remove_user_role(self, user, role, comment, expected_status=None):
+        user_id = _get_user_id(user)
+
+        return self.delete(
+            f"/roles/{user_id}", json={"role": role, "comment": comment}, expected_status=expected_status
+        )
+
+    def get_user_roles(self, user, expected_status=None):
+        user_id = _get_user_id(user)
+
+        return self.get(f"/roles/{user_id}", expected_status=expected_status)
 
     def create_document(self, namespace="", data=None, expected_status=None):
         return self.put(

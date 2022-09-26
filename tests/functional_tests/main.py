@@ -64,7 +64,7 @@ if __name__ == "__main__":
     moderator = Client("moderator", domain="http://localhost:5000")
     moderator_id = moderator.create_user("moderator").json()["user"]["id"]
     moderator.validate_email("moderator", get_email_token("moderator"))
-    admin.modify_user(moderator_id, roles=["moderator"])
+    admin.add_user_role(moderator_id, role="moderator", comment="I trust him")
     moderator.login_user("moderator")
 
     user = Client("user", domain="http://localhost:5000")

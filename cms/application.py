@@ -19,6 +19,7 @@ from .services.memory_cache import MemoryCache
 from .views.account import user_login as user_login_view
 from .views.account import email_validation as email_validation_view
 from .views.account import reset_password as reset_password_view
+from .views.account import roles as roles_view
 from .views import block_user as block_user_view
 from .views import current_user as current_user_view
 from .views import document as document_view
@@ -121,6 +122,7 @@ class Application(Flask):
         self.add_module(user_login_view)
         self.add_module(email_validation_view)
         self.add_module(reset_password_view)
+        self.add_module(roles_view)
 
         self.add_module(documents_view)
         self.add_module(document_view)
