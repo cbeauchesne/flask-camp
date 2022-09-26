@@ -11,6 +11,10 @@ from cms.models.user import User
 
 
 def _as_dict(document, version, include_hidden_data_for_staff=False):
+
+    if document.redirect_to:
+        return {"redirect_to": document.redirect_to}
+
     result = {
         "id": document.id,
         "namespace": document.namespace,

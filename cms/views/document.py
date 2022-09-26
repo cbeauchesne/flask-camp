@@ -29,19 +29,10 @@ class EditConflict(Conflict):
 @allow("anonymous")
 def get(id):
     """Get a document"""
-    document_as_dict = current_app.memory_cache.document.get(id)
+    document_as_dict = current_app.get_document(id)  # it handles not found
 
-    if document_as_dict is None:  # document is not known by mem cache
-        document = Document.get(id=id)
-
-        if document is None:
-            raise NotFound()
-
-        if document.redirect_to:
-            return Response(headers={"Location": f"/document/{document.redirect_to}"}, status=301)
-
-        document_as_dict = document.as_dict()
-        current_app.memory_cache.document.set(id, document_as_dict)
+    if "redirect_to" in document_as_dict:
+        return Response(headers={"Location": f"/document/{document_as_dict['redirect_to']}"}, status=301)
 
     response = Response(
         response=json.dumps({"status": "ok", "document": document_as_dict}),

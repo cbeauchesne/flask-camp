@@ -7,11 +7,11 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_mail import Mail, Message
 from redis import Redis as RedisClient
-from werkzeug.exceptions import HTTPException
-
+from werkzeug.exceptions import HTTPException, NotFound
 
 from . import config
 from .limiter import limiter
+from .models.document import Document
 from .models.user import User as UserModel, AnonymousUser
 from .services.database import database
 from .services.memory_cache import MemoryCache
@@ -213,3 +213,19 @@ class Application(Flask):
         )
 
         self.mail.send(message)
+
+    def get_document(self, document_id):
+        """This very simple function get a document id and returns it as a dict.
+        It's only puprose it to hide the memcache complexity"""
+        document_as_dict = self.memory_cache.document.get(id)
+
+        if document_as_dict is None:  # document is not known by mem cache
+            document = Document.get(id=document_id)
+
+            if document is None:
+                raise NotFound()
+
+            document_as_dict = document.as_dict()
+            self.memory_cache.document.set(document_id, document_as_dict)
+
+        return document_as_dict
