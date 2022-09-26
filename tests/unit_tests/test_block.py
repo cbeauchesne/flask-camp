@@ -17,8 +17,8 @@ class Test_Protection(BaseTest):
     def test_not_found(self, moderator):
         self.login_user(moderator)
 
-        self.block_user("42", expected_status=404)
-        self.unblock_user("42", expected_status=404)
+        self.block_user(42, expected_status=404)
+        self.unblock_user(42, expected_status=404)
 
     def test_typical_scenario(self, moderator, user):
         # log moderator, create a doc

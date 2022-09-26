@@ -3,6 +3,7 @@ from werkzeug.exceptions import BadRequest
 
 from cms.decorators import allow
 from cms.models.document import DocumentVersion
+from cms.models.user import User
 
 rule = "/versions"
 
@@ -15,7 +16,7 @@ def get():
     limit = request.args.get("limit", default=30, type=int)
     offset = request.args.get("offset", default=0, type=int)
     document_id = request.args.get("document_id", default=None, type=int)
-    user_id = request.args.get("user_id", default=None, type=int)
+    user_id = request.args.get("user_id", default=None, type=str)
 
     if not 0 <= limit <= 100:
         raise BadRequest("Limit can't be lower than 0 or higher than 100")
@@ -36,11 +37,11 @@ def get():
     if document_id is not None:
         filters["document_id"] = document_id
 
-    if user_id is not None:
-        filters["user_id"] = user_id
-
     if len(filters) != 0:
         query = query.filter_by(**filters)
+
+    if user_id is not None:
+        query = query.join(User).filter(User.id == user_id)
 
     query = query.order_by(DocumentVersion.id.desc())
     count = query.count()

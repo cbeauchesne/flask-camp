@@ -8,13 +8,13 @@ from cms.models.user import User as UserModel
 from cms.schemas import schema
 
 
-rule = "/user/<string:user_name>"
+rule = "/user/<int:user_id>"
 
 
 @allow("anonymous")
-def get(user_name):
+def get(user_id):
     """Get an user"""
-    user = UserModel.get(name=user_name)
+    user = UserModel.get(id=user_id)
 
     if user is None:
         raise NotFound()
@@ -35,12 +35,12 @@ def get(user_name):
 
 @allow("blocked")
 @schema("cms/schemas/modify_user.json")
-def post(user_name):
+def post(user_id):
     """Modify an user"""
-    if user_name != current_user.name and not current_user.is_admin:
+    if user_id != current_user.id and not current_user.is_admin:
         raise Forbidden("You can't modify this user")
 
-    if current_user.is_admin and user_name != current_user.name:
+    if current_user.is_admin and user_id != current_user.id:
         # if an admin modify an user, log actions
         log_admin_action = add_log
     else:
@@ -50,7 +50,7 @@ def post(user_name):
 
     data = request.get_json()
 
-    user = UserModel.get(name=user_name)
+    user = UserModel.get(id=user_id)
 
     if "password" in data:
         # TODO check current password

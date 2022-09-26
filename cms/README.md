@@ -61,7 +61,7 @@ Build a wiki API with all common features, regardless of the content of document
 
 ## TODO
 
-do not expose user_id
+do not expose user_id => NOPE, too complicated sql
 GET /current_user
 admin can rename user
 elastic search
