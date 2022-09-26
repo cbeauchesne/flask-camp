@@ -15,8 +15,9 @@ def post():
     """Merge two documents. Merged document will become a redirection, and will be no longer modifiable
     Other document will get all hostory from merged"""
 
-    document_to_merge = Document.get(id=request.get_json()["document_to_merge"])
-    document_destination = Document.get(id=request.get_json()["document_destination"])
+    data = request.get_json()
+    document_to_merge = Document.get(id=data["document_to_merge"])
+    document_destination = Document.get(id=data["document_destination"])
 
     if document_to_merge is None or document_destination is None:
         raise NotFound()
@@ -24,7 +25,9 @@ def post():
     if document_to_merge.id == document_destination.id:
         raise BadRequest()
 
-    add_log("merge", comment="TODO", document_id=document_destination.id, merged_document_id=document_to_merge.id)
+    add_log(
+        "merge", comment=data["comment"], document_id=document_destination.id, merged_document_id=document_to_merge.id
+    )
 
     versions = DocumentVersion.query.filter(
         DocumentVersion.document_id.in_([document_destination.id, document_to_merge.id])

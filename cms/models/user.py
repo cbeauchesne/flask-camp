@@ -41,7 +41,7 @@ class User(BaseModel):
     # unique usage token used to login without a password.
     # Useful for user creation and password reset
     _login_token = Column("login_token", String(64))
-    _login_token_expiration_date = Column("login_token_expiration_date", DateTime)  # TODO
+    _login_token_expiration_date = Column("login_token_expiration_date", DateTime)
 
     ui_preferences = Column(String, default="{}", nullable=False)
 

@@ -14,7 +14,7 @@ class Test_Merge(BaseTest):
         doc = self.get_document(v1).json["document"]
         assert doc["id"] == v1["id"]
 
-        self.merge_documents(document_to_merge=v1, document_destination=v2)
+        self.merge_documents(document_to_merge=v1, document_destination=v2, comment="test")
 
         versions = self.get_versions(document=v2).json["versions"]
         versions = self.get_versions().json["versions"]
@@ -53,12 +53,20 @@ class Test_Merge(BaseTest):
         v1 = self.create_document(data="v1").json["document"]
         v2 = self.create_document(data="v2").json["document"]
 
-        self.merge_documents(document_to_merge=v1, document_destination=v2, expected_status=403)
+        self.merge_documents(document_to_merge=v1, document_destination=v2, comment="test", expected_status=403)
 
     def test_common_doc(self, moderator):
         self.login_user(moderator)
 
         v1 = self.create_document(data="v1").json["document"]
 
-        self.merge_documents(document_to_merge=v1, document_destination=v1, expected_status=400)
-        self.merge_documents(document_to_merge=v1, document_destination={"id": 42}, expected_status=404)
+        self.merge_documents(document_to_merge=v1, document_destination=v1, comment="test", expected_status=400)
+        self.merge_documents(document_to_merge=v1, document_destination={"id": 42}, comment="test", expected_status=404)
+
+    def test_malformatted(self, moderator):
+        self.login_user(moderator)
+
+        doc_1 = self.create_document().json["document"]
+        doc_2 = self.create_document().json["document"]
+
+        self.merge_documents(document_to_merge=doc_1, document_destination=doc_2, expected_status=400)

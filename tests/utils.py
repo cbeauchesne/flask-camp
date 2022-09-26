@@ -241,8 +241,12 @@ class ClientInterface:
             "/user_tags", expected_status=expected_status, json={"name": name, "document_id": document["id"]}
         )
 
-    def merge_documents(self, document_to_merge, document_destination, expected_status=None):
+    def merge_documents(self, document_to_merge, document_destination, comment=None, expected_status=None):
         payload = {"document_to_merge": document_to_merge["id"], "document_destination": document_destination["id"]}
+
+        if comment:
+            payload["comment"] = comment
+
         return self.post("/merge", expected_status=expected_status, json=payload)
 
     def get_logs(self, limit=None, expected_status=None):
