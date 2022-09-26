@@ -48,6 +48,9 @@ class ClientInterface:
 
         return self.post("/login", expected_status=expected_status, json=payload)
 
+    def get_current_user(self, expected_status=200):
+        return self.get("/current_user", expected_status=expected_status)
+
     def logout_user(self, expected_status=None):
         return self.delete("/login", expected_status=expected_status)
 

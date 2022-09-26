@@ -36,7 +36,7 @@ class Test_UserCreation(BaseTest):
         assert len(r.json["user"]) == 6, r.json["user"]
         assert r.json["user"]["id"] == user["id"]
         assert r.json["user"]["blocked"] is False
-        assert r.json["user"]["ui_preferences"] is None
+        assert r.json["user"]["ui_preferences"] == {}
         assert r.json["user"]["name"] == name
         assert r.json["user"]["email"] == email
         assert r.json["user"]["roles"] == []
@@ -179,11 +179,30 @@ class Test_UserModification(BaseTest):
         r = self.get_user(user, expected_status=200)
         assert r.json["user"]["email"] == "other@email.com", r.json
 
+    def test_allowed_changes(self, user):
+        self.login_user(user)
+
+        new_values = {
+            "name": "other_name",
+            "roles": ["role"],
+            "ui_preferences": "UI",
+        }
+
+        self.post(f"/user/{user.id}", json=new_values)
+
+        r = self.get_current_user()
+
+        assert r.json["user"]["name"] == user.name
+        assert r.json["user"]["roles"] == user.roles
+        assert r.json["user"]["ui_preferences"] == new_values["ui_preferences"]
+
     def test_errors(self, user, user_2):
         self.login_user(user)
 
         r = self.modify_user(user_2, password="p2", expected_status=403)
         assert r.json["description"] == "You can't modify this user"
+
+        self.post(f"/user/{user.id}", json={"id": 12}, expected_status=400)
 
     def test_email_error(self, user):
         self.login_user(user)

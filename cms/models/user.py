@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import json
 import logging
 import secrets
 
@@ -42,7 +43,7 @@ class User(BaseModel):
     _login_token = Column("login_token", String(64))
     _login_token_expiration_date = Column("login_token_expiration_date", DateTime)  # TODO
 
-    ui_preferences = Column(Text)
+    ui_preferences = Column(String, default="{}", nullable=False)
 
     _roles = Column("roles", Text, default="", nullable=False)
 
@@ -116,7 +117,7 @@ class User(BaseModel):
             "name": self.name,
             "roles": self.roles,
             "blocked": self.blocked,
-            "ui_preferences": self.ui_preferences,
+            "ui_preferences": json.loads(self.ui_preferences),
         }
 
         if include_personal_data:

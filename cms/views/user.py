@@ -1,3 +1,5 @@
+import json
+
 from flask import request, current_app
 from flask_login import current_user
 from werkzeug.exceptions import Forbidden, NotFound
@@ -75,6 +77,10 @@ def post(user_id):
         for role in new_roles:
             if not role in old_roles:
                 log_admin_action(action=f"add_role {role}", comment="", target_user_id=user.id)
+
+    if "ui_preferences" in data:
+        user.ui_preferences = json.dumps(data["ui_preferences"])
+        log_admin_action(action="update_preferences", comment="", target_user_id=user.id)
 
     current_app.database.session.commit()
 
