@@ -47,7 +47,7 @@ class Test_Protection(BaseTest):
         self.modify_document(doc, expected_status=403)
 
         # Though, he can modify itself
-        self.modify_user(user, password="updated", expected_status=200)
+        self.modify_user(user, new_password="updated", password="password", expected_status=200)
 
         # even get users, or one user
         self.get_user(moderator, expected_status=200)

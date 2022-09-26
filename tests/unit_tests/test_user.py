@@ -158,7 +158,7 @@ class Test_UserModification(BaseTest):
     def test_change_password(self, user):
         self.login_user(user)
 
-        self.modify_user(user, password="p2")
+        self.modify_user(user, new_password="p2", password="password")
 
         self.logout_user()
         self.login_user(user, "p1", expected_status=401)
@@ -168,7 +168,7 @@ class Test_UserModification(BaseTest):
         self.login_user(user)
 
         with mail.record_messages() as outbox:
-            r = self.modify_user(user, email="other@email.com")
+            r = self.modify_user(user, email="other@email.com", password="password")
             assert len(outbox) == 1
             token = re.sub(r"^(.*email_token=)", "", outbox[0].body)
 
@@ -187,7 +187,6 @@ class Test_UserModification(BaseTest):
 
         new_values = {
             "name": "other_name",
-            "roles": ["role"],
             "ui_preferences": "UI",
         }
 
@@ -199,20 +198,39 @@ class Test_UserModification(BaseTest):
         assert r.json["user"]["roles"] == user.roles
         assert r.json["user"]["ui_preferences"] == new_values["ui_preferences"]
 
-    def test_errors(self, user, user_2):
+    def test_errors(self, admin, user, user_2):
+        self.modify_user(user, ui_preferences="", expected_status=403)
+
         self.login_user(user)
 
-        r = self.modify_user(user_2, password="p2", expected_status=403)
+        self.modify_user(user, new_password="13", expected_status=400)
+        self.modify_user(user, email="a@b.fr", expected_status=400)
+
+        self.modify_user(user, password="not the good pass", new_password="13", expected_status=403)
+        self.modify_user(user, password="not the good pass", email="a@b.fr", expected_status=403)
+
+        r = self.modify_user(user_2, new_password="p2", password="password", expected_status=403)
         assert r.json["description"] == "You can't modify this user"
 
         self.post(f"/user/{user.id}", json={"id": 12}, expected_status=400)
+
+        self.login_user(admin)
+        self.get_user_roles(42, expected_status=404)
+        self.add_user_role(42, "admin", "test", expected_status=404)
+        self.remove_user_role(42, "admin", "test", expected_status=404)
+
+        self.add_user_role(user, "bot", "test", expected_status=200)
+        self.add_user_role(user, "bot", "test", expected_status=400)
+
+        self.remove_user_role(user, "bot", "test", expected_status=200)
+        self.remove_user_role(user, "bot", "test", expected_status=400)
 
     def test_email_error(self, user):
         self.login_user(user)
 
         self.post(f"/user/{user.id}", json={"email": None, "password": "p"}, expected_status=400)
-        self.modify_user(user, email="", expected_status=400)
-        self.modify_user(user, email="a.fr", expected_status=400)
+        self.modify_user(user, email="", password="password", expected_status=400)
+        self.modify_user(user, email="a.fr", password="password", expected_status=400)
 
 
 class Test_UserUniqueness(BaseTest):
@@ -226,13 +244,13 @@ class Test_UserUniqueness(BaseTest):
 
     def test_email_at_modification(self, user, user_2):
         self.login_user(user)
-        r = self.modify_user(user, email=user_2._email, expected_status=400)
+        r = self.modify_user(user, password="password", email=user_2._email, expected_status=400)
         assert r.json["description"] == "A user still exists with this email"
-        self.modify_user(user, email="mail@competition.fr", expected_status=200)
+        self.modify_user(user, password="password", email="mail@competition.fr", expected_status=200)
         self.logout_user()
 
         self.login_user(user_2)
-        self.modify_user(user_2, email="mail@competition.fr", expected_status=200)
+        self.modify_user(user_2, password="password", email="mail@competition.fr", expected_status=200)
         self.logout_user()
 
     def test_do_not_validate_same_email(self, mail):

@@ -58,15 +58,23 @@ class ClientInterface:
         user_id = _get_user_id(user)
         return self.get(f"/user/{user_id}", expected_status=expected_status)
 
-    def modify_user(self, user, password=None, email=None, expected_status=None):
+    def modify_user(
+        self, user, password=None, new_password=None, email=None, ui_preferences=None, expected_status=None
+    ):
         user_id = _get_user_id(user)
         payload = {}
 
         if password is not None:
             payload["password"] = password
 
+        if new_password is not None:
+            payload["new_password"] = new_password
+
         if email is not None:
             payload["email"] = email
+
+        if ui_preferences is not None:
+            payload["ui_preferences"] = ui_preferences
 
         return self.post(f"/user/{user_id}", expected_status=expected_status, json=payload)
 
