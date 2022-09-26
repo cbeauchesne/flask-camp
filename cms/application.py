@@ -20,8 +20,7 @@ from .views.account import user_login as user_login_view
 from .views.account import email_validation as email_validation_view
 from .views.account import reset_password as reset_password_view
 from .views import block_user as block_user_view
-from .views import versions as versions_view
-from .views import version as version_view
+from .views import current_user as current_user_view
 from .views import document as document_view
 from .views import documents as documents_view
 from .views import healthcheck as healthcheck_view
@@ -32,6 +31,8 @@ from .views import protect_document as protect_document_view
 from .views import user as user_view
 from .views import users as users_view
 from .views import user_tags as user_tags_view
+from .views import versions as versions_view
+from .views import version as version_view
 
 
 logging.basicConfig(format="%(asctime)s [%(levelname)8s] %(message)s")
@@ -115,6 +116,7 @@ class Application(Flask):
 
         self.add_module(users_view)
         self.add_module(user_view)
+        self.add_module(current_user_view)
 
         self.add_module(user_login_view)
         self.add_module(email_validation_view)

@@ -9,6 +9,7 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] logout
   * [x] user name and email uniqueness
   * [x] send email to validate email address
+  * [ ] GET /current_user
 * [x] modify user
   * [x] modify password
   * [x] modify email
@@ -61,8 +62,6 @@ Build a wiki API with all common features, regardless of the content of document
 
 ## TODO
 
-do not expose user_id => NOPE, too complicated sql
-GET /current_user
 admin can rename user
 elastic search
 rate limit must be configurable
