@@ -39,7 +39,7 @@ def post(user_id):
 
     user.roles = user.roles + [role]
 
-    add_log(action=f"add_role {role}", comment=data["comment"], target_user_id=user.id)
+    add_log(action=f"add_role {role}", comment=data["comment"], target_user=user)
 
     current_app.database.session.commit()
 
@@ -66,7 +66,7 @@ def delete(user_id):
     roles.remove(role)
     user.roles = roles
 
-    add_log(action=f"remove_role {role}", comment=data["comment"], target_user_id=user.id)
+    add_log(action=f"remove_role {role}", comment=data["comment"], target_user=user)
 
     current_app.database.session.commit()
 

@@ -117,7 +117,7 @@ def delete(id):
 
     current_app.database.session.delete(document)
 
-    add_log("delete_document", document_id=document.id)
+    add_log("delete_document", document=document)
     current_app.database.session.commit()
 
     current_app.memory_cache.document.delete(id)

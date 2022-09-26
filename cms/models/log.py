@@ -9,15 +9,19 @@ from cms.models import BaseModel
 from cms.models.user import User
 
 
-def add_log(action, comment=None, target_user_id=None, document_id=None, merged_document_id=None, version_id=None):
+def add_log(action, comment=None, target_user=None, document=None, merged_document=None, version=None):
 
     if comment is None:
         comment = request.get_json()["comment"]
 
+    document_id = document.id if document is not None else None
+    merged_document_id = merged_document.id if merged_document is not None else None
+    version_id = version.id if version is not None else None
+
     log = Log(
         action=action,
         comment=comment,
-        target_user_id=target_user_id,
+        target_user=target_user,
         document_id=document_id,
         merged_document_id=merged_document_id,
         version_id=version_id,

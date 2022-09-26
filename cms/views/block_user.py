@@ -21,7 +21,7 @@ def put(user_id):
 
     user.blocked = True
 
-    add_log(action="block", target_user_id=user.id)
+    add_log(action="block", target_user=user)
 
     current_app.database.session.commit()
 
@@ -39,7 +39,7 @@ def delete(user_id):
 
     user.blocked = False
 
-    add_log(action="unblock", target_user_id=user.id)
+    add_log(action="unblock", target_user=user)
 
     current_app.database.session.commit()
 

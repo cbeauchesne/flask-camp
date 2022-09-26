@@ -33,7 +33,7 @@ def post(id):
     hidden = request.get_json()["hidden"]
     version.hidden = hidden
 
-    add_log("hide_version" if hidden else "unhide_version", version_id=version.id, document_id=version.document.id)
+    add_log("hide_version" if hidden else "unhide_version", version=version, document=version.document)
 
     current_app.database.session.commit()
     current_app.memory_cache.document.delete(version.document.id)
@@ -53,7 +53,7 @@ def delete(id):
     if DocumentVersion.query.filter_by(document_id=version.document_id).count() <= 1:
         raise BadRequest("Can't delete last version of a document")
 
-    add_log("delete_version", version_id=version.id, document_id=version.document.id)
+    add_log("delete_version", version=version, document=version.document)
 
     current_app.database.session.delete(version)
     current_app.database.session.commit()

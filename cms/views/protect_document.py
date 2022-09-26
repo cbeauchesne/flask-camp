@@ -13,19 +13,19 @@ rule = "/protect_document/<int:id>"
 @schema("cms/schemas/comment.json")
 def put(id):
     """Protect a document. The document won't be editable anymore, excpet for moderators"""
-    doc = Document.query.filter_by(id=id).first()
+    document = Document.query.filter_by(id=id).first()
 
-    if doc is None:
+    if document is None:
         raise NotFound()
 
-    if doc.redirect_to is not None:
+    if document.redirect_to is not None:
         raise BadRequest()
 
-    doc.protected = True
-    add_log("protect", document_id=id)
+    document.protected = True
+    add_log("protect", document=document)  # TODO comment
     current_app.database.session.commit()
 
-    current_app.memory_cache.document.delete(id)
+    current_app.memory_cache.document.delete(document.id)
 
     return {"status": "ok"}
 
@@ -34,18 +34,18 @@ def put(id):
 @schema("cms/schemas/comment.json")
 def delete(id):
     """Un-protect a document"""
-    doc = Document.query.filter_by(id=id).first()
+    document = Document.query.filter_by(id=id).first()
 
-    if doc is None:
+    if document is None:
         raise NotFound()
 
-    if doc.redirect_to is not None:
+    if document.redirect_to is not None:
         raise BadRequest()
 
-    doc.protected = False
-    add_log("unprotect", document_id=id)
+    document.protected = False
+    add_log("unprotect", document=document)
     current_app.database.session.commit()
 
-    current_app.memory_cache.document.delete(id)
+    current_app.memory_cache.document.delete(document.id)
 
     return {"status": "ok"}

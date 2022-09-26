@@ -25,9 +25,7 @@ def post():
     if document_to_merge.id == document_destination.id:
         raise BadRequest()
 
-    add_log(
-        "merge", comment=data["comment"], document_id=document_destination.id, merged_document_id=document_to_merge.id
-    )
+    add_log("merge", comment=data["comment"], document=document_destination, merged_document=document_to_merge)
 
     versions = DocumentVersion.query.filter(
         DocumentVersion.document_id.in_([document_destination.id, document_to_merge.id])
