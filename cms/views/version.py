@@ -6,14 +6,14 @@ from cms.decorators import allow
 from cms.models.document import DocumentVersion
 from cms.models.log import add_log
 
-rule = "/version/<int:id>"
+rule = "/version/<int:version_id>"
 
 
 @allow("anonymous")
-def get(id):
+def get(version_id):
     """Get a given version of a document"""
 
-    version = DocumentVersion.get(id=id)
+    version = DocumentVersion.get(id=version_id)
 
     if version is None:
         raise NotFound()
@@ -23,9 +23,9 @@ def get(id):
 
 @allow("moderator")
 @schema("cms/schemas/modify_version.json")
-def post(id):
+def post(version_id):
     """Modify a version of a document. The only possible modification is hide/unhide a version"""
-    version = DocumentVersion.get(id=id)
+    version = DocumentVersion.get(id=version_id)
 
     if version is None:
         raise NotFound()
@@ -43,9 +43,9 @@ def post(id):
 
 @allow("admin")
 @schema("cms/schemas/comment.json")
-def delete(id):
+def delete(version_id):
     """Delete a version of a document (only for admins)"""
-    version = DocumentVersion.get(id=id)
+    version = DocumentVersion.get(id=version_id)
 
     if version is None:
         raise NotFound()
@@ -57,6 +57,6 @@ def delete(id):
 
     current_app.database.session.delete(version)
     current_app.database.session.commit()
-    current_app.refresh_memory_cache(id)
+    current_app.refresh_memory_cache(version.document.id)
 
     return {"status": "ok"}

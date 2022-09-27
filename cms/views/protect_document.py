@@ -6,14 +6,14 @@ from cms.models.document import Document
 from cms.models.log import add_log
 from cms.schemas import schema
 
-rule = "/protect_document/<int:id>"
+rule = "/protect_document/<int:document_id>"
 
 
 @allow("moderator")
 @schema("cms/schemas/comment.json")
-def put(id):
+def put(document_id):
     """Protect a document. The document won't be editable anymore, excpet for moderators"""
-    document = Document.query.filter_by(id=id).first()
+    document = Document.query.filter_by(id=document_id).first()
 
     if document is None:
         raise NotFound()
@@ -32,9 +32,9 @@ def put(id):
 
 @allow("moderator")
 @schema("cms/schemas/comment.json")
-def delete(id):
+def delete(document_id):
     """Un-protect a document"""
-    document = Document.query.filter_by(id=id).first()
+    document = Document.query.filter_by(id=document_id).first()
 
     if document is None:
         raise NotFound()

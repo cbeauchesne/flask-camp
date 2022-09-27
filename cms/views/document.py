@@ -14,7 +14,7 @@ from cms.schemas import schema
 
 log = logging.getLogger(__name__)
 
-rule = "/document/<int:id>"
+rule = "/document/<int:document_id>"
 
 
 class EditConflict(Conflict):
@@ -27,9 +27,9 @@ class EditConflict(Conflict):
 
 
 @allow("anonymous")
-def get(id):
+def get(document_id):
     """Get a document"""
-    document_as_dict = current_app.get_cooked_document(id)  # it handles not found
+    document_as_dict = current_app.get_cooked_document(document_id)  # it handles not found
 
     if "redirect_to" in document_as_dict:
         return Response(headers={"Location": f"/document/{document_as_dict['redirect_to']}"}, status=301)
@@ -48,9 +48,9 @@ def get(id):
 @limiter.limit("2/second;10/minute;60/hour")
 @allow("authenticated")
 @schema("cms/schemas/modify_document.json")
-def post(id):
+def post(document_id):
     """add a new version to a document"""
-    document = Document.get(id=id)
+    document = Document.get(id=document_id)
 
     if document is None:
         raise NotFound()
@@ -92,16 +92,16 @@ def post(id):
 
     version_as_dict = version.as_dict()
 
-    current_app.refresh_memory_cache(id)
+    current_app.refresh_memory_cache(document_id)
 
     return {"status": "ok", "document": version_as_dict}
 
 
 @allow("admin")
 @schema("cms/schemas/comment.json")
-def delete(id):
+def delete(document_id):
     """Delete a document"""
-    document = Document.get(id=id)
+    document = Document.get(id=document_id)
 
     if document is None:
         raise NotFound()
@@ -111,6 +111,6 @@ def delete(id):
     add_log("delete_document", document=document)
     current_app.database.session.commit()
 
-    current_app.memory_cache.delete_document(id)
+    current_app.memory_cache.delete_document(document_id)
 
     return {"status": "ok"}
