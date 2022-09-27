@@ -102,9 +102,7 @@ class ClientInterface:
             json={"document": {"namespace": namespace, "data": data if data else {}}},
         )
 
-    def get_documents(
-        self, tag_name=None, tag_user=None, tag_value=None, limit=None, offset=None, expected_status=None
-    ):
+    def get_documents(self, limit=None, offset=None, expected_status=None):
         params = {}
 
         if limit is not None:
@@ -112,15 +110,6 @@ class ClientInterface:
 
         if offset is not None:
             params["offset"] = offset
-
-        if tag_name is not None:
-            params["tag_name"] = tag_name
-
-        if tag_user is not None:
-            params["tag_user_id"] = _get_user_id(tag_user)
-
-        if tag_value is not None:
-            params["tag_value"] = tag_value
 
         return self.get("/documents", params=params, expected_status=expected_status)
 
@@ -240,6 +229,24 @@ class ClientInterface:
         return self.delete(
             "/user_tags", expected_status=expected_status, json={"name": name, "document_id": document["id"]}
         )
+
+    def get_tagged_documents(self, tag_name=None, tag_user=None, tag_value=None, limit=None, expected_status=None):
+
+        params = {}
+
+        if limit is not None:
+            params["limit"] = limit
+
+        if tag_name is not None:
+            params["tag_name"] = tag_name
+
+        if tag_user is not None:
+            params["tag_user_id"] = _get_user_id(tag_user)
+
+        if tag_value is not None:
+            params["tag_value"] = tag_value
+
+        return self.get("/tagged_documents", params=params, expected_status=expected_status)
 
     def merge_documents(self, document_to_merge, document_destination, comment=None, expected_status=None):
         payload = {"document_to_merge": document_to_merge["id"], "document_destination": document_destination["id"]}

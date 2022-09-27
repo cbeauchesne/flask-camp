@@ -103,13 +103,13 @@ class Test_UserTag(BaseTest):
         self.login_user(user_2)
         self.add_user_tag("t1", doc1)
 
-        r = self.get_documents(tag_name="t1")
+        r = self.get_tagged_documents(tag_name="t1")
         assert r.json["count"] == 2
 
-        r = self.get_documents(tag_name="t1", tag_user=user_2)
+        r = self.get_tagged_documents(tag_name="t1", tag_user=user_2)
         assert r.json["count"] == 1
 
-        r = self.get_documents(tag_name="t1", tag_value="6a")
+        r = self.get_tagged_documents(tag_name="t1", tag_value="6a")
         assert r.json["count"] == 1
 
     def test_errors(self, user):
@@ -119,3 +119,4 @@ class Test_UserTag(BaseTest):
 
         self.remove_user_tag(name="x", document=doc, expected_status=404)
         self.get_user_tags(limit=101, expected_status=400)
+        self.get_tagged_documents(limit=101, expected_status=400)

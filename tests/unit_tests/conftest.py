@@ -36,6 +36,9 @@ def setup_app():
     with app.app_context():
         app.create_all()
 
+    app.memory_cache.flushall()
+    app.memory_cache.create_index()
+
     with app.test_client() as client:
         BaseTest.client = client
         yield

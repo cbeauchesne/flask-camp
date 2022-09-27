@@ -18,3 +18,10 @@ class Test_ETag(BaseTest):
         assert memory_cache._document.get(v1["id"])["timestamp"] == v2["timestamp"]
 
         r = self.get_document(v1, headers={"If-None-Match": etag}, expected_status=200)
+
+    def test_memcache_failure(self, user, memory_cache):
+        self.login_user(user)
+
+        doc = self.create_document().json["document"]
+        memory_cache.delete_document(doc["id"])
+        self.get_document(doc, expected_status=200)

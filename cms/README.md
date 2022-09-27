@@ -29,7 +29,7 @@ Build a wiki API with all common features, regardless of the content of document
     * [x] add a document
     * [x] get list of document
       * [x] offset and limit feature
-      * [ ] use elasticsearch
+      * [ ] use redis for search
   * [x] `/document` get, modify, delete a document
     * [x] Modify document
     * [x] manage edit conflict
@@ -62,9 +62,9 @@ Build a wiki API with all common features, regardless of the content of document
 
 ## TODO
 
-cooker
+cooker conf
+redis conf
 admin can rename user
-elastic search
 rate limit must be configurable
 rate limit must be configurable by role
 Test rate limiter

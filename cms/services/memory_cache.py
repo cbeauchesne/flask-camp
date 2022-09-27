@@ -1,5 +1,13 @@
+import logging
+
 from redis import Redis as RedisClient
 from redis.commands.json.path import Path
+from redis.commands.search.field import TagField, NumericField  # , TextField,
+from redis.commands.search.indexDefinition import IndexDefinition, IndexType
+from redis.commands.search.query import Query  # , NumericFilter
+
+
+log = logging.getLogger(__name__)
 
 
 class _MemoryCacheCollection:
@@ -24,14 +32,16 @@ class MemoryCache:
         self._cooked_document = _MemoryCacheCollection("cooked_document", self._client)
         self.cooker = cooker
 
+        self._search_engine = self._client.ft("to_be_replaced_by_namespace")
+
     def set_document(self, document_id, document_as_dict):
         # TODO : must not get document_as_dict
         self._document.set(document_id, document_as_dict)
         cooked_document = self.cooker(document_as_dict)
         self._cooked_document.set(document_as_dict["id"], cooked_document)
 
-    def get_document(self, document_id):
-        return self._document.get(document_id)
+    # def get_document(self, document_id):
+    #     return self._document.get(document_id)
 
     def get_cooked_document(self, document_id):
         return self._cooked_document.get(document_id)
@@ -42,3 +52,36 @@ class MemoryCache:
 
     def flushall(self):
         self._client.flushall()
+
+    def create_index(self):
+        schema = (
+            TagField("$.protected", as_name="protected"),
+            TagField("$.namespace", as_name="namespace"),
+            NumericField("$.user.id", as_name="last_user"),
+            NumericField("$.id", as_name="document_id"),
+            # NumericField("$.b", as_name="b"),
+            # TagField("$.array.*", as_name="array"),
+        )
+
+        self._search_engine.create_index(
+            schema, definition=IndexDefinition(prefix=["cooked_document:"], index_type=IndexType.JSON)
+        )
+
+    def search(self, offset=0, limit=30):
+
+        # args = []
+
+        # TODO injection mightmare
+        # if namespace is not None:
+        #     args.append(f"@namespace:{{{namespace}}}")
+
+        query = Query("*").paging(offset, limit)
+        result = self._search_engine.search(query)
+
+        log.info(query.query_string())
+
+        # magic
+        s = ",".join([doc.json for doc in result.docs])
+        s = f'{{"status": "ok", "count": {result.total}, "documents": [{s}]}}'
+
+        return s

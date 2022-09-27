@@ -1,6 +1,6 @@
 import json
 
-from flask import request, current_app
+from flask import request, current_app, Response
 from flask_login import current_user
 from werkzeug.exceptions import BadRequest
 
@@ -22,24 +22,10 @@ def get():
     if not 0 <= limit <= 100:
         raise BadRequest("Limit can't be lower than 0 or higher than 100")
 
-    tag_filters_args = {
-        "user_id": request.args.get("tag_user_id", default=None, type=int),
-        "name": request.args.get("tag_name", default=None, type=str),
-        "value": request.args.get("tag_value", default=None, type=str),
-    }
-
-    tag_filters_args = {k: v for k, v in tag_filters_args.items() if v is not None}
-
-    query = current_app.database.session.query(Document)
-
-    if len(tag_filters_args) != 0:
-        query = query.filter(Document.user_tags.any(**tag_filters_args))
-
-    count = query.count()
-    documents = query.offset(offset).limit(limit)
-
-    documents = [document.as_dict() for document in documents]
-    return {"status": "ok", "documents": documents, "count": count}
+    return Response(
+        response=current_app.memory_cache.search(limit=limit, offset=offset),
+        content_type="application/json",
+    )
 
 
 @limiter.limit("1/second;10/minute;60/hour")
@@ -63,5 +49,7 @@ def put():
     current_app.database.session.add(version)
 
     current_app.database.session.commit()
+
+    current_app.refresh_memory_cache(document.id)
 
     return {"status": "ok", "document": version.as_dict()}
