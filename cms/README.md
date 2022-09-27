@@ -62,6 +62,7 @@ Build a wiki API with all common features, regardless of the content of document
 
 ## TODO
 
+cooker
 admin can rename user
 elastic search
 rate limit must be configurable

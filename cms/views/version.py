@@ -24,7 +24,7 @@ def get(id):
 @allow("moderator")
 @schema("cms/schemas/modify_version.json")
 def post(id):
-    """Modify a version of a document. This only possible modification is hide/unhide a version"""
+    """Modify a version of a document. The only possible modification is hide/unhide a version"""
     version = DocumentVersion.get(id=id)
 
     if version is None:
@@ -36,7 +36,7 @@ def post(id):
     add_log("hide_version" if hidden else "unhide_version", version=version, document=version.document)
 
     current_app.database.session.commit()
-    current_app.memory_cache.document.delete(version.document.id)
+    current_app.refresh_memory_cache(version.document.id)
 
     return {"status": "ok"}
 
@@ -57,5 +57,6 @@ def delete(id):
 
     current_app.database.session.delete(version)
     current_app.database.session.commit()
+    current_app.refresh_memory_cache(id)
 
     return {"status": "ok"}

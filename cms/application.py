@@ -150,7 +150,7 @@ class Application(Flask):
             self.config["RATELIMIT_STORAGE_URI"] = f"redis://{redis_host}:{redis_port}"
             memory_cache_instance = RedisClient(host=redis_host, port=redis_port)
 
-        self.memory_cache = MemoryCache(client=memory_cache_instance)
+        self.memory_cache = MemoryCache(client=memory_cache_instance, cooker=self.cook)
 
     def add_module(self, module):
 
@@ -214,10 +214,10 @@ class Application(Flask):
 
         self.mail.send(message)
 
-    def get_document(self, document_id):
+    def get_cooked_document(self, document_id):
         """This very simple function get a document id and returns it as a dict.
         It's only puprose it to hide the memcache complexity"""
-        document_as_dict = self.memory_cache.document.get(id)
+        document_as_dict = self.memory_cache.get_cooked_document(document_id)
 
         if document_as_dict is None:  # document is not known by mem cache
             document = Document.get(id=document_id)
@@ -226,6 +226,16 @@ class Application(Flask):
                 raise NotFound()
 
             document_as_dict = document.as_dict()
-            self.memory_cache.document.set(document_id, document_as_dict)
+            self.memory_cache.set_document(document_id, document_as_dict)
 
+        return document_as_dict
+
+    def refresh_memory_cache(self, document_id):
+        document = Document.get(id=document_id)
+        if document is None:
+            self.memory_cache.delete_document(document_id)
+        else:
+            self.memory_cache.set_document(document_id, document.as_dict())
+
+    def cook(self, document_as_dict):
         return document_as_dict

@@ -25,7 +25,7 @@ def put(id):
     add_log("protect", document=document)  # TODO comment
     current_app.database.session.commit()
 
-    current_app.memory_cache.document.delete(document.id)
+    current_app.refresh_memory_cache(document.id)
 
     return {"status": "ok"}
 
@@ -46,6 +46,6 @@ def delete(id):
     add_log("unprotect", document=document)
     current_app.database.session.commit()
 
-    current_app.memory_cache.document.delete(document.id)
+    current_app.refresh_memory_cache(document.id)
 
     return {"status": "ok"}

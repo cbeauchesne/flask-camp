@@ -64,7 +64,7 @@ class BaseTest(ClientInterface):
                 assert "data" not in r.json["document"]
 
             if version_should_be:
-                assert r.json["document"]["version_id"] == version_should_be["version_id"]
+                assert r.json["document"]["version_id"] == version_should_be["version_id"], r.json["document"]
 
         return r
 

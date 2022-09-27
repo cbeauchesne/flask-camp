@@ -29,7 +29,7 @@ class EditConflict(Conflict):
 @allow("anonymous")
 def get(id):
     """Get a document"""
-    document_as_dict = current_app.get_document(id)  # it handles not found
+    document_as_dict = current_app.get_cooked_document(id)  # it handles not found
 
     if "redirect_to" in document_as_dict:
         return Response(headers={"Location": f"/document/{document_as_dict['redirect_to']}"}, status=301)
@@ -92,7 +92,7 @@ def post(id):
 
     version_as_dict = version.as_dict()
 
-    current_app.memory_cache.document.set(id, version_as_dict)
+    current_app.refresh_memory_cache(id)
 
     return {"status": "ok", "document": version_as_dict}
 
@@ -111,6 +111,6 @@ def delete(id):
     add_log("delete_document", document=document)
     current_app.database.session.commit()
 
-    current_app.memory_cache.document.delete(id)
+    current_app.memory_cache.delete_document(id)
 
     return {"status": "ok"}
