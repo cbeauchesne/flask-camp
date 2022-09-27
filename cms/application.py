@@ -2,11 +2,9 @@ import logging
 import sys
 import warnings
 
-from fakeredis import FakeRedis
 from flask import Flask
 from flask_login import LoginManager
 from flask_mail import Mail, Message
-from redis import Redis as RedisClient
 from werkzeug.exceptions import HTTPException, NotFound
 
 from . import config
@@ -138,19 +136,12 @@ class Application(Flask):
         self.add_module(merge_view)
 
     def _init_memory_cache(self):
-        redis_host = self.config.get("REDIS_HOST", None)
+        redis_host = self.config.get("REDIS_HOST", "localhost")
         redis_port = self.config.get("REDIS_PORT", 6379)
 
-        if redis_host is None:
-            if not self.testing and not self.debug:
-                warnings.warn("FLASK_REDIS_HOST environment variable is not set, defaulting to fake-redis-client")
-            self.config["RATELIMIT_STORAGE_URI"] = "memory://"
-            memory_cache_instance = FakeRedis()
-        else:  # pragma: no cover
-            self.config["RATELIMIT_STORAGE_URI"] = f"redis://{redis_host}:{redis_port}"
-            memory_cache_instance = RedisClient(host=redis_host, port=redis_port)
+        self.config["RATELIMIT_STORAGE_URI"] = f"redis://{redis_host}:{redis_port}"
 
-        self.memory_cache = MemoryCache(client=memory_cache_instance, cooker=self.cook)
+        self.memory_cache = MemoryCache(host=redis_host, port=redis_port, cooker=self.cook)
 
     def add_module(self, module):
 

@@ -111,6 +111,6 @@ def delete(document_id):
     add_log("delete_document", document=document)
     current_app.database.session.commit()
 
-    current_app.memory_cache.delete_document(document_id)
+    current_app.refresh_memory_cache(document_id)
 
     return {"status": "ok"}

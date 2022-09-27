@@ -40,9 +40,12 @@ services:
       - "5000"
 
   redis:
-    image: redis:latest
+    # image: redis:latest
+    image: redis/redis-stack-server:latest
     expose:
       - "6379"
+    ports:
+      - "6379:6379"
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
       interval: 1s
@@ -64,6 +67,19 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # es:
+  #   image: elasticsearch:8.4.2
+  #   environment:
+  #     - logger.level=ERROR
+  #     # - discovery.type=single-node
+  #     # - ES_JAVA_OPTS=-Xms750m -Xmx750m
+  #     - xpack.security.enabled=false
+  #   volumes:
+  #     - ./docker/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+  #   ports:
+  #     - 9200:9200
+
 
 
 ########################################################################

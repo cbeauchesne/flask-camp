@@ -1,25 +1,25 @@
-import json
+from redis import Redis as RedisClient
+from redis.commands.json.path import Path
 
 
 class _MemoryCacheCollection:
     def __init__(self, name, client):
         self.name = name
-        self._client = client
+        self._client = client.json()
 
     def get(self, document_id):
-        r = self._client.get(f"{self.name}:{document_id}")
-        return r if r is None else json.loads(r)
+        return self._client.get(f"{self.name}:{document_id}")
 
     def set(self, id, document):
-        self._client.set(f"{self.name}:{id}", json.dumps(document))
+        self._client.set(f"{self.name}:{id}", Path.root_path(), document)
 
     def delete(self, id):
         self._client.delete(f"{self.name}:{id}")
 
 
 class MemoryCache:
-    def __init__(self, client, cooker):
-        self._client = client
+    def __init__(self, host, port, cooker):
+        self._client = RedisClient(host=host, port=port)
         self._document = _MemoryCacheCollection("document", self._client)
         self._cooked_document = _MemoryCacheCollection("cooked_document", self._client)
         self.cooker = cooker
