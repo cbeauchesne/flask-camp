@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 
 from flask import request, current_app, Response
 from flask_login import current_user
@@ -50,7 +51,8 @@ def get(document_id):
 @schema("cms/schemas/modify_document.json")
 def post(document_id):
     """add a new version to a document"""
-    document = Document.get(id=document_id)
+
+    document = Document.get(id=document_id, with_for_update=True)
 
     if document is None:
         raise NotFound()
@@ -65,36 +67,29 @@ def post(document_id):
 
     comment = body.get("comment", "")
     data = body["document"]["data"]
-    version_number = body["document"]["version_number"]
+    version_id = body["document"]["version_id"]
 
     last_version = document.as_dict()
 
-    if last_version["version_number"] != version_number:
+    if last_version["version_id"] != version_id:
         raise EditConflict(last_version=last_version, your_version=body["document"])
 
     version = DocumentVersion(
         document_id=document.id,
         user_id=current_user.id,
         comment=comment,
-        version_number=version_number + 1,
         data=json.dumps(data),
     )
 
     current_app.database.session.add(version)
-    try:
-        current_app.database.session.commit()
-    except IntegrityError as e:
-        error_info = e.orig.args
-        if error_info[0] == "UNIQUE constraint failed: version.document_id, version.version_number":
-            raise EditConflict(last_version=None, your_version=body["document"]) from e
-        else:
-            raise
+    document.last_version = version
 
-    version_as_dict = version.as_dict()
+    assert _RACE_CONDITION_TESTING()
+    current_app.database.session.commit()
 
     current_app.refresh_memory_cache(document_id)
 
-    return {"status": "ok", "document": version_as_dict}
+    return {"status": "ok", "document": version.as_dict()}
 
 
 @allow("admin")
@@ -114,3 +109,11 @@ def delete(document_id):
     current_app.refresh_memory_cache(document_id)
 
     return {"status": "ok"}
+
+
+def _RACE_CONDITION_TESTING():
+    if "rc_sleep" in request.args:
+        rc_sleep = float(request.args["rc_sleep"])
+        time.sleep(rc_sleep)
+
+    return True

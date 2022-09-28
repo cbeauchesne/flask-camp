@@ -17,7 +17,7 @@ class Test_Document(BaseTest):
 
         self.login_user(user)
 
-        fake_doc = {"id": 1, "namespace": "x", "version_number": 1}
+        fake_doc = {"id": 1, "namespace": "x", "version_id": 1}
 
         self.get_document(fake_doc, expected_status=404)
         self.modify_document(fake_doc, expected_status=404)
@@ -38,6 +38,7 @@ class Test_Document(BaseTest):
 
         r = self.get_document(document_id)
         self.assert_document(r.json["document"], user, data={"value": "42"})
+        assert r.json["document"]["version_id"] == r.json["document"]["last_version_id"]
 
     def test_modification(self, user):
         self.login_user(user)
@@ -46,6 +47,9 @@ class Test_Document(BaseTest):
         v2 = self.modify_document(v1, comment="test", data={"value": "43"}, expected_status=200).json["document"]
 
         self.assert_document(v2, user, comment="test", data={"value": "43"})
+
+        r = self.get_document(v1)
+        assert r.json["document"]["version_id"] == r.json["document"]["last_version_id"]
 
         r = self.get_documents()
         assert r.json["status"] == "ok"
@@ -66,3 +70,9 @@ class Test_Document(BaseTest):
         self.delete_document(doc, expected_status=200)
         self.get_document(doc, expected_status=404)
         self.get_version(doc, expected_status=404)
+
+    def test_testing_helper(self, user):
+        self.login_user(user)
+        doc = self.create_document().json["document"]
+
+        self.modify_document(doc, params={"rc_sleep": 0.01})

@@ -41,9 +41,9 @@ def put():
 
     document = Document(namespace=namespace)
 
-    version = DocumentVersion(
-        document=document, user=current_user, comment=comment, version_number=1, data=json.dumps(data)
-    )
+    version = DocumentVersion(document=document, user=current_user, comment=comment, data=json.dumps(data))
+
+    document.last_version = version
 
     current_app.database.session.add(document)
     current_app.database.session.add(version)

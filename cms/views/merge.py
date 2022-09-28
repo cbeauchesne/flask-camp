@@ -16,8 +16,8 @@ def post():
     Other document will get all hostory from merged"""
 
     data = request.get_json()
-    document_to_merge = Document.get(id=data["document_to_merge"])
-    document_destination = Document.get(id=data["document_destination"])
+    document_to_merge = Document.get(id=data["document_to_merge"], with_for_update=True)
+    document_destination = Document.get(id=data["document_destination"], with_for_update=True)
 
     if document_to_merge is None or document_destination is None:
         raise NotFound()
@@ -25,25 +25,12 @@ def post():
     if document_to_merge.id == document_destination.id:
         raise BadRequest()
 
-    add_log("merge", comment=data["comment"], document=document_destination, merged_document=document_to_merge)
-
-    versions = DocumentVersion.query.filter(
-        DocumentVersion.document_id.in_([document_destination.id, document_to_merge.id])
-    ).order_by(DocumentVersion.id.asc())
-
-    for i, version in enumerate(versions.all()):
-        version.version_number = -(i + 1)
-
-    current_app.database.session.flush()
-
     document_to_merge.redirect_to = document_destination.id
     DocumentVersion.query.filter_by(document_id=document_to_merge.id).update({"document_id": document_destination.id})
+    document_to_merge.last_version_id = None
+    document_destination.update_last_version_id()
 
-    current_app.database.session.flush()
-
-    DocumentVersion.query.filter_by(document_id=document_destination.id).update(
-        {DocumentVersion.version_number: -DocumentVersion.version_number}
-    )
+    add_log("merge", comment=data["comment"], document=document_destination, merged_document=document_to_merge)
 
     current_app.database.session.commit()
 

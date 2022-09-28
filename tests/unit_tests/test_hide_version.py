@@ -97,15 +97,15 @@ class Test_HideVersion(BaseTest):
 
         ## state 2 : V1 and V2 are hidden
         self.login_user(moderator)
-        self.hide_version(doc_v1)
+        self.hide_version(doc_v1, expected_status=400)  # Can't hide all versions
 
-        # for modo/admins
-        self.get_document(document_id, data_should_be_present=False)
-        self.get_version(doc_v1, data_should_be_present=True)
-        self.get_version(doc_v2, data_should_be_present=True)
+        # # for modo/admins
+        # self.get_document(document_id, data_should_be_present=False)
+        # self.get_version(doc_v1, data_should_be_present=True)
+        # self.get_version(doc_v2, data_should_be_present=True)
 
-        # for other users
-        self.logout_user()
-        self.get_document(document_id, data_should_be_present=False)
-        self.get_version(doc_v1, data_should_be_present=False)
-        self.get_version(doc_v2, data_should_be_present=False)
+        # # for other users
+        # self.logout_user()
+        # self.get_document(document_id, data_should_be_present=False)
+        # self.get_version(doc_v1, data_should_be_present=False)
+        # self.get_version(doc_v2, data_should_be_present=False)

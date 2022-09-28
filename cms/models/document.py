@@ -2,8 +2,9 @@ import json
 from datetime import datetime
 
 from flask_login import current_user
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, UniqueConstraint
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
+from werkzeug.exceptions import BadRequest
 
 from cms.models import BaseModel
 from cms.models.user_tag import UserTag
@@ -23,8 +24,8 @@ def _as_dict(document, version, include_hidden_data_for_staff=False):
         "hidden": version.hidden,
         "timestamp": version.timestamp.isoformat(),
         "user": version.user.as_dict(),
+        "last_version_id": document.last_version_id,
         "version_id": version.id,
-        "version_number": version.version_number,
     }
 
     if not version.hidden:
@@ -44,38 +45,50 @@ class Document(BaseModel):
     protected = Column(Boolean, nullable=False, default=False)
 
     user_tags = relationship(UserTag, back_populates="document", lazy="select", cascade="all,delete")
-    versions = relationship("DocumentVersion", back_populates="document", lazy="select", cascade="all,delete")
+    versions = relationship(
+        lambda: DocumentVersion,
+        primaryjoin=lambda: Document.id == DocumentVersion.document_id,
+        backref="document",
+        lazy="select",
+        cascade="all,delete",
+    )
+
+    last_version_id = Column(Integer, ForeignKey("version.id", use_alter=True))
+    last_version = relationship(
+        lambda: DocumentVersion,
+        primaryjoin=lambda: Document.last_version_id == DocumentVersion.id,
+        uselist=False,
+        post_update=True,
+    )
 
     redirect_to = Column(Integer, ForeignKey("document.id"))
 
-    def as_dict(self):
-        version = (
+    def update_last_version_id(self):
+        """call this when a version has been hidden or deleted"""
+        self.last_version = (
             DocumentVersion.query.filter_by(document_id=self.id, hidden=False)
             .order_by(DocumentVersion.id.desc())
             .first()
         )
-        if version is None:  # can happen if all are hidden
-            version = DocumentVersion.query.filter_by(document_id=self.id).order_by(DocumentVersion.id.desc()).first()
 
-        return _as_dict(self, version)
+        if self.last_version is None:
+            raise BadRequest("There is no visible version associated with this document")
+
+    def as_dict(self):
+        return _as_dict(self, self.last_version)
 
 
 class DocumentVersion(BaseModel):
     __tablename__ = "version"
 
     document_id = Column(Integer, ForeignKey("document.id"), index=True)
-    document = relationship("Document")
+    # document = relationship("Document", foreign_keys=[document_id], back_populates="versions")
 
     user_id = Column(Integer, ForeignKey(User.id), index=True)
     user = relationship(User)
 
     timestamp = Column(DateTime)
     comment = Column(String)
-
-    # This column give the nth version of a document
-    # it starts at 1, and is incremented by 1 every new version
-    # the api is responsible to increment it. By this, it prevents edit conflict
-    version_number = Column(Integer, nullable=False)
 
     hidden = Column(Boolean, default=False, nullable=False)
     data = Column(String)
@@ -88,8 +101,6 @@ class DocumentVersion(BaseModel):
         uselist=True,
         viewonly=True,
     )
-
-    __table_args__ = (UniqueConstraint("document_id", "version_number", name="_version_uc"),)
 
     def __init__(self, **kwargs):
         kwargs["timestamp"] = datetime.now()

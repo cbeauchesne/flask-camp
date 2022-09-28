@@ -9,13 +9,13 @@
         },
         {
           "properties": {
-            "version_number": { "type": "number" }
+            "version_id": { "type": "number" }
           },
-          "required": ["version_number"]
+          "required": ["version_id"]
         }
       ]
     },
-    "comment": { "type": "string" }
+    "comment": { "$ref": "/cms/schemas/entities/comment.json" }
   },
   "required": ["document", "comment"],
   "additionalProperties": false

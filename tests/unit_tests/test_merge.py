@@ -23,11 +23,6 @@ class Test_Merge(BaseTest):
 
         assert versions[0]["timestamp"] > versions[1]["timestamp"] > versions[2]["timestamp"] > versions[3]["timestamp"]
 
-        assert versions[0]["version_number"] == 4
-        assert versions[1]["version_number"] == 3
-        assert versions[2]["version_number"] == 2
-        assert versions[3]["version_number"] == 1
-
         assert versions[0]["version_id"] == v4["version_id"]
         assert versions[1]["version_id"] == v3["version_id"]
         assert versions[2]["version_id"] == v2["version_id"]
@@ -70,3 +65,6 @@ class Test_Merge(BaseTest):
         doc_2 = self.create_document().json["document"]
 
         self.merge_documents(document_to_merge=doc_1, document_destination=doc_2, expected_status=400)
+
+
+# TODO : test modify a redirection

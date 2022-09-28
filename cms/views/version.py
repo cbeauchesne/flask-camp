@@ -3,7 +3,7 @@ from werkzeug.exceptions import NotFound, BadRequest
 
 from cms.schemas import schema
 from cms.decorators import allow
-from cms.models.document import DocumentVersion
+from cms.models.document import DocumentVersion, Document
 from cms.models.log import add_log
 
 rule = "/version/<int:version_id>"
@@ -25,13 +25,17 @@ def get(version_id):
 @schema("cms/schemas/modify_version.json")
 def post(version_id):
     """Modify a version of a document. The only possible modification is hide/unhide a version"""
-    version = DocumentVersion.get(id=version_id)
+    version = DocumentVersion.get(id=version_id)  # todo with for update
 
     if version is None:
         raise NotFound()
 
     hidden = request.get_json()["hidden"]
     version.hidden = hidden
+    current_app.database.session.flush()
+
+    document = Document.get(id=version.document_id, with_for_update=True)
+    document.update_last_version_id()
 
     add_log("hide_version" if hidden else "unhide_version", version=version, document=version.document)
 
@@ -53,9 +57,13 @@ def delete(version_id):
     if DocumentVersion.query.filter_by(document_id=version.document_id).count() <= 1:
         raise BadRequest("Can't delete last version of a document")
 
+    current_app.database.session.delete(version)
+
+    document = Document.get(id=version.document_id, with_for_update=True)
+    document.update_last_version_id()
+
     add_log("delete_version", version=version, document=version.document)
 
-    current_app.database.session.delete(version)
     current_app.database.session.commit()
     current_app.refresh_memory_cache(version.document.id)
 

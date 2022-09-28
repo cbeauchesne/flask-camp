@@ -47,7 +47,7 @@ class Test_Logs(BaseTest):
         self.unblock_user(user)
 
         doc = self.create_document().json["document"]
-        doc_v2 = self.modify_document(doc, "v2").json["document"]
+        doc_v2 = self.modify_document(doc, data="v2").json["document"]
 
         self.protect_document(doc)
         self.unprotect_document(doc)

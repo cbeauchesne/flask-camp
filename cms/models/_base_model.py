@@ -8,5 +8,10 @@ class BaseModel(database.Model):  # pylint: disable=too-few-public-methods
     id = Column(Integer, primary_key=True, index=True)
 
     @classmethod
-    def get(cls, **kwargs):
-        return cls.query.filter_by(**kwargs).first()
+    def get(cls, with_for_update=False, **kwargs):
+        query = cls.query.filter_by(**kwargs)
+
+        if with_for_update:
+            query = query.with_for_update()
+
+        return query.first()
