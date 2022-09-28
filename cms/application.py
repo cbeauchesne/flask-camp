@@ -100,8 +100,8 @@ class Application(Flask):
 
         self._init_url_rules()
 
-        if self.config.get("INIT_DATABASE", None) == "True":
-            self.add_url_rule("/init_database", view_func=self.init_database, methods=["GET"])
+        if self.config.get("INIT_DATABASES", None) == "True":
+            self.add_url_rule("/init_databases", view_func=self.init_databases, methods=["GET"])
 
         if self.config.get("ERRORS_LOG_FILE", ""):
             self.logger.warning("Log errors to %s", self.config["ERRORS_LOG_FILE"])
@@ -155,7 +155,7 @@ class Application(Flask):
                     module.rule, view_func=function, methods=[method.upper()], endpoint=f"{method}_{module.__name__}"
                 )
 
-    def init_database(self):
+    def init_databases(self):
         """Will init database with an admin user"""
 
         log.info("Init database")
@@ -169,10 +169,9 @@ class Application(Flask):
         self.database.session.add(user)
         self.database.session.commit()
 
-        return {"status": "ok"}
+        self.memory_cache.create_index()
 
-    def create_all(self):
-        self.database.create_all()
+        return {"status": "ok"}
 
     def send_account_creation_mail(self, email, token, user):
         log.info("Send registration mail to user %s", user.name)

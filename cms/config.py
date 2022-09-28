@@ -38,6 +38,6 @@ class Testing(Development):
 
     MAIL_DEFAULT_SENDER = None
 
-    INIT_DATABASE = "True"
+    INIT_DATABASES = "True"
 
     RATELIMIT_ENABLED = False

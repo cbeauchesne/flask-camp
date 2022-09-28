@@ -1,3 +1,5 @@
+import pytest
+
 from tests.unit_tests.utils import BaseTest
 
 
@@ -15,8 +17,9 @@ class Test_Admin(BaseTest):
         r = self.get_user(user, expected_status=200)
         assert r.json["user"]["roles"] == ["moderator"]
 
-    def test_init_database(self):
-        self.init_database(expected_status=200)
+    @pytest.mark.usefixtures("drop_all")
+    def test_init_databases(self):
+        self.init_databases(expected_status=200)
 
         r = self.get_user(1, expected_status=200)
         assert r.json["user"]["name"] == "admin"

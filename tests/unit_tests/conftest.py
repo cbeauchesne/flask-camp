@@ -34,10 +34,7 @@ def pytest_configure(config):
 def setup_app():
 
     with app.app_context():
-        app.create_all()
-
-    app.memory_cache.flushall()
-    app.memory_cache.create_index()
+        app.init_databases()
 
     with app.test_client() as client:
         BaseTest.client = client
@@ -49,7 +46,7 @@ def setup_app():
     app.memory_cache.flushall()
 
 
-def db_add_user(name="name", email=None, password="password", validate_email=True, roles=""):
+def _db_add_user(name="name", email=None, password="password", validate_email=True, roles=""):
     with app.app_context():
         instance = User(
             name=name,
@@ -83,27 +80,36 @@ def db_add_user(name="name", email=None, password="password", validate_email=Tru
 
 @pytest.fixture()
 def admin():
-    yield db_add_user(name="admin", roles="admin")
+    with app.app_context():
+        instance = User.get(name="admin")
+        yield User(
+            id=instance.id,
+            name=instance.name,
+            _email=instance._email,
+            _email_to_validate=instance._email_to_validate,
+            _email_token=instance._email_token,
+            roles=instance.roles,
+        )
 
 
 @pytest.fixture()
 def moderator():
-    yield db_add_user(name="moderator", roles="moderator")
+    yield _db_add_user(name="moderator", roles="moderator")
 
 
 @pytest.fixture()
 def user():
-    yield db_add_user()
+    yield _db_add_user()
 
 
 @pytest.fixture()
 def unvalidated_user():
-    yield db_add_user(validate_email=False)
+    yield _db_add_user(validate_email=False)
 
 
 @pytest.fixture()
 def user_2():
-    yield db_add_user("user_2")
+    yield _db_add_user("user_2")
 
 
 @pytest.fixture()
@@ -132,3 +138,11 @@ def cant_send_mail():
     yield
 
     app.mail.send = original_send
+
+
+@pytest.fixture()
+def drop_all():
+    with app.app_context():
+        app.database.drop_all()
+
+    app.memory_cache.flushall()

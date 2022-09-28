@@ -22,7 +22,7 @@ services:
     command: uwsgi --http :5000 -w app:app --enable-threads --master --log-master
     environment:
       - FLASK_SQLALCHEMY_DATABASE_URI=postgresql://cms_user:cms_user@pg:5432/cms
-      - FLASK_INIT_DATABASE=${FLASK_INIT_DATABASE:-False}
+      - FLASK_INIT_DATABASES=${FLASK_INIT_DATABASES:-False}
       - FLASK_ERRORS_LOG_FILE=${FLASK_ERRORS_LOG_FILE:-}
       - FLASK_SECRET_KEY
       - FLASK_MAIL_DEFAULT_SENDER

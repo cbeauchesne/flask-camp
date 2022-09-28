@@ -18,8 +18,8 @@ class ClientInterface:
     def delete(self, url, params=None, json=None, headers=None, expected_status=None):
         raise NotImplementedError()
 
-    def init_database(self, expected_status=None):
-        return self.get("/init_database", expected_status=expected_status)
+    def init_databases(self, expected_status=None):
+        return self.get("/init_databases", expected_status=expected_status)
 
     def create_user(self, name="user", email=None, password="password", expected_status=None):
         email = f"{name}@example.com" if email is None else email
