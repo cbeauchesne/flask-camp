@@ -9,7 +9,7 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] logout
   * [x] user name and email uniqueness
   * [x] send email to validate email address
-  * [ ] GET /current_user
+  * [x] GET /current_user
 * [x] modify user
   * [x] modify password
   * [x] modify email
@@ -25,11 +25,11 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] rate limiting on document modification
   * [x] use redis
 * [x] unique document type, shipping a namespace field.
-  * [ ] `/documents`
+  * [x] `/documents`
     * [x] add a document
     * [x] get list of document
       * [x] offset and limit feature
-      * [ ] use redis for search
+      * [x] use redis for search
   * [x] `/document` get, modify, delete a document
     * [x] Modify document
     * [x] manage edit conflict

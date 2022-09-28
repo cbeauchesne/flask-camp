@@ -2,7 +2,7 @@ import json
 
 from flask import request, current_app
 from flask_login import current_user
-from werkzeug.exceptions import Forbidden, NotFound, BadRequest
+from werkzeug.exceptions import Forbidden, NotFound
 
 from cms.decorators import allow
 from cms.models.user import User as UserModel
@@ -45,22 +45,17 @@ def post(user_id):
 
     user = UserModel.get(id=user_id)
 
-    if "new_password" in data:
-        if "password" not in data:
-            raise BadRequest("password is missing")
+    password = data.get("password", None)
+    token = data.get("token", None)
 
-        if not user.check_password(data["password"]):
+    if "new_password" in data or "email" in data:
+        if not user.check_auth(password=password, token=token):
             raise Forbidden()
 
+    if "new_password" in data:
         user.set_password(data["new_password"])
 
     if "email" in data:
-        if "password" not in data:
-            raise BadRequest("password is missing")
-
-        if not user.check_password(data["password"]):
-            raise Forbidden()
-
         user.set_email(data["email"])
         user.send_email_change_mail()
 

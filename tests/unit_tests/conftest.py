@@ -11,6 +11,12 @@ from tests.unit_tests.utils import BaseTest
 
 app = Application(cms_config.Testing)
 
+# clean previous uncleaned state
+with app.app_context():
+    app.database.drop_all()
+
+app.memory_cache.flushall()
+
 
 @app.route("/__testing/500", methods=["GET"])
 def testing_500():

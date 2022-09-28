@@ -203,8 +203,8 @@ class Test_UserModification(BaseTest):
 
         self.login_user(user)
 
-        self.modify_user(user, new_password="13", expected_status=400)
-        self.modify_user(user, email="a@b.fr", expected_status=400)
+        self.modify_user(user, new_password="13", expected_status=403)  # you must give the password
+        self.modify_user(user, email="a@b.fr", expected_status=403)  # you must give the password
 
         self.modify_user(user, password="not the good pass", new_password="13", expected_status=403)
         self.modify_user(user, password="not the good pass", email="a@b.fr", expected_status=403)

@@ -37,6 +37,9 @@ class ClientInterface:
 
         return self.get("/validate_email", expected_status=expected_status, params={"name": name})
 
+    def reset_password(self, email, expected_status=None):
+        return self.post("/reset_password", json={"email": email}, expected_status=expected_status)
+
     def login_user(self, user, password="password", token=None, expected_status=None):
         name = user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
 
@@ -59,13 +62,23 @@ class ClientInterface:
         return self.get(f"/user/{user_id}", expected_status=expected_status)
 
     def modify_user(
-        self, user, password=None, new_password=None, email=None, ui_preferences=None, expected_status=None
+        self,
+        user,
+        password=None,
+        token=None,
+        new_password=None,
+        email=None,
+        ui_preferences=None,
+        expected_status=None,
     ):
         user_id = _get_user_id(user)
         payload = {}
 
         if password is not None:
             payload["password"] = password
+
+        if token is not None:
+            payload["token"] = token
 
         if new_password is not None:
             payload["new_password"] = new_password

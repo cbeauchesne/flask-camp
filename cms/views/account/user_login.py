@@ -22,7 +22,7 @@ def post():
 
     name = data["name"]
     password = data.get("password", None)
-    login_token = data.get("token", None)
+    token = data.get("token", None)
 
     user = UserModel.get(name=name)
 
@@ -32,9 +32,7 @@ def post():
     if not user.email_is_validated:
         raise Unauthorized("User's email is not validated")
 
-    if user.check_password(password):
-        login_user(user)
-    elif user.check_login_token(login_token):
+    if user.check_auth(password=password, token=token):
         login_user(user)
     else:
         raise Unauthorized(f"User [{name}] does not exists, or password is wrong")

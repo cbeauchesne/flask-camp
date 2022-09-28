@@ -5,6 +5,9 @@
     "password": {
       "type": "string"
     },
+    "token": {
+      "$ref": "/cms/schemas/entities/token.json"
+    },
     "new_password": {
       "type": "string"
     },

@@ -74,17 +74,25 @@ class User(BaseModel):
     def set_password(self, password):
         log.info("Set %s's password", self)
         self.password_hash = generate_password_hash(password)
+        self._login_token = None  # disable any login token
 
-    def check_password(self, password):
-        if password is None:
-            return False
+    def check_auth(self, password=None, token=None):
+        if password is not None:
+            return self._check_password(password)
+
+        if token is not None:
+            return self._check_login_token(token)
+
+        return False
+
+    def _check_password(self, password):
         if not check_password_hash(self.password_hash, password):
             log.info("Check password failed for %s", self)
             return False
 
         return True
 
-    def check_login_token(self, login_token):  # TODO replace with login_with_token
+    def _check_login_token(self, login_token):
         if self._login_token is None or login_token is None:
             return False
 
@@ -95,8 +103,6 @@ class User(BaseModel):
         if self._login_token != login_token:
             log.error("Login token check fails for %s", self)
             return False
-
-        self._login_token = None
 
         return True
 
