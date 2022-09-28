@@ -143,7 +143,7 @@ class ClientInterface:
 
         return self.get("/versions", params=params, expected_status=expected_status)
 
-    def modify_document(self, document, comment="default comment", data=None, expected_status=None):
+    def modify_document(self, document, comment="default comment", data=None, params=None, expected_status=None):
         document_id = document["id"]
         new_version = deepcopy(document)
         new_version["data"] = data if data else {}
@@ -152,6 +152,7 @@ class ClientInterface:
             f"/document/{document_id}",
             expected_status=expected_status,
             json={"comment": comment, "document": new_version},
+            params=params,
         )
 
     def hide_version(self, version, expected_status=None):

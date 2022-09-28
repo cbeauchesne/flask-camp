@@ -1,4 +1,4 @@
-from tests.functional_tests.utils import ClientSession
+from tests.end_tests.utils import ClientSession
 
 
 if __name__ == "__main__":

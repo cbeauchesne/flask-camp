@@ -35,12 +35,14 @@ class ClientSession(ClientInterface):
 
     def _request(self, method, url, expected_status=None, **kwargs):
         print(f"{str(self):20} {method.upper():6} {url:30}")
-        r = self._session.request(method, f"{self.domain}{url}", **kwargs, timeout=1)
+        r = self._session.request(method, f"{self.domain}{url}", **kwargs, timeout=3)
         print(f"{str(self):20} {method.upper():6} {url:30} {r.status_code}")
 
         expected_status = 200 if expected_status is None else expected_status
 
-        if expected_status != r.status_code:
+        expected_status = expected_status if isinstance(expected_status, (list, tuple, set)) else [expected_status]
+
+        if r.status_code not in expected_status:
             print(f"\tExpected status is: {expected_status}")
             print(f"\tContent is: {r.content}")
             sys.exit(1)

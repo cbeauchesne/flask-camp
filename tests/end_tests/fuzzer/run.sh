@@ -10,11 +10,11 @@ export FLASK_REDIS_HOST=redis
 export FLASK_REDIS_PORT=6379
 
 docker-compose down
-docker-compose up --scale cms=3 -d
+docker-compose up --remove-orphans --scale cms=3 -d
 
 curl http://localhost:5000/init_databases
 
-python tests/functional_tests/main.py
+python tests/end_tests/fuzzer/main.py
 
 docker-compose logs > logs/functional_tests.log
 docker-compose down
