@@ -50,5 +50,5 @@ def get():
     return {
         "status": "ok",
         "count": count,
-        "versions": [version.as_dict() for version in versions],
+        "versions": [current_app.cook(version.as_dict()) for version in versions],
     }

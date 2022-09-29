@@ -26,19 +26,16 @@ class _MemoryCacheCollection:
 
 
 class MemoryCache:
-    def __init__(self, host, port, cooker):
+    def __init__(self, host, port):
         self._client = RedisClient(host=host, port=port)
         self._document = _MemoryCacheCollection("document", self._client)
         self._cooked_document = _MemoryCacheCollection("cooked_document", self._client)
-        self.cooker = cooker
 
         self._search_engine = self._client.ft("to_be_replaced_by_namespace")
 
-    def set_document(self, document_id, document_as_dict):
-        # TODO : must not get document_as_dict
+    def set_document(self, document_id, document_as_dict, cooked_document_as_dict):
         self._document.set(document_id, document_as_dict)
-        cooked_document = self.cooker(document_as_dict)
-        self._cooked_document.set(document_as_dict["id"], cooked_document)
+        self._cooked_document.set(document_id, cooked_document_as_dict)
 
     # def get_document(self, document_id):
     #     return self._document.get(document_id)

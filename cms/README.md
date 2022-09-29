@@ -41,6 +41,11 @@ Build a wiki API with all common features, regardless of the content of document
     * [x] all changes made by one user
     * [x] offset and limit feature
   * [x] `/version` get a given version of a doc
+* [ ] cooker
+  * [x] documents can be cooked by a custom cook function
+  * [x] they are served cooked by default everywhere
+  * [ ] cooker can get other documents
+  * [ ] if a document needs other documents to be cooked, a modification on one of those other document recompute the cache
 * [x] Moderator options
   * [x] protect/unprotect a document
   * [x] hide/unhide a document version

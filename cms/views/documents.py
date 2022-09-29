@@ -52,4 +52,6 @@ def put():
 
     current_app.refresh_memory_cache(document.id)
 
-    return {"status": "ok", "document": version.as_dict()}
+    result = current_app.cook(version.as_dict())
+
+    return {"status": "ok", "document": result}

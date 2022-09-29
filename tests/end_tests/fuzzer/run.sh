@@ -16,7 +16,6 @@ curl http://localhost:5000/init_databases
 
 python tests/end_tests/fuzzer/main.py
 
-docker-compose logs > logs/functional_tests.log
-docker-compose down
-
-
+docker-compose logs haproxy > logs/haproxy.log
+docker-compose logs redis > logs/redis.log
+# docker-compose down

@@ -26,7 +26,7 @@ def get():
 
     tag_filters_args = {k: v for k, v in tag_filters_args.items() if v is not None}
 
-    query = current_app.database.session.query(Document)
+    query = current_app.database.session.query(Document)  # TODO get only id
 
     if len(tag_filters_args) != 0:
         query = query.filter(Document.user_tags.any(**tag_filters_args))
@@ -34,5 +34,5 @@ def get():
     count = query.count()
     documents = query.offset(offset).limit(limit)
 
-    documents = [document.as_dict() for document in documents]
+    documents = [current_app.get_cooked_document(document.id) for document in documents]
     return {"status": "ok", "documents": documents, "count": count}

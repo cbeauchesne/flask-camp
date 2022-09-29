@@ -1,3 +1,4 @@
+import copy
 import logging
 import sys
 import warnings
@@ -83,6 +84,8 @@ class Application(Flask):
 
         limiter.init_app(self)
 
+        self._cooker = None
+
         @self._login_manager.user_loader  # pylint: disable=no-member
         def load_user(user_id):
             return UserModel.get(id=int(user_id))
@@ -143,7 +146,7 @@ class Application(Flask):
 
         self.config["RATELIMIT_STORAGE_URI"] = f"redis://{redis_host}:{redis_port}"
 
-        self.memory_cache = MemoryCache(host=redis_host, port=redis_port, cooker=self.cook)
+        self.memory_cache = MemoryCache(host=redis_host, port=redis_port)
 
     def add_module(self, module):
 
@@ -209,25 +212,42 @@ class Application(Flask):
     def get_cooked_document(self, document_id):
         """This very simple function get a document id and returns it as a dict.
         It's only puprose it to hide the memcache complexity"""
-        document_as_dict = self.memory_cache.get_cooked_document(document_id)
+        cooked_document_as_dict = self.memory_cache.get_cooked_document(document_id)
 
-        if document_as_dict is None:  # document is not known by mem cache
+        if cooked_document_as_dict is None:  # document is not known by mem cache
             document = Document.get(id=document_id)
 
             if document is None:
                 raise NotFound()
 
             document_as_dict = document.as_dict()
-            self.memory_cache.set_document(document_id, document_as_dict)
+            cooked_document_as_dict = self.cook(document_as_dict)
+            self.memory_cache.set_document(document_id, document_as_dict, cooked_document_as_dict)
 
-        return document_as_dict  # TODO : it is not the cooked version
+        return cooked_document_as_dict
 
     def refresh_memory_cache(self, document_id):
         document = Document.get(id=document_id)
         if document is None:
             self.memory_cache.delete_document(document_id)
         else:
-            self.memory_cache.set_document(document_id, document.as_dict())
+            document_as_dict = document.as_dict()
+            cooked_document_as_dict = self.cook(document_as_dict)
+            self.memory_cache.set_document(document_id, document_as_dict, cooked_document_as_dict)
 
     def cook(self, document_as_dict):
-        return document_as_dict
+        result = copy.deepcopy(document_as_dict)
+        if self._cooker is not None:
+            self._cooker(result)
+
+        return result
+
+    def cooker(self, cooker):
+        log.info("Register cooker: %s", str(cooker))
+
+        if not callable(cooker):
+            raise TypeError("Your cooker is not callable")
+
+        self._cooker = cooker
+
+        return cooker
