@@ -37,7 +37,7 @@ def post():
     else:
         raise Unauthorized(f"User [{name}] does not exists, or password is wrong")
 
-    current_app.database.session.commit()
+    current_app.database.session.commit()  # useless, but TODO : save last login date
 
     return {"status": "ok", "user": user.as_dict(include_personal_data=True)}
 

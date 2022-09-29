@@ -31,7 +31,7 @@ class Test_Protection(BaseTest):
         assert r.json["user"]["blocked"] is False
 
         self.block_user(user)
-        self.block_user(user)  # block him twice, it should not produce an error
+        self.block_user(user, expected_status=400)  # block him twice, it should produce an bad request error
 
         r = self.get_user(user)  # it's status is now blocked
         assert r.json["user"]["blocked"] is True
@@ -57,7 +57,7 @@ class Test_Protection(BaseTest):
         self.login_user(moderator)
 
         self.unblock_user(user)
-        self.unblock_user(user)  # unblock him twice, it should not produce an error
+        self.unblock_user(user, expected_status=400)  # unblock him twice, it should produce a bad request error
 
         r = self.get_user(user)
         assert not r.json["user"]["blocked"]

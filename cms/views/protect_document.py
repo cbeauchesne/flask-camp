@@ -1,4 +1,4 @@
-from flask import current_app
+from flask import current_app, request
 from werkzeug.exceptions import NotFound, BadRequest
 
 from cms.decorators import allow
@@ -10,10 +10,10 @@ rule = "/protect_document/<int:document_id>"
 
 
 @allow("moderator")
-@schema("cms/schemas/comment.json")
-def put(document_id):
-    """Protect a document. The document won't be editable anymore, excpet for moderators"""
-    document = Document.query.filter_by(id=document_id).first()
+@schema("cms/schemas/protect_document.json")
+def post(document_id):
+    """Protect/unprotect a document. The document won't be editable anymore, except for moderators"""
+    document = Document.get(id=document_id, with_for_update=True)
 
     if document is None:
         raise NotFound()
@@ -21,29 +21,14 @@ def put(document_id):
     if document.redirect_to is not None:
         raise BadRequest()
 
-    document.protected = True
-    add_log("protect", document=document)  # TODO comment
-    current_app.database.session.commit()
+    protected = request.get_json()["protected"]
 
-    current_app.refresh_memory_cache(document.id)
+    if protected == document.protected:
+        raise BadRequest("User is still blocked/unblocked")
 
-    return {"status": "ok"}
+    document.protected = protected
+    add_log("protect" if protected else "unprotect", document=document)
 
-
-@allow("moderator")
-@schema("cms/schemas/comment.json")
-def delete(document_id):
-    """Un-protect a document"""
-    document = Document.query.filter_by(id=document_id).first()
-
-    if document is None:
-        raise NotFound()
-
-    if document.redirect_to is not None:
-        raise BadRequest()
-
-    document.protected = False
-    add_log("unprotect", document=document)
     current_app.database.session.commit()
 
     current_app.refresh_memory_cache(document.id)

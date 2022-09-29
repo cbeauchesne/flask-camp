@@ -5,8 +5,16 @@ class Test_Protection(BaseTest):
     def test_errors(self, moderator):
         self.login_user(moderator)
 
-        self.protect_document(42, 404)
-        self.unprotect_document(42, 404)
+        document = self.create_document().json["document"]
+
+        self.protect_document(42, expected_status=404)
+        self.unprotect_document(42, expected_status=404)
+
+        self.protect_document(document)
+        self.protect_document(document, expected_status=400)
+
+        self.unprotect_document(document)
+        self.unprotect_document(document, expected_status=400)
 
     def test_typical_scenario(self, user, moderator):
         self.login_user(user)
@@ -14,7 +22,7 @@ class Test_Protection(BaseTest):
         document = v0  # more clear
 
         # try to protect a doc without being an moderator
-        r = self.protect_document(document, 403)
+        r = self.protect_document(document, expected_status=403)
         self.logout_user()
 
         # protect doc

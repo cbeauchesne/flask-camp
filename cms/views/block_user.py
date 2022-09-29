@@ -1,5 +1,5 @@
-from flask import current_app
-from werkzeug.exceptions import NotFound
+from flask import current_app, request
+from werkzeug.exceptions import NotFound, BadRequest
 
 from cms.decorators import allow
 from cms.models.user import User as UserModel
@@ -11,35 +11,22 @@ rule = "/block_user/<int:user_id>"
 
 @allow("moderator")
 @schema("cms/schemas/comment.json")
-def put(user_id):
-    """Block an user"""
+def post(user_id):
+    """Block/unblock an user"""
 
-    user = UserModel.get(id=user_id)
-
-    if not user:
-        raise NotFound()
-
-    user.blocked = True
-
-    add_log(action="block", target_user=user)
-
-    current_app.database.session.commit()
-
-    return {"status": "ok"}
-
-
-@allow("moderator")
-@schema("cms/schemas/comment.json")
-def delete(user_id):
-    """Unblock an user"""
-    user = UserModel.get(id=user_id)
+    user = UserModel.get(id=user_id, with_for_update=True)
 
     if not user:
         raise NotFound()
 
-    user.blocked = False
+    blocked = request.get_json()["blocked"]
 
-    add_log(action="unblock", target_user=user)
+    if blocked == user.blocked:
+        raise BadRequest("User is still blocked/unblocked")
+
+    user.blocked = blocked
+
+    add_log(action="block" if blocked else "unblock", target_user=user)
 
     current_app.database.session.commit()
 

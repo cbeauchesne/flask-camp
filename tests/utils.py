@@ -185,24 +185,32 @@ class ClientInterface:
     def protect_document(self, document, expected_status=None):
         document_id = document if isinstance(document, int) else document["id"]
 
-        return self.put(
-            f"/protect_document/{document_id}", expected_status=expected_status, json={"comment": "some comment"}
+        return self.post(
+            f"/protect_document/{document_id}",
+            json={"comment": "some comment", "protected": True},
+            expected_status=expected_status,
         )
 
     def unprotect_document(self, document, expected_status=None):
         document_id = document if isinstance(document, int) else document["id"]
 
-        return self.delete(
-            f"/protect_document/{document_id}", expected_status=expected_status, json={"comment": "some comment"}
+        return self.post(
+            f"/protect_document/{document_id}",
+            json={"comment": "some comment", "protected": False},
+            expected_status=expected_status,
         )
 
     def block_user(self, user, comment="Some comment", expected_status=None):
         user_id = _get_user_id(user)
-        return self.put(f"/block_user/{user_id}", expected_status=expected_status, json={"comment": comment})
+        return self.post(
+            f"/block_user/{user_id}", expected_status=expected_status, json={"comment": comment, "blocked": True}
+        )
 
     def unblock_user(self, user, comment="Some comment", expected_status=None):
         user_id = _get_user_id(user)
-        return self.delete(f"/block_user/{user_id}", expected_status=expected_status, json={"comment": comment})
+        return self.post(
+            f"/block_user/{user_id}", expected_status=expected_status, json={"comment": comment, "blocked": False}
+        )
 
     def delete_version(self, version, expected_status=None):
         version_id = version if isinstance(version, int) else version["version_id"]

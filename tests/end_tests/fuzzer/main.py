@@ -1,12 +1,9 @@
-
 import random
 import threading
 
 import requests
 
 from tests.end_tests.utils import ClientSession
-
-
 
 
 class FuzzerSession(ClientSession):
@@ -55,7 +52,7 @@ class FuzzerSession(ClientSession):
             self.fuzz_update_known_documents,
             self.fuzz_modify_document,
             self.fuzz_get_document,
-            self.fuzz_get_version
+            self.fuzz_get_version,
         ]
 
     def do_some_stuff(self):
