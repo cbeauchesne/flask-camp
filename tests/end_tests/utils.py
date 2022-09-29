@@ -1,4 +1,6 @@
+from contextlib import contextmanager
 import sys
+from time import perf_counter
 
 import requests
 from sqlalchemy import create_engine
@@ -7,6 +9,13 @@ from tests.utils import ClientInterface
 
 
 engine = create_engine("postgresql://cms_user:cms_user@localhost:5432/cms")
+
+
+@contextmanager
+def catch_time():
+    start = perf_counter()
+    yield lambda: total
+    total = perf_counter() - start
 
 
 def get_email_token(user_name):
@@ -35,8 +44,10 @@ class ClientSession(ClientInterface):
 
     def _request(self, method, url, expected_status=None, **kwargs):
         print(f"{str(self):20} {method.upper():6} {url:30}")
-        r = self._session.request(method, f"{self.domain}{url}", **kwargs, timeout=3)
-        print(f"{str(self):20} {method.upper():6} {url:30} {r.status_code}")
+        with catch_time() as t:
+            r = self._session.request(method, f"{self.domain}{url}", **kwargs, timeout=10)
+
+        print(f"{str(self):20} {method.upper():6} {url:30} {r.status_code} ({int(t()*1000)}ms)")
 
         expected_status = 200 if expected_status is None else expected_status
 
