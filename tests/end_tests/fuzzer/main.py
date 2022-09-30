@@ -1,7 +1,11 @@
 import collections
+from datetime import datetime, timedelta
+import json
 import random
 import threading
 import time
+
+import docker
 
 from tests.end_tests.utils import ClientSession
 
@@ -117,6 +121,10 @@ def print_stats(sessions):
 
 def main():
 
+    docker_client = docker.from_env()
+    containers_stats = list(container.stats(decode=True) for container in docker_client.containers.list(all=True))
+    docker_stats = []
+
     sessions = [FuzzerSession() for _ in range(3)]
 
     for i, session in enumerate(sessions):
@@ -128,9 +136,12 @@ def main():
     for thread in threads:
         thread.start()
 
-    for _ in range(100):
-        time.sleep(1)
+    for _ in range(10):
+        next_wake_up = datetime.now() + timedelta(seconds=1)
         print_stats(sessions)
+        docker_stats.append({"docker_stats": list(next(stats) for stats in containers_stats)})
+        sleep_time = max(0, (next_wake_up - datetime.now()).total_seconds())
+        time.sleep(sleep_time)
 
     for session in sessions:
         session.kill = True
@@ -140,6 +151,8 @@ def main():
 
     print("#" * 80)
     print_stats(sessions)
+    with open("logs/docker_stats.json", mode="w", encoding="utf-8") as f:
+        json.dump(docker_stats, f, indent=2)
 
 
 if __name__ == "__main__":
