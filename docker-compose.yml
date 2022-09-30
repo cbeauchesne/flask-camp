@@ -15,11 +15,11 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    user: www-data
+    # user: www-data  # TODO
     volumes:
-      - ./cms/:/app/cms
-      - ./logs/:/app/logs
-    command: uwsgi --http :5000 -w app:app --enable-threads --master --log-master
+      - ./cms/:/app/cms:ro
+      - ./logs/errors.log:/app/logs/errors.log
+      - ./docker/:/app/docker:ro
     environment:
       - FLASK_SQLALCHEMY_DATABASE_URI=postgresql://cms_user:cms_user@pg:5432/cms
       - FLASK_INIT_DATABASES=${FLASK_INIT_DATABASES:-False}

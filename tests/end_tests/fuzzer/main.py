@@ -136,7 +136,7 @@ def main():
     for thread in threads:
         thread.start()
 
-    for _ in range(10):
+    for _ in range(100):
         next_wake_up = datetime.now() + timedelta(seconds=1)
         print_stats(sessions)
         docker_stats.append({"docker_stats": list(next(stats) for stats in containers_stats)})
