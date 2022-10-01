@@ -2,6 +2,7 @@ import json
 
 from flask import request, current_app
 from flask_login import current_user
+from sqlalchemy import select, func
 from werkzeug.exceptions import BadRequest
 
 from cms.decorators import allow
@@ -22,13 +23,14 @@ def get():
     if not 0 <= limit <= 100:
         raise BadRequest("Limit can't be lower than 0 or higher than 100")
 
-    query = Document.query
+    def make_query(base_query):
+        return current_app.database.session.execute(base_query)
 
-    count = query.count()
-    documents = query.offset(offset).limit(limit)
+    count = make_query(select(func.count(Document.id)))
+    document_ids = make_query(select(Document.id).limit(limit).offset(offset).order_by(Document.id.asc()))
 
-    documents = [current_app.get_cooked_document(document.id) for document in documents]
-    return {"status": "ok", "documents": documents, "count": count}
+    documents = [current_app.get_cooked_document(row[0]) for row in document_ids]
+    return {"status": "ok", "documents": documents, "count": list(count)[0][0]}
 
 
 @limiter.limit("1/second;10/minute;60/hour")
