@@ -35,7 +35,7 @@ def get():
         query = query.filter_by(**filters)
 
     count = query.count()
-    query = query.offset(offset).limit(limit)
+    query = query.order_by(UserTag.id).offset(offset).limit(limit)
 
     return {
         "status": "ok",
