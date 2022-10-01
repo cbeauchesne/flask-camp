@@ -18,8 +18,7 @@ def get(version_id):
     if version is None:
         raise NotFound()
 
-    result, _ = current_app.cook(version.as_dict())
-    return {"status": "ok", "document": result}
+    return {"status": "ok", "document": current_app.cook(version.as_dict())}
 
 
 @allow("moderator")

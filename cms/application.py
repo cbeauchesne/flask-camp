@@ -221,8 +221,7 @@ class Application(Flask):
                 raise NotFound()
 
             document_as_dict = document.as_dict()
-            cooked_document_as_dict, associated_ids = self.cook(document_as_dict)
-            self.memory_cache.set_document(document_id, document_as_dict, cooked_document_as_dict, associated_ids)
+            self.cook(document_as_dict, save_in_memory_cache=True)
 
         return document_as_dict
 
@@ -238,26 +237,25 @@ class Application(Flask):
                 raise NotFound()
 
             document_as_dict = document.as_dict()
-            cooked_document_as_dict, associated_ids = self.cook(document_as_dict)
-            self.memory_cache.set_document(document_id, document_as_dict, cooked_document_as_dict, associated_ids)
+            cooked_document_as_dict = self.cook(document_as_dict, save_in_memory_cache=True)
 
         return cooked_document_as_dict
 
     def refresh_memory_cache(self, document_id):
         # TODO : make a single process dooing that
         document = Document.get(id=document_id)
+
         if document is None:
             self.memory_cache.delete_document(document_id)
         else:
             document_as_dict = document.as_dict()
-            cooked_document_as_dict, associated_ids = self.cook(document_as_dict)
-            self.memory_cache.set_document(document_id, document_as_dict, cooked_document_as_dict, associated_ids)
+            self.cook(document_as_dict, save_in_memory_cache=True)
 
         dependants = self.memory_cache.get_dependants(document_id)
         for dependant_id in dependants:
             self.refresh_memory_cache(dependant_id)
 
-    def cook(self, document_as_dict):
+    def cook(self, document_as_dict, save_in_memory_cache=False):
         result = copy.deepcopy(document_as_dict)
         associated_ids = []
 
@@ -276,8 +274,10 @@ class Application(Flask):
 
             associated_ids = list(get_document.loaded_document_ids)
 
-        # TODO: find a better pattern, returning always id is not good
-        return result, associated_ids
+        if save_in_memory_cache:
+            self.memory_cache.set_document(document_as_dict["id"], document_as_dict, result, associated_ids)
+
+        return result
 
     def cooker(self, cooker):
         log.info("Register cooker: %s", str(cooker))
