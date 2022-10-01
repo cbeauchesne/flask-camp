@@ -41,6 +41,7 @@ def put():
     version = DocumentVersion(document=document, user=current_user, comment=comment, data=json.dumps(data))
 
     document.last_version = version
+    document.associated_ids = current_app.get_associated_ids(version.as_dict())
 
     current_app.database.session.add(document)
     current_app.database.session.add(version)

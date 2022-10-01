@@ -75,21 +75,24 @@ def post(document_id):
         raise EditConflict(last_version=last_version, your_version=body["document"])
 
     version = DocumentVersion(
-        document_id=document.id,
-        user_id=current_user.id,
+        document=document,
+        user=current_user,
         comment=comment,
         data=json.dumps(data),
     )
 
     current_app.database.session.add(version)
+
     document.last_version = version
+    document.associated_ids = current_app.get_associated_ids(version.as_dict())
 
     assert _RACE_CONDITION_TESTING()
     current_app.database.session.commit()
 
     current_app.refresh_memory_cache(document_id)
+    cooked_document = current_app.cook(version.as_dict())
 
-    return {"status": "ok", "document": current_app.cook(version.as_dict())}
+    return {"status": "ok", "document": cooked_document}
 
 
 @allow("admin")
@@ -104,6 +107,8 @@ def delete(document_id):
     current_app.database.session.delete(document)
 
     add_log("delete_document", document=document)
+
+    current_app.database.session.flush()
     current_app.database.session.commit()
 
     current_app.refresh_memory_cache(document_id)

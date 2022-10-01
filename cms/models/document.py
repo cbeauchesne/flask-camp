@@ -2,7 +2,8 @@ import json
 from datetime import datetime
 
 from flask_login import current_user
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean  # , ARRAY
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
 from werkzeug.exceptions import BadRequest
 
@@ -63,7 +64,7 @@ class Document(BaseModel):
 
     redirect_to = Column(Integer, ForeignKey("document.id"))
 
-    # associated_ids = Column(ARRAY(Integer), index=True)
+    associated_ids = Column(ARRAY(Integer), index=True)
 
     def update_last_version_id(self, forbidden_id=None):
         """call this when a version has been hidden or deleted"""

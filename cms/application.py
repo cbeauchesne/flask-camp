@@ -6,6 +6,7 @@ import warnings
 from flask import Flask
 from flask_login import LoginManager
 from flask_mail import Mail, Message
+from sqlalchemy import select
 from werkzeug.exceptions import HTTPException, NotFound
 
 from . import config
@@ -14,6 +15,7 @@ from .models.document import Document
 from .models.user import User as UserModel, AnonymousUser
 from .services.database import database
 from .services.memory_cache import MemoryCache
+from .utils import GetDocument
 
 from .views.account import user_login as user_login_view
 from .views.account import email_validation as email_validation_view
@@ -242,8 +244,6 @@ class Application(Flask):
         # TODO : make a single process dooing that
         document = Document.get(id=document_id)
 
-        dependants = self.memory_cache.get_dependants(document_id)
-
         if document is None:
             self.memory_cache.delete_document(document_id)
         else:
@@ -251,35 +251,28 @@ class Application(Flask):
             self.cook(document_as_dict, save_in_memory_cache=True)
 
         if refresh_dependants:
-            for dependant_id in dependants:
-                self.refresh_memory_cache(dependant_id, refresh_dependants=False)  # prevent circular references
+            query = select(Document.id).where(Document.associated_ids.contains([document_id]))
+            for row in self.database.session.execute(query):
+                self.refresh_memory_cache(row[0], refresh_dependants=False)  # prevent circular references
 
-    def cook(self, document_as_dict, save_in_memory_cache=False):
-        result = copy.deepcopy(document_as_dict)
+    def get_associated_ids(self, document_as_dict):
         associated_ids = []
-
-        class GetDocument:  # pylint: disable=too-few-public-methods
-            def __init__(self, original_get_document):
-                self.loaded_document_ids = set()
-                self.original_get_document = original_get_document
-
-            def __call__(self, document_id):
-                self.loaded_document_ids.add(document_id)
-                try:
-                    return self.original_get_document(document_id)
-                except NotFound:
-                    # it's a possible outcome, if the document has been deleted
-                    # In that situation, returns None
-                    return None
 
         if self._cooker is not None:
             get_document = GetDocument(self.get_document)
-            self._cooker(result, get_document)
-
+            self._cooker(copy.deepcopy(document_as_dict), get_document)
             associated_ids = list(get_document.loaded_document_ids)
 
+        return associated_ids
+
+    def cook(self, document_as_dict, save_in_memory_cache=False):
+        result = copy.deepcopy(document_as_dict)
+
+        if self._cooker is not None:
+            self._cooker(result, GetDocument(self.get_document))
+
         if save_in_memory_cache:
-            self.memory_cache.set_document(document_as_dict["id"], document_as_dict, result, associated_ids)
+            self.memory_cache.set_document(document_as_dict["id"], document_as_dict, result)
 
         return result
 

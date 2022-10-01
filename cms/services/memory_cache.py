@@ -32,12 +32,9 @@ class MemoryCache:
         self._client = RedisClient(host=host, port=port)
 
         self._document = _MemoryCacheCollection("document", self._client)
-        self._association = _MemoryCacheCollection("association", self._client)
 
-    def set_document(self, document_id, document_as_dict, cooked_document_as_dict, associated_ids):
-
+    def set_document(self, document_id, document_as_dict, cooked_document_as_dict):
         self._document.set(document_id, {"document": document_as_dict, "cooked_document": cooked_document_as_dict})
-        self._association.set(document_id, [str(associated_id) for associated_id in associated_ids])
 
     def get_document(self, document_id):
         result = self._document.get(document_id)
@@ -61,25 +58,11 @@ class MemoryCache:
             TagField("$.document.namespace", as_name="namespace"),
             NumericField("$.document.user.id", as_name="last_user"),
             NumericField("$.document.id", as_name="document_id"),
-            # NumericField("$.b", as_name="b"),
-            # TagField("$.array.*", as_name="array"),
         )
 
         self._document.search_engine.create_index(
             schema, definition=IndexDefinition(prefix=["document:"], index_type=IndexType.JSON)
         )
-
-        schema = (TagField("$.*", as_name="array"),)
-
-        self._association.search_engine.create_index(
-            schema, definition=IndexDefinition(prefix=["association:"], index_type=IndexType.JSON)
-        )
-
-    def get_dependants(self, document_id):
-        query = Query(f"@array:{{{document_id}}}")
-        result = self._association.search_engine.search(query)
-
-        return [int(doc.id[12:]) for doc in result.docs]
 
     def search(self, offset=0, limit=30):
 
@@ -101,3 +84,16 @@ class MemoryCache:
         }
 
         return s
+
+    # search an array
+    # schema = (TagField("$.*", as_name="array"),)
+
+    # self._association.search_engine.create_index(
+    #     schema, definition=IndexDefinition(prefix=["association:"], index_type=IndexType.JSON)
+    # )
+
+    # def get_dependants(self, document_id):
+    #     query = Query(f"@array:{{{document_id}}}")
+    #     result = self._association.search_engine.search(query)
+
+    #     return [int(doc.id[12:]) for doc in result.docs]
