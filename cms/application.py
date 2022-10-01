@@ -260,8 +260,21 @@ class Application(Flask):
     def cook(self, document_as_dict):
         result = copy.deepcopy(document_as_dict)
         associated_ids = []
+
+        class GetDocument:  # pylint: disable=too-few-public-methods
+            def __init__(self, original_get_document):
+                self.loaded_document_ids = set()
+                self.original_get_document = original_get_document
+
+            def __call__(self, document_id):
+                self.loaded_document_ids.add(document_id)
+                return self.original_get_document(document_id)
+
         if self._cooker is not None:
-            associated_ids = self._cooker(result)
+            get_document = GetDocument(self.get_document)
+            self._cooker(result, get_document)
+
+            associated_ids = list(get_document.loaded_document_ids)
 
         # TODO: find a better pattern, returning always id is not good
         return result, associated_ids

@@ -12,9 +12,8 @@ class Test_Document(BaseTest):
         self.login_user(user)
 
         @app.cooker
-        def cooker(document):
+        def cooker(document, get_document):  # pylint: disable=unused-argument
             document["cooked"] = True
-            return []
 
         doc = self.create_document(namespace="x", data={"value": "42"}).json["document"]
         assert doc["cooked"] is True, doc
@@ -42,16 +41,14 @@ class Test_Document(BaseTest):
         self.login_user(user)
 
         @app.cooker
-        def cooker(document):
+        def cooker(document, get_document):
             # Let's build an app with document. One rule: all document have (or not) a parent
             # if a document have a parent, it must be present in document["parent"]
             parent_id = document["data"]["parent_id"]
             if parent_id is not None:
-                document["parent"] = app.get_document(parent_id)
+                document["parent"] = get_document(parent_id)
             else:
                 document["parent"] = None
-
-            return [parent_id]  # return the list of dodument id used by the cooker
 
         # create a doc
         doc_1 = self.create_document(data={"parent_id": None, "content": "v1"}).json["document"]
