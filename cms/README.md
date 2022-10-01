@@ -67,6 +67,9 @@ Build a wiki API with all common features, regardless of the content of document
 
 ## TODO
 
+user profile page
+move associated ids to PG Document.associated_ids ?
+    Then, delete doc in memory cache, rather that updating it
 Dedicated search collection in redis (or pg?)
 cooker conf
 redis conf
