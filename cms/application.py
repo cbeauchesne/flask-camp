@@ -171,8 +171,6 @@ class Application(Flask):
         self.database.session.add(user)
         self.database.session.commit()
 
-        self.memory_cache.create_index()
-
         return {"status": "ok"}
 
     def send_account_creation_mail(self, email, token, user):

@@ -1,6 +1,6 @@
 import json
 
-from flask import request, current_app, Response
+from flask import request, current_app
 from flask_login import current_user
 from werkzeug.exceptions import BadRequest
 
@@ -22,7 +22,13 @@ def get():
     if not 0 <= limit <= 100:
         raise BadRequest("Limit can't be lower than 0 or higher than 100")
 
-    return current_app.memory_cache.search(limit=limit, offset=offset)
+    query = Document.query
+
+    count = query.count()
+    documents = query.offset(offset).limit(limit)
+
+    documents = [current_app.get_cooked_document(document.id) for document in documents]
+    return {"status": "ok", "documents": documents, "count": count}
 
 
 @limiter.limit("1/second;10/minute;60/hour")
