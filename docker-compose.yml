@@ -45,7 +45,7 @@ services:
     expose:
       - "6379"
     ports:
-      - "6379:6379"
+      - 6379:6379
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
       interval: 1s
@@ -60,6 +60,8 @@ services:
     volumes:
       - ./docker/init_db.sh:/docker-entrypoint-initdb.d/init_db.sh
       # - ./data/pg:/var/lib/postgresql/data
+    expose:
+      - "5432"
     ports:
       - 5432:5432
     healthcheck:

@@ -65,9 +65,7 @@ class Application(Flask):
             self.config["MAIL_DEFAULT_SENDER"] = "do-not-reply@example.com"
 
         if self.config.get("SQLALCHEMY_DATABASE_URI", None) is None:
-            if not self.testing:
-                warnings.warn("FLASK_SQLALCHEMY_DATABASE_URI environment variable is not set, defaulting to memory")
-            self.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
+            self.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://cms_user:cms_user@localhost:5432/cms"
 
         ###############################################################################################################
         # init services
@@ -168,7 +166,6 @@ class Application(Flask):
         user.set_password("password")
         user.set_email("admin@example.com")
         user.validate_email(user._email_token)
-
         self.database.session.add(user)
         self.database.session.commit()
 

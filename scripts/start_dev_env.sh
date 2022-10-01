@@ -1,4 +1,4 @@
 #!/bin/bash
 
 docker-compose down
-docker-compose up --remove-orphans redis
+docker-compose up --remove-orphans redis pg
