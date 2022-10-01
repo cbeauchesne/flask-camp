@@ -33,11 +33,7 @@ def put():
     try:
         current_app.database.session.commit()
     except IntegrityError as e:
-        error_info = e.orig.args
-        if error_info[0] == "UNIQUE constraint failed: user_account.name":
-            raise BadRequest("A user still exists with this name") from e
-        else:
-            raise BadRequest(error_info[0]) from e
+        raise BadRequest("A user still exists with this name") from e
 
     try:
         user.send_account_creation_mail()
