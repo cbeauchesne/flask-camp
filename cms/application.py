@@ -241,9 +241,11 @@ class Application(Flask):
 
         return cooked_document_as_dict
 
-    def refresh_memory_cache(self, document_id):
+    def refresh_memory_cache(self, document_id, refresh_dependants=True):
         # TODO : make a single process dooing that
         document = Document.get(id=document_id)
+
+        dependants = self.memory_cache.get_dependants(document_id)
 
         if document is None:
             self.memory_cache.delete_document(document_id)
@@ -251,9 +253,9 @@ class Application(Flask):
             document_as_dict = document.as_dict()
             self.cook(document_as_dict, save_in_memory_cache=True)
 
-        dependants = self.memory_cache.get_dependants(document_id)
-        for dependant_id in dependants:
-            self.refresh_memory_cache(dependant_id)
+        if refresh_dependants:
+            for dependant_id in dependants:
+                self.refresh_memory_cache(dependant_id, refresh_dependants=False)  # prevent circular references
 
     def cook(self, document_as_dict, save_in_memory_cache=False):
         result = copy.deepcopy(document_as_dict)
@@ -266,7 +268,12 @@ class Application(Flask):
 
             def __call__(self, document_id):
                 self.loaded_document_ids.add(document_id)
-                return self.original_get_document(document_id)
+                try:
+                    return self.original_get_document(document_id)
+                except NotFound:
+                    # it's a possible outcome, if the document has been deleted
+                    # In that situation, returns None
+                    return None
 
         if self._cooker is not None:
             get_document = GetDocument(self.get_document)

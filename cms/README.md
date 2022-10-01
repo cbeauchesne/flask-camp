@@ -41,7 +41,7 @@ Build a wiki API with all common features, regardless of the content of document
     * [x] all changes made by one user
     * [x] offset and limit feature
   * [x] `/version` get a given version of a doc
-* [ ] cooker
+* [x] cooker
   * [x] documents can be cooked by a custom cook function
   * [x] they are served cooked by default everywhere
   * [x] cooker can get other documents

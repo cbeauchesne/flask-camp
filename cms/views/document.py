@@ -89,7 +89,7 @@ def post(document_id):
 
     current_app.refresh_memory_cache(document_id)
 
-    return {"status": "ok", "document": version.as_dict()}
+    return {"status": "ok", "document": current_app.cook(version.as_dict())}
 
 
 @allow("admin")
