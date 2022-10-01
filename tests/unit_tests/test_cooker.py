@@ -34,8 +34,8 @@ class Test_Document(BaseTest):
         docs = self.get_tagged_documents("star").json["documents"]
         assert docs[0]["cooked"] is True
 
-        assert "cooked" not in memory_cache._document.get(doc["id"])
-        assert "cooked" in memory_cache._cooked_document.get(doc["id"])
+        assert "cooked" not in memory_cache.get_document(doc["id"])
+        assert "cooked" in memory_cache.get_cooked_document(doc["id"])
 
     def test_association(self, user, app):
         self.login_user(user)

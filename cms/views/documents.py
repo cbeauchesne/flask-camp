@@ -22,10 +22,7 @@ def get():
     if not 0 <= limit <= 100:
         raise BadRequest("Limit can't be lower than 0 or higher than 100")
 
-    return Response(
-        response=current_app.memory_cache.search(limit=limit, offset=offset),
-        content_type="application/json",
-    )
+    return current_app.memory_cache.search(limit=limit, offset=offset)
 
 
 @limiter.limit("1/second;10/minute;60/hour")

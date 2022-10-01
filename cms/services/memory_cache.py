@@ -1,3 +1,4 @@
+import json
 import logging
 
 from redis import Redis as RedisClient
@@ -31,40 +32,41 @@ class MemoryCache:
         self._client = RedisClient(host=host, port=port)
 
         self._document = _MemoryCacheCollection("document", self._client)
-        self._cooked_document = _MemoryCacheCollection("cooked_document", self._client)
         self._association = _MemoryCacheCollection("association", self._client)
 
     def set_document(self, document_id, document_as_dict, cooked_document_as_dict, associated_ids):
-        self._document.set(document_id, document_as_dict)
-        self._cooked_document.set(document_id, cooked_document_as_dict)
 
+        self._document.set(document_id, {"document": document_as_dict, "cooked_document": cooked_document_as_dict})
         self._association.set(document_id, [str(associated_id) for associated_id in associated_ids])
 
     def get_document(self, document_id):
-        return self._document.get(document_id)
+        result = self._document.get(document_id)
+
+        return None if result is None else result["document"]
 
     def get_cooked_document(self, document_id):
-        return self._cooked_document.get(document_id)
+        result = self._document.get(document_id)
+
+        return None if result is None else result["cooked_document"]
 
     def delete_document(self, document_id):
         self._document.delete(document_id)
-        self._cooked_document.delete(document_id)
 
     def flushall(self):
         self._client.flushall()
 
     def create_index(self):
         schema = (
-            TagField("$.protected", as_name="protected"),
-            TagField("$.namespace", as_name="namespace"),
-            NumericField("$.user.id", as_name="last_user"),
-            NumericField("$.id", as_name="document_id"),
+            TagField("$.document.protected", as_name="protected"),
+            TagField("$.document.namespace", as_name="namespace"),
+            NumericField("$.document.user.id", as_name="last_user"),
+            NumericField("$.document.id", as_name="document_id"),
             # NumericField("$.b", as_name="b"),
             # TagField("$.array.*", as_name="array"),
         )
 
-        self._cooked_document.search_engine.create_index(
-            schema, definition=IndexDefinition(prefix=["cooked_document:"], index_type=IndexType.JSON)
+        self._document.search_engine.create_index(
+            schema, definition=IndexDefinition(prefix=["document:"], index_type=IndexType.JSON)
         )
 
         schema = (TagField("$.*", as_name="array"),)
@@ -88,12 +90,14 @@ class MemoryCache:
         #     args.append(f"@namespace:{{{namespace}}}")
 
         query = Query("*").paging(offset, limit)
-        result = self._cooked_document.search_engine.search(query)
+        result = self._document.search_engine.search(query)
 
         log.info(query.query_string())
 
-        # magic
-        s = ",".join([doc.json for doc in result.docs])
-        s = f'{{"status": "ok", "count": {result.total}, "documents": [{s}]}}'
+        s = {
+            "status": "ok",
+            "count": result.total,
+            "documents": [json.loads(doc.json)["cooked_document"] for doc in result.docs],
+        }
 
         return s

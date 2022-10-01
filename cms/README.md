@@ -67,8 +67,7 @@ Build a wiki API with all common features, regardless of the content of document
 
 ## TODO
 
-only one collection in redis that ships [document, cooked_document]
-search collection in redis
+Dedicated search collection in redis (or pg?)
 cooker conf
 redis conf
 admin can rename user
