@@ -45,9 +45,7 @@ def _compute_source(filename):
             system_delta = cpu_stats["system_cpu_usage"] - previous_cpu_system
 
             if system_delta > 0.0 and cpu_delta > 0.0:
-                cpu_percent.append(
-                    (cpu_delta / system_delta) * cpu_stats["online_cpus"]
-                )
+                cpu_percent.append((cpu_delta / system_delta) * cpu_stats["online_cpus"])
             else:
                 cpu_percent.append(0)
 

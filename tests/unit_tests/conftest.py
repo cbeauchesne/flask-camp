@@ -156,4 +156,5 @@ def drop_all():
 
 @pytest.fixture()
 def app():
-    return tested_app
+    yield tested_app
+    tested_app._cooker = None
