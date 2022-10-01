@@ -57,10 +57,10 @@ def delete(version_id):
     if DocumentVersion.query.filter_by(document_id=version.document_id).count() <= 1:
         raise BadRequest("Can't delete last version of a document")
 
-    current_app.database.session.delete(version)
-
     document = Document.get(id=version.document_id, with_for_update=True)
-    document.update_last_version_id()
+
+    document.update_last_version_id(forbidden_id=version.id)
+    current_app.database.session.delete(version)
 
     add_log("delete_version", version=version, document=version.document)
 

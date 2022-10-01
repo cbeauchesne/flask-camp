@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from flask_login import current_user
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean  # , ARRAY
 from sqlalchemy.orm import relationship
 from werkzeug.exceptions import BadRequest
 
@@ -63,13 +63,17 @@ class Document(BaseModel):
 
     redirect_to = Column(Integer, ForeignKey("document.id"))
 
-    def update_last_version_id(self):
+    # associated_ids = Column(ARRAY(Integer), index=True)
+
+    def update_last_version_id(self, forbidden_id=None):
         """call this when a version has been hidden or deleted"""
-        self.last_version = (
-            DocumentVersion.query.filter_by(document_id=self.id, hidden=False)
-            .order_by(DocumentVersion.id.desc())
-            .first()
-        )
+        query = DocumentVersion.query
+
+        if forbidden_id is not None:
+            query = query.filter(DocumentVersion.id != forbidden_id)
+
+        query = query.filter_by(document_id=self.id, hidden=False).order_by(DocumentVersion.id.desc())
+        self.last_version = query.first()
 
         if self.last_version is None:
             raise BadRequest("There is no visible version associated with this document")
