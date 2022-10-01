@@ -218,7 +218,6 @@ class Application(Flask):
                 raise NotFound()
 
             document_as_dict = document.as_dict()
-            self.cook(document_as_dict, save_in_memory_cache=True)
 
         return document_as_dict
 
@@ -238,20 +237,12 @@ class Application(Flask):
 
         return cooked_document_as_dict
 
-    def refresh_memory_cache(self, document_id, refresh_dependants=True):
-        # TODO : make a single process dooing that
-        document = Document.get(id=document_id)
+    def refresh_memory_cache(self, document_id):
+        self.memory_cache.delete_document(document_id)
 
-        if document is None:
-            self.memory_cache.delete_document(document_id)
-        else:
-            document_as_dict = document.as_dict()
-            self.cook(document_as_dict, save_in_memory_cache=True)
-
-        if refresh_dependants:
-            query = select(Document.id).where(Document.associated_ids.contains([document_id]))
-            for row in self.database.session.execute(query):
-                self.refresh_memory_cache(row[0], refresh_dependants=False)  # prevent circular references
+        query = select(Document.id).where(Document.associated_ids.contains([document_id]))
+        for row in self.database.session.execute(query):
+            self.memory_cache.delete_document(row[0])
 
     def get_associated_ids(self, document_as_dict):
         associated_ids = []

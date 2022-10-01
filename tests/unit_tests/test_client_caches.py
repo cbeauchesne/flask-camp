@@ -14,7 +14,13 @@ class Test_ETag(BaseTest):
         self.get_document(v1, headers={"If-None-Match": etag}, expected_status=304)
         self.get_document(v1, headers={"If-None-Match": "not-the-good-hash"}, expected_status=200)
 
+        # a modification remove the document from the cache
         v2 = self.modify_document(v1, data="12").json["document"]
+        assert memory_cache.get_document(v1["id"]) is None
+
+        # but a get recompute it in the cache
+        self.get_document(v1)
+        assert memory_cache.get_document(v1["id"]) is not None
         assert memory_cache.get_document(v1["id"])["timestamp"] == v2["timestamp"]
 
         r = self.get_document(v1, headers={"If-None-Match": etag}, expected_status=200)

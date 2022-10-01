@@ -69,9 +69,8 @@ Build a wiki API with all common features, regardless of the content of document
 
 forbid narcissus
 user profile page
-move associated ids to PG Document.associated_ids ?
-    Then, delete doc in memory cache, rather that updating it
-Dedicated search collection in redis (or pg?)
+search must be configurable
+put back tagged_documents in documents
 cooker conf
 redis conf
 admin can rename user

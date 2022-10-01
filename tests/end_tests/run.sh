@@ -27,3 +27,5 @@ docker-compose logs redis > logs/redis.log
 docker-compose logs cms > logs/cms.log
 
 docker-compose down
+
+python tests/end_tests/fuzzer/pretty.py
