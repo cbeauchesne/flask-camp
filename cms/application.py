@@ -6,7 +6,6 @@ import warnings
 from flask import Flask
 from flask_login import LoginManager
 from flask_mail import Mail, Message
-from sqlalchemy import select
 from werkzeug.exceptions import HTTPException, NotFound
 
 from . import config
@@ -112,31 +111,30 @@ class Application(Flask):
             self.logger.addHandler(handler)
 
     def _init_url_rules(self):
-        self.add_module(home_view)
+        # basic page: home and healtcheck
+        self.add_modules(home_view, healthcheck_view)
 
-        self.add_module(healthcheck_view)
+        # access to users
+        self.add_modules(users_view, user_view, current_user_view)
 
-        self.add_module(users_view)
-        self.add_module(user_view)
-        self.add_module(current_user_view)
+        # related to user account
+        self.add_modules(user_login_view, email_validation_view, reset_password_view)
 
-        self.add_module(user_login_view)
-        self.add_module(email_validation_view)
-        self.add_module(reset_password_view)
-        self.add_module(roles_view)
+        # related to document
+        self.add_modules(documents_view, document_view)
+        self.add_modules(versions_view, version_view)
+        self.add_modules(user_tags_view)
 
-        self.add_module(documents_view)
-        self.add_module(document_view)
-        self.add_module(versions_view)
-        self.add_module(version_view)
+        # logs
+        self.add_modules(logs_view)
 
-        self.add_module(user_tags_view)
+        # reserved for moderators
+        self.add_modules(protect_document_view)
+        self.add_modules(block_user_view)
+        self.add_modules(merge_view)
 
-        self.add_module(logs_view)
-
-        self.add_module(protect_document_view)
-        self.add_module(block_user_view)
-        self.add_module(merge_view)
+        # and reserved for admins
+        self.add_modules(roles_view)
 
     def _init_memory_cache(self):
         redis_host = self.config.get("REDIS_HOST", "localhost")
@@ -146,15 +144,19 @@ class Application(Flask):
 
         self.memory_cache = MemoryCache(host=redis_host, port=redis_port)
 
-    def add_module(self, module):
+    def add_modules(self, *modules):
 
-        for method in ["get", "post", "put", "delete"]:
-            if hasattr(module, method):
-                function = getattr(module, method)
+        for module in modules:
+            for method in ["get", "post", "put", "delete"]:
+                if hasattr(module, method):
+                    function = getattr(module, method)
 
-                self.add_url_rule(
-                    module.rule, view_func=function, methods=[method.upper()], endpoint=f"{method}_{module.__name__}"
-                )
+                    self.add_url_rule(
+                        module.rule,
+                        view_func=function,
+                        methods=[method.upper()],
+                        endpoint=f"{method}_{module.__name__}",
+                    )
 
     def init_databases(self):
         """Will init database with an admin user"""
@@ -234,13 +236,6 @@ class Application(Flask):
             cooked_document_as_dict = self.cook(document_as_dict, save_in_memory_cache=True)
 
         return cooked_document_as_dict
-
-    def refresh_memory_cache(self, document_id):
-        self.memory_cache.delete_document(document_id)
-
-        query = select(Document.id).where(Document.associated_ids.contains([document_id]))
-        for row in self.database.session.execute(query):
-            self.memory_cache.delete_document(row[0])
 
     def get_associated_ids(self, document_as_dict):
         associated_ids = []

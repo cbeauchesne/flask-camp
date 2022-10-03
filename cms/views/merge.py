@@ -34,7 +34,7 @@ def post():
 
     current_app.database.session.commit()
 
-    current_app.refresh_memory_cache(document_destination.id)
-    current_app.refresh_memory_cache(document_to_merge.id)
+    document_destination.clear_memory_cache()
+    document_to_merge.clear_memory_cache()
 
     return {"status": "ok"}

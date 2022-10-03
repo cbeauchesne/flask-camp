@@ -31,6 +31,6 @@ def post(document_id):
 
     current_app.database.session.commit()
 
-    current_app.refresh_memory_cache(document.id)
+    document.clear_memory_cache()
 
     return {"status": "ok"}

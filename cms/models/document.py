@@ -1,8 +1,9 @@
 import json
 from datetime import datetime
 
+from flask import current_app
 from flask_login import current_user
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, select
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
 from werkzeug.exceptions import BadRequest
@@ -78,6 +79,13 @@ class Document(BaseModel):
 
         if self.last_version is None:
             raise BadRequest("There is no visible version associated with this document")
+
+    def clear_memory_cache(self):
+        current_app.memory_cache.delete_document(self.id)
+
+        query = select(Document.id).where(Document.associated_ids.contains([self.id]))
+        for row in current_app.database.session.execute(query):
+            current_app.memory_cache.delete_document(row[0])
 
     def as_dict(self):
         return _as_dict(self, self.last_version)

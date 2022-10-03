@@ -88,7 +88,7 @@ def post(document_id):
     assert _RACE_CONDITION_TESTING()
     current_app.database.session.commit()
 
-    current_app.refresh_memory_cache(document_id)
+    document.clear_memory_cache()
     cooked_document = current_app.cook(version.as_dict())
 
     return {"status": "ok", "document": cooked_document}
@@ -110,7 +110,7 @@ def delete(document_id):
     current_app.database.session.flush()
     current_app.database.session.commit()
 
-    current_app.refresh_memory_cache(document_id)
+    document.clear_memory_cache()
 
     return {"status": "ok"}
 

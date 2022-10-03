@@ -40,7 +40,7 @@ def post(version_id):
     add_log("hide_version" if hidden else "unhide_version", version=version, document=version.document)
 
     current_app.database.session.commit()
-    current_app.refresh_memory_cache(version.document.id)
+    version.document.clear_memory_cache()  # todo : only if just hid the last version
 
     return {"status": "ok"}
 
@@ -65,6 +65,6 @@ def delete(version_id):
     add_log("delete_version", version=version, document=version.document)
 
     current_app.database.session.commit()
-    current_app.refresh_memory_cache(version.document.id)
+    version.document.clear_memory_cache()
 
     return {"status": "ok"}
