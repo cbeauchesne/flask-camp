@@ -8,7 +8,6 @@ from flask import Flask
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_login import LoginManager
-from flask_mail import Mail, Message
 
 from werkzeug.exceptions import HTTPException, NotFound
 
@@ -17,6 +16,7 @@ from .models.document import Document
 from .models.user import User as UserModel, AnonymousUser
 from .services.database import database
 from .services.memory_cache import MemoryCache
+from .services.send_mail import SendMail
 from .utils import GetDocument
 
 from .views.account import user_login as user_login_view
@@ -43,6 +43,8 @@ logging.basicConfig(format="%(asctime)s [%(levelname)8s] %(message)s")
 
 
 class Application(Flask):
+
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, config_object=None, rate_limit_cost_function=None):
         super().__init__(__name__, static_folder=None)
 
@@ -85,10 +87,10 @@ class Application(Flask):
         self.database = database
         database.init_app(self)
 
+        self.mail = SendMail(self)
+
         self._login_manager = LoginManager(self)
         self._login_manager.anonymous_user = AnonymousUser
-
-        self.mail = Mail(self)
 
         self.limiter = Limiter(app=self, key_func=get_remote_address)
 
@@ -191,39 +193,6 @@ class Application(Flask):
         self.database.session.commit()
 
         return {"status": "ok"}
-
-    def send_account_creation_mail(self, email, token, user):
-        self.logger.info("Send registration mail to user %s", user.name)
-        message = Message(
-            "Welcome to example.com",  # TODO
-            recipients=[email],
-            body=f"https://example.com?email_token={token}",
-            html=f'<a href="https://example.com?email_token={token}">click</a>',
-        )
-
-        self.mail.send(message)
-
-    def send_email_change_mail(self, email, token, user):
-        self.logger.info("Send mail address update mail to user %s", user.name)
-        message = Message(
-            "Change email",  # TODO
-            recipients=[email],
-            body=f"https://example.com?email_token={token}",
-            html=f'<a href="https://example.com?email_token={token}">click</a>',
-        )
-
-        self.mail.send(message)
-
-    def send_login_token_mail(self, email, token, user):
-        self.logger.info("Send login token mail to user %s", user.name)
-        message = Message(
-            "Login token email",  # TODO
-            recipients=[email],
-            body=f"https://example.com?login_token={token}",
-            html=f'<a href="https://example.com?login_token={token}">click</a>',
-        )
-
-        self.mail.send(message)
 
     def get_document(self, document_id):
         """This very simple function get a document id and returns it as a dict.

@@ -142,13 +142,13 @@ class User(BaseModel):
         log.info("Update %s's email", self)
 
     def send_account_creation_mail(self):
-        current_app.send_account_creation_mail(self._email_to_validate, self._email_token, self)
+        current_app.mail.send_account_creation(self._email_to_validate, self._email_token, self)
 
     def send_email_change_mail(self):
-        current_app.send_email_change_mail(self._email_to_validate, self._email_token, self)
+        current_app.mail.send_email_change(self._email_to_validate, self._email_token, self)
 
     def send_login_token_mail(self):
-        current_app.send_login_token_mail(self._email, self._login_token, self)
+        current_app.mail.send_login_token(self._email, self._login_token, self)
 
     def validate_email(self, token):
 

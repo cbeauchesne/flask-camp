@@ -137,7 +137,7 @@ def database():
 
 @pytest.fixture()
 def mail():
-    yield tested_app.mail
+    yield tested_app.mail._mail
 
 
 @pytest.fixture()
@@ -150,12 +150,12 @@ def cant_send_mail():
     def raise_exception(*args, **kwargs):
         raise Exception("That was not expcted!")
 
-    original_send = tested_app.mail.send
-    tested_app.mail.send = raise_exception
+    original_send = tested_app.mail._mail.send
+    tested_app.mail._mail.send = raise_exception
 
     yield
 
-    tested_app.mail.send = original_send
+    tested_app.mail._mail.send = original_send
 
 
 @pytest.fixture()
