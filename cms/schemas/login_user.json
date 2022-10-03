@@ -2,15 +2,9 @@
   "description": "POST request to login an user",
   "type": "object",
   "properties": {
-    "name": {
-      "$ref": "/cms/schemas/entities/user_name.json"
-    },
-    "password": {
-      "type": "string"
-    },
-    "token": {
-      "$ref": "/cms/schemas/entities/token.json"
-    }
+    "name": { "$ref": "/cms/schemas/entities/user_name.json" },
+    "password": { "type": "string" },
+    "token": { "$ref": "/cms/schemas/entities/token.json" }
   },
   "oneOf": [
     { "required": ["name", "password"] },

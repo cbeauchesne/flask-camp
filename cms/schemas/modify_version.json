@@ -1,17 +1,10 @@
 {
   "description": "POST request to hide/unhide a version",
   "type": "object",
-  "allOf": [
-    {
-      "$ref": "/cms/schemas/comment.json"
-    },
-    {
-      "properties": {
-        "hidden": { "type": "boolean" },
-        "comment": { "type": "string" }
-      },
-      "additionalProperties": false
-    }
-  ],
+  "properties": {
+    "comment": { "$ref": "/cms/schemas/entities/comment.json" },
+    "hidden": { "type": "boolean" }
+  },
+  "additionalProperties": false,
   "required": ["comment", "hidden"]
 }

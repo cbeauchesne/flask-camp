@@ -2,12 +2,8 @@
   "description": "POST/DELETE request to add/remove a user role",
   "type": "object",
   "properties": {
-    "comment": {
-      "$ref": "/cms/schemas/entities/comment.json"
-    },
-    "role": {
-      "$ref": "/cms/schemas/entities/role.json"
-    }
+    "comment": { "$ref": "/cms/schemas/entities/comment.json" },
+    "role": { "$ref": "/cms/schemas/entities/role.json" }
   },
   "required": ["comment", "role"],
   "additionalProperties": false

@@ -10,7 +10,7 @@ rule = "/block_user/<int:user_id>"
 
 
 @allow("moderator")
-@schema("cms/schemas/comment.json")
+@schema("cms/schemas/action_with_comment.json")
 def post(user_id):
     """Block/unblock an user"""
 

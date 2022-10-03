@@ -93,7 +93,7 @@ def post(document_id):
 
 
 @allow("admin")
-@schema("cms/schemas/comment.json")
+@schema("cms/schemas/action_with_comment.json")
 def delete(document_id):
     """Delete a document"""
     document = Document.get(id=document_id)

@@ -112,7 +112,7 @@ class ClientInterface:
         return self.put(
             "/documents",
             expected_status=expected_status,
-            json={"document": {"namespace": namespace, "data": data if data else {}}},
+            json={"comment": "creation", "document": {"namespace": namespace, "data": data if data else {}}},
         )
 
     def get_documents(

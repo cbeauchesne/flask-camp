@@ -20,16 +20,13 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] login token can only be used once
   * [x] login token must expire after one hour
 * [x] rate limiting
-  * [x] rate limiting on user login failures
-  * [x] rate limiting on document creation
-  * [x] rate limiting on document modification
+  * [x] configurable
   * [x] use redis
 * [x] unique document type, shipping a namespace field.
   * [x] `/documents`
     * [x] add a document
     * [x] get list of document
       * [x] offset and limit feature
-      * [x] use redis for search
   * [x] `/document` get, modify, delete a document
     * [x] Modify document
     * [x] manage edit conflict
@@ -76,6 +73,9 @@ admin can rename user
 more test on delete
 more test on logs
 more test!
+user can delete option
+before_document_delete hook
+
 
 
 ## Golden rules
@@ -102,9 +102,9 @@ Do not re-invent the wheel as a golden rule. So it uses :
 * Flask-SQLAlchemy
 * SQLAlchemy
 * jsonschema
-* redis 
-* postgresql as production DB
-* sqlite as test DB
+* redis
+* postgresql
+* nginx, uwsgi and haproxy for prod tools (even if you can use another one)
 
 And on develpment side :
 
@@ -112,7 +112,6 @@ And on develpment side :
 * black
 * pylint
 * freezegun
-* fakeredis
 
 ### Why not Flask-restful?
 
@@ -128,4 +127,4 @@ And it turns out that flask handle pretty well json requests and response out-of
   * build document JSON
   * update Redis with the serialized document
 * get document -> get in redis
-* get list of document -> get ids in elastic search, values in redis
+* get list of document -> get ids in PG, values in redis

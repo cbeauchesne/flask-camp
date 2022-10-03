@@ -2,23 +2,15 @@
   "description": "POST request to modify an user",
   "type": "object",
   "properties": {
-    "password": {
-      "type": "string"
-    },
-    "token": {
-      "$ref": "/cms/schemas/entities/token.json"
-    },
-    "new_password": {
-      "type": "string"
-    },
+    "name": { "$ref": "/cms/schemas/entities/user_name.json" },
+    "password": { "type": "string" },
+    "new_password": { "type": "string" },
+    "token": { "$ref": "/cms/schemas/entities/token.json" },
     "email": {
       "type": "string",
       "format": "email"
     },
-    "ui_preferences": {},
-    "name": {
-      "$ref": "/cms/schemas/entities/user_name.json"
-    }
+    "ui_preferences": {}
   },
   "additionalProperties": false
 }

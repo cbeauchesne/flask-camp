@@ -96,6 +96,7 @@ class Test_UserCreation(BaseTest):
         email, password = "valid@email.com", "password"
 
         self.create_user("", email, password, expected_status=400)
+        self.create_user("tailing_space ", email, password, expected_status=400)
         self.create_user(" starting_space", email, password, expected_status=400)
         self.create_user("abc", email, password, expected_status=400)  # too short
         self.create_user("@xxxx", email, password, expected_status=400)  # can't contains an @

@@ -4,9 +4,7 @@
   "properties": {
     "document_to_merge": { "type": "integer" },
     "document_destination": { "type": "integer" },
-    "comment": {
-      "$ref": "/cms/schemas/entities/comment.json"
-    }
+    "comment": { "$ref": "/cms/schemas/entities/comment.json" }
   },
   "required": ["document_to_merge", "document_destination", "comment"],
   "additionalProperties": false

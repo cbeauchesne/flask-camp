@@ -46,7 +46,7 @@ def post(version_id):
 
 
 @allow("admin")
-@schema("cms/schemas/comment.json")
+@schema("cms/schemas/action_with_comment.json")
 def delete(version_id):
     """Delete a version of a document (only for admins)"""
     version = DocumentVersion.get(id=version_id)

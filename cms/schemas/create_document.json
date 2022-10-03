@@ -2,11 +2,9 @@
   "description": "PUT request to create a document",
   "type": "object",
   "properties": {
-    "document": {
-      "$ref": "/cms/schemas/entities/document.json"
-    },
-    "comment": { "type": "string" }
+    "document": { "$ref": "/cms/schemas/entities/document.json" },
+    "comment": { "$ref": "/cms/schemas/entities/comment.json" }
   },
-  "required": ["document"],
+  "required": ["document", "comment"],
   "additionalProperties": false
 }

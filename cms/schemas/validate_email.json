@@ -2,12 +2,8 @@
   "description": "POST request to validate user creation",
   "type": "object",
   "properties": {
-    "name": {
-      "$ref": "/cms/schemas/entities/user_name.json"
-    },
-    "token": {
-      "$ref": "/cms/schemas/entities/token.json"
-    }
+    "name": { "$ref": "/cms/schemas/entities/user_name.json" },
+    "token": { "$ref": "/cms/schemas/entities/token.json" }
   },
   "required": ["name", "token"],
   "additionalProperties": false
