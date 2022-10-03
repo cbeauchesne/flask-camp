@@ -70,7 +70,6 @@ Build a wiki API with all common features, regardless of the content of document
 forbid narcissus
 user profile page
 search must be configurable
-put back tagged_documents in documents
 cooker conf
 redis conf
 admin can rename user

@@ -4,7 +4,6 @@ import time
 
 from flask import request, current_app, Response
 from flask_login import current_user
-from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import NotFound, Forbidden, Conflict, BadRequest
 
 from cms.decorators import allow

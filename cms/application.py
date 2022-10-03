@@ -30,7 +30,6 @@ from .views import home as home_view
 from .views import logs as logs_view
 from .views import merge as merge_view
 from .views import protect_document as protect_document_view
-from .views import tagged_documents as tagged_documents_view
 from .views import user as user_view
 from .views import users as users_view
 from .views import user_tags as user_tags_view
@@ -132,7 +131,6 @@ class Application(Flask):
         self.add_module(version_view)
 
         self.add_module(user_tags_view)
-        self.add_module(tagged_documents_view)
 
         self.add_module(logs_view)
 

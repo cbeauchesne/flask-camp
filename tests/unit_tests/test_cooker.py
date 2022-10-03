@@ -34,7 +34,7 @@ class Test_Document(BaseTest):
         assert docs[0]["cooked"] is True
 
         self.add_user_tag("star", doc)
-        docs = self.get_tagged_documents("star").json["documents"]
+        docs = self.get_documents(tag_name="star").json["documents"]
         assert docs[0]["cooked"] is True
 
         assert "cooked" not in memory_cache.get_document(doc["id"])

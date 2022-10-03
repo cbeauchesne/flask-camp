@@ -24,7 +24,21 @@ def get():
         raise BadRequest("Limit can't be lower than 0 or higher than 100")
 
     def make_query(base_query):
-        return current_app.database.session.execute(base_query)
+
+        query = base_query
+
+        tag_filters_args = {
+            "user_id": request.args.get("tag_user_id", default=None, type=int),
+            "name": request.args.get("tag_name", default=None, type=str),
+            "value": request.args.get("tag_value", default=None, type=str),
+        }
+
+        tag_filters_args = {k: v for k, v in tag_filters_args.items() if v is not None}
+
+        if len(tag_filters_args) != 0:
+            query = query.where(Document.user_tags.any(**tag_filters_args))
+
+        return current_app.database.session.execute(query)
 
     count = make_query(select(func.count(Document.id)))
     document_ids = make_query(select(Document.id).limit(limit).offset(offset).order_by(Document.id.asc()))
