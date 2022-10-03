@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 
 import pytest
@@ -8,6 +9,8 @@ from cms.application import Application
 from cms.models.user import User
 
 from tests.unit_tests.utils import BaseTest
+
+os.environ["FLASK_RATELIMIT_CONFIGURATION_FILE"] = "tests/ratelimit_config.json"
 
 tested_app = Application(cms_config.Testing)
 

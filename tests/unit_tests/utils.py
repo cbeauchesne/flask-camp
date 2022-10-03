@@ -4,8 +4,8 @@ from tests.utils import ClientInterface
 class BaseTest(ClientInterface):
     client = None
 
-    def get(self, url, params=None, headers=None, expected_status=None):
-        r = BaseTest.client.get(url, query_string=params, headers=headers)
+    def get(self, url, params=None, headers=None, expected_status=None, **kwargs):
+        r = BaseTest.client.get(url, query_string=params, headers=headers, **kwargs)
         self.assert_status_code(r, expected_status)
 
         return r
@@ -30,10 +30,13 @@ class BaseTest(ClientInterface):
 
     @staticmethod
     def assert_status_code(response, expected_status):
-        expected_status = 200 if expected_status is None else expected_status
+        if expected_status is None:
+            expected_status = [200]
+        elif isinstance(expected_status, int):
+            expected_status = [expected_status]
 
         assert (
-            response.status_code == expected_status
+            response.status_code in expected_status
         ), f"Status error: {response.status_code} i/o {expected_status}\n{response.data}"
 
     def _assert_status_response(self, r):

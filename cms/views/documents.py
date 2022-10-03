@@ -6,7 +6,6 @@ from sqlalchemy import select, func
 from werkzeug.exceptions import BadRequest
 
 from cms.decorators import allow
-from cms.limiter import limiter
 from cms.models.document import Document, DocumentVersion
 from cms.schemas import schema
 
@@ -47,7 +46,6 @@ def get():
     return {"status": "ok", "documents": documents, "count": list(count)[0][0]}
 
 
-@limiter.limit("1/second;10/minute;60/hour")
 @allow("authenticated")
 @schema("cms/schemas/create_document.json")
 def put():

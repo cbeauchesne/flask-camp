@@ -10,7 +10,7 @@ rule = "/versions"
 
 @allow("anonymous")
 def get():
-    """GEt a list of versions"""
+    """Get a list of versions"""
     filters = {}
 
     limit = request.args.get("limit", default=30, type=int)

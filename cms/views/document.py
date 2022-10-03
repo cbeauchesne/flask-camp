@@ -7,7 +7,6 @@ from flask_login import current_user
 from werkzeug.exceptions import NotFound, Forbidden, Conflict, BadRequest
 
 from cms.decorators import allow
-from cms.limiter import limiter
 from cms.models.document import Document, DocumentVersion
 from cms.models.log import add_log
 from cms.schemas import schema
@@ -45,7 +44,6 @@ def get(document_id):
     return response
 
 
-@limiter.limit("2/second;10/minute;60/hour")
 @allow("authenticated")
 @schema("cms/schemas/modify_document.json")
 def post(document_id):

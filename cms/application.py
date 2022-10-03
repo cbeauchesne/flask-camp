@@ -1,4 +1,5 @@
 import copy
+import json
 import logging
 import sys
 import warnings
@@ -37,7 +38,6 @@ from .views import version as version_view
 
 
 logging.basicConfig(format="%(asctime)s [%(levelname)8s] %(message)s")
-log = logging.getLogger(__name__)
 
 
 class Application(Flask):
@@ -66,6 +66,12 @@ class Application(Flask):
 
         if self.config.get("SQLALCHEMY_DATABASE_URI", None) is None:
             self.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://cms_user:cms_user@localhost:5432/cms"
+
+        if "RATELIMIT_CONFIGURATION_FILE" in self.config:
+            with open(self.config["RATELIMIT_CONFIGURATION_FILE"], mode="r", encoding="utf-8") as f:
+                self._rate_limits = json.load(f)
+        else:
+            self._rate_limits = {}  # pragma: no cover
 
         ###############################################################################################################
         # init services
@@ -150,18 +156,27 @@ class Application(Flask):
             for method in ["get", "post", "put", "delete"]:
                 if hasattr(module, method):
                     function = getattr(module, method)
+                    method = method.upper()
+
+                    if module.rule in self._rate_limits and method in self._rate_limits[module.rule]:
+                        limit = self._rate_limits[module.rule][method]
+                        if limit is not None:
+                            function = limiter.limit(limit)(function)
+                            self.logger.info("Use %s rate limit for %s %s", limit, method, module.rule)
+                        else:
+                            function = limiter.exempt(function)
 
                     self.add_url_rule(
                         module.rule,
                         view_func=function,
-                        methods=[method.upper()],
+                        methods=[method],
                         endpoint=f"{method}_{module.__name__}",
                     )
 
     def init_databases(self):
         """Will init database with an admin user"""
 
-        log.info("Init database")
+        self.logger.info("Init database")
         self.database.create_all()
 
         user = UserModel(name="admin", roles=["admin"])
@@ -174,7 +189,7 @@ class Application(Flask):
         return {"status": "ok"}
 
     def send_account_creation_mail(self, email, token, user):
-        log.info("Send registration mail to user %s", user.name)
+        self.logger.info("Send registration mail to user %s", user.name)
         message = Message(
             "Welcome to example.com",  # TODO
             recipients=[email],
@@ -185,7 +200,7 @@ class Application(Flask):
         self.mail.send(message)
 
     def send_email_change_mail(self, email, token, user):
-        log.info("Send mail address update mail to user %s", user.name)
+        self.logger.info("Send mail address update mail to user %s", user.name)
         message = Message(
             "Change email",  # TODO
             recipients=[email],
@@ -196,7 +211,7 @@ class Application(Flask):
         self.mail.send(message)
 
     def send_login_token_mail(self, email, token, user):
-        log.info("Send login token mail to user %s", user.name)
+        self.logger.info("Send login token mail to user %s", user.name)
         message = Message(
             "Login token email",  # TODO
             recipients=[email],
@@ -259,7 +274,7 @@ class Application(Flask):
         return result
 
     def cooker(self, cooker):
-        log.info("Register cooker: %s", str(cooker))
+        self.logger.info("Register cooker: %s", str(cooker))
 
         if not callable(cooker):
             raise TypeError("Your cooker is not callable")

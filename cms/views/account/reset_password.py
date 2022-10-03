@@ -3,7 +3,6 @@
 from flask import request, current_app
 
 from cms.decorators import allow
-from cms.limiter import limiter
 from cms.models.user import User as UserModel
 from cms.schemas import schema
 
@@ -11,11 +10,10 @@ from cms.schemas import schema
 rule = "/reset_password"
 
 
-@limiter.limit("1/hour")
 @allow("anonymous")
 @schema("cms/schemas/reset_password.json")
 def post():
-    """Send am email with a login token to this user"""
+    """Send an email with a login token to this user"""
     email = request.get_json()["email"]
 
     user = UserModel.get(_email=email)
