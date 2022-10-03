@@ -73,7 +73,6 @@ search must be configurable
 cooker conf
 redis conf
 admin can rename user
-rate limit must be configurable by role => use cost function
 more test on delete
 more test on logs
 more test!

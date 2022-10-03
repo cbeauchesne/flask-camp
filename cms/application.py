@@ -5,12 +5,14 @@ import sys
 import warnings
 
 from flask import Flask
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_login import LoginManager
 from flask_mail import Mail, Message
+
 from werkzeug.exceptions import HTTPException, NotFound
 
 from . import config
-from .limiter import limiter
 from .models.document import Document
 from .models.user import User as UserModel, AnonymousUser
 from .services.database import database
@@ -41,7 +43,7 @@ logging.basicConfig(format="%(asctime)s [%(levelname)8s] %(message)s")
 
 
 class Application(Flask):
-    def __init__(self, config_object=None):
+    def __init__(self, config_object=None, rate_limit_cost_function=None):
         super().__init__(__name__, static_folder=None)
 
         if config_object:
@@ -73,6 +75,8 @@ class Application(Flask):
         else:
             self._rate_limits = {}  # pragma: no cover
 
+        self._rate_limit_cost_function = rate_limit_cost_function
+
         ###############################################################################################################
         # init services
 
@@ -86,7 +90,7 @@ class Application(Flask):
 
         self.mail = Mail(self)
 
-        limiter.init_app(self)
+        self.limiter = Limiter(app=self, key_func=get_remote_address)
 
         self._cooker = None
 
@@ -161,10 +165,10 @@ class Application(Flask):
                     if module.rule in self._rate_limits and method in self._rate_limits[module.rule]:
                         limit = self._rate_limits[module.rule][method]
                         if limit is not None:
-                            function = limiter.limit(limit)(function)
+                            function = self.limiter.limit(limit, cost=self._rate_limit_cost_function)(function)
                             self.logger.info("Use %s rate limit for %s %s", limit, method, module.rule)
                         else:
-                            function = limiter.exempt(function)
+                            function = self.limiter.exempt(function)
 
                     self.add_url_rule(
                         module.rule,
@@ -273,6 +277,8 @@ class Application(Flask):
 
         return result
 
+    ###########################################################################
+    # public decorators
     def cooker(self, cooker):
         self.logger.info("Register cooker: %s", str(cooker))
 

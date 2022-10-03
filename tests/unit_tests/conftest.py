@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 
+from flask_login import current_user
 import pytest
 
 from cms import config as cms_config
@@ -12,7 +13,15 @@ from tests.unit_tests.utils import BaseTest
 
 os.environ["FLASK_RATELIMIT_CONFIGURATION_FILE"] = "tests/ratelimit_config.json"
 
-tested_app = Application(cms_config.Testing)
+
+def rate_limit_cost_function():
+    if current_user.is_admin:
+        return 0
+
+    return 1
+
+
+tested_app = Application(config_object=cms_config.Testing, rate_limit_cost_function=rate_limit_cost_function)
 
 # clean previous uncleaned state
 with tested_app.app_context():
