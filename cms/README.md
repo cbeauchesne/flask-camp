@@ -75,6 +75,14 @@ more test on logs
 more test!
 user can delete option
 before_document_delete hook
+register_schema_hook
+after_user_creation_hook
+before_user_creation_hook
+after_document_creation_hook
+before_document_creation_hook
+after_document_modification_hook
+before_document_modification_hook
+set an expiration date in redis for documents
 
 
 
