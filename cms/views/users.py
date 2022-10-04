@@ -15,7 +15,7 @@ rule = "/users"
 
 
 @allow("anonymous")
-@schema("cms/schemas/create_user.json")
+@schema("create_user.json")
 def put():
     """create an user"""
 

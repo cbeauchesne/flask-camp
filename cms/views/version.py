@@ -22,7 +22,7 @@ def get(version_id):
 
 
 @allow("moderator")
-@schema("cms/schemas/modify_version.json")
+@schema("modify_version.json")
 def post(version_id):
     """Modify a version of a document. The only possible modification is hide/unhide a version"""
     version = DocumentVersion.get(id=version_id)  # todo with for update
@@ -46,7 +46,7 @@ def post(version_id):
 
 
 @allow("admin")
-@schema("cms/schemas/action_with_comment.json")
+@schema("action_with_comment.json")
 def delete(version_id):
     """Delete a version of a document (only for admins)"""
     version = DocumentVersion.get(id=version_id)

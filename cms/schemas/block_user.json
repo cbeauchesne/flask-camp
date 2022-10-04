@@ -3,7 +3,7 @@
   "type": "object",
   "properties": {
     "blocked": { "type": "boolean" },
-    "comment": { "$ref": "/cms/schemas/entities/comment.json" }
+    "comment": { "$ref": "entities/comment.json" }
   },
   "required": ["blocked", "comment"],
   "additionalProperties": false

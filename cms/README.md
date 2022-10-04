@@ -60,7 +60,13 @@ Build a wiki API with all common features, regardless of the content of document
 * [x] user flag: any user can add any flag/value to any document
   * [x] get all document with some user flag ? /documents?flag=XX
   * [x] get all versions on document with an user flag ? `/versions?flag=XX` (AKA follow list ?)
-
+* [ ] Customization
+  * [x] define custom schema for document
+  * [x] define custom schema for any route ?
+  * [x] define custom cooker
+  * [ ] define deletion rules
+  * [ ] before save hook
+  * [ ] before user creation savee hook
 
 ## TODO
 
@@ -75,7 +81,6 @@ more test on logs
 more test!
 user can delete option
 before_document_delete hook
-register_schema_hook
 after_user_creation_hook
 before_user_creation_hook
 after_document_creation_hook
@@ -94,7 +99,7 @@ Here is a list of golden rules.
 2. explicit is better than implicit
 3. keep it stupid and simple
 4. Do not reinvent the wheel
-5. 80/20 usage: Do the 80%. do NOT the 20%
+5. 80/20 usage: Do the 80%. DON'T do the 20%
 6. keep round API
 7. API is security/consitency, UI is usability
 8. security: everything is forbidden, except if it's allowed

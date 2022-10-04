@@ -13,7 +13,7 @@ rule = "/login"
 
 
 @allow("anonymous")
-@schema("cms/schemas/login_user.json")
+@schema("login_user.json")
 def post():
     """Authentificate an user"""
     data = request.get_json()

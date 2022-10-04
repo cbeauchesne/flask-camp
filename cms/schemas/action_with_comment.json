@@ -2,7 +2,7 @@
     "description": "Any action that requires a comment",
     "type": "object",
     "properties": {
-      "comment": { "$ref": "/cms/schemas/entities/comment.json" }
+      "comment": { "$ref": "entities/comment.json" }
     },
     "required": ["comment"]
   }

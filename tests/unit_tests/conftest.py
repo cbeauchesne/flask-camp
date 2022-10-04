@@ -170,3 +170,5 @@ def drop_all():
 def app():
     yield tested_app
     tested_app._cooker = None
+    tested_app._schema_filenames = None
+    tested_app._schema_validator = None

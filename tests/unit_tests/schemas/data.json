@@ -1,0 +1,18 @@
+{
+  "if": {
+    "properties": { "namespace": { "const": "outing" } }
+  },
+  "then": {
+    "properties": {
+      "data": {
+        "properties": {
+          "value": { "type": "string" },
+          "rating": { "$ref": "entities/rating.json" }
+        },
+        "required": ["value", "rating"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["namespace"]
+}

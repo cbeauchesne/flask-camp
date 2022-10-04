@@ -10,7 +10,7 @@ rule = "/merge"
 
 
 @allow("moderator")
-@schema("cms/schemas/merge_documents.json")
+@schema("merge_documents.json")
 def post():
     """Merge two documents. Merged document will become a redirection, and will be no longer modifiable
     Other document will get all hostory from merged"""

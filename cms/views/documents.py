@@ -47,18 +47,21 @@ def get():
 
 
 @allow("authenticated")
-@schema("cms/schemas/create_document.json")
+@schema("create_document.json")
 def put():
     """create an document"""
     body = request.get_json()
 
-    comment = body.get("comment", "creation")
-    namespace = body["document"]["namespace"]
-    data = body["document"]["data"]
+    current_app.validate_user_schemas(body["document"])
 
-    document = Document(namespace=namespace)
+    document = Document(namespace=body["document"]["namespace"])
 
-    version = DocumentVersion(document=document, user=current_user, comment=comment, data=json.dumps(data))
+    version = DocumentVersion(
+        document=document,
+        user=current_user,
+        comment=body["comment"],
+        data=json.dumps(body["document"]["data"]),
+    )
 
     document.last_version = version
     document.associated_ids = current_app.get_associated_ids(version.as_dict())

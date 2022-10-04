@@ -14,6 +14,7 @@ from werkzeug.exceptions import HTTPException, NotFound
 from . import config
 from .models.document import Document
 from .models.user import User as UserModel, AnonymousUser
+from .schemas import SchemaValidator
 from .services.database import database
 from .services.memory_cache import MemoryCache
 from .services.send_mail import SendMail
@@ -121,6 +122,9 @@ class Application(Flask):
             handler = logging.FileHandler(self.config["ERRORS_LOG_FILE"])
             handler.setLevel(logging.ERROR)
             self.logger.addHandler(handler)
+
+        self._schema_validator = None
+        self._schema_filenames = None
 
     def _init_url_rules(self):
         # basic page: home and healtcheck
@@ -257,3 +261,15 @@ class Application(Flask):
         self._cooker = cooker
 
         return cooker
+
+    def register_schemas(self, base_dir, schema_filenames):
+        self._schema_validator = SchemaValidator(base_dir)
+        self._schema_filenames = schema_filenames
+
+        for filename in self._schema_filenames:
+            if not self._schema_validator.exists(filename):
+                raise FileNotFoundError(f"{filename} does not exists")
+
+    def validate_user_schemas(self, data):
+        if self._schema_validator is not None:
+            self._schema_validator.validate(data, *self._schema_filenames)

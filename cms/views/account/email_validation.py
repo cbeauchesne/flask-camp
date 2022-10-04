@@ -29,7 +29,7 @@ def get():
 
 
 @allow("anonymous")
-@schema("cms/schemas/validate_email.json")
+@schema("validate_email.json")
 def post():
     """Validate an email"""
     data = request.get_json()

@@ -10,7 +10,7 @@ rule = "/protect_document/<int:document_id>"
 
 
 @allow("moderator")
-@schema("cms/schemas/protect_document.json")
+@schema("protect_document.json")
 def post(document_id):
     """Protect/unprotect a document. The document won't be editable anymore, except for moderators"""
     document = Document.get(id=document_id, with_for_update=True)

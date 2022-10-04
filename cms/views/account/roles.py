@@ -22,7 +22,7 @@ def get(user_id):
 
 
 @allow("admin")
-@schema("cms/schemas/modify_role.json")
+@schema("modify_role.json")
 def post(user_id):
     """Add a role to an user"""
     user = User.get(id=user_id)
@@ -47,7 +47,7 @@ def post(user_id):
 
 
 @allow("admin")
-@schema("cms/schemas/modify_role.json")
+@schema("modify_role.json")
 def delete(user_id):
     """Remove a role from an user"""
     user = User.get(id=user_id)

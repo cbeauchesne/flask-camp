@@ -45,7 +45,7 @@ def get(document_id):
 
 
 @allow("authenticated")
-@schema("cms/schemas/modify_document.json")
+@schema("modify_document.json")
 def post(document_id):
     """add a new version to a document"""
 
@@ -62,8 +62,11 @@ def post(document_id):
 
     body = request.get_json()
 
-    comment = body.get("comment", "")
+    comment = body["comment"]
     data = body["document"]["data"]
+
+    current_app.validate_user_schemas(body["document"])
+
     version_id = body["document"]["version_id"]
 
     last_version = document.as_dict()
@@ -93,7 +96,7 @@ def post(document_id):
 
 
 @allow("admin")
-@schema("cms/schemas/action_with_comment.json")
+@schema("action_with_comment.json")
 def delete(document_id):
     """Delete a document"""
     document = Document.get(id=document_id)

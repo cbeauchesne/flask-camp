@@ -3,54 +3,22 @@ import logging
 import json
 import os
 
-from flask import request
+from flask import request, current_app
 from jsonschema import Draft7Validator, RefResolver, draft7_format_checker
 from werkzeug.exceptions import BadRequest
 
 
-log = logging.getLogger(__name__)
+class SchemaValidator:
+    def __init__(self, base_dir):
+        store = {}
+        self._validators = {}
 
+        if base_dir[-1] != "/":
+            base_dir = f"{base_dir}/"
 
-def schema(filename):
-    if filename not in _validators:
-        raise FileNotFoundError(f"{filename} does not exists")
+        BASE_URI = "https://schemas/"
 
-    validator = _validators[filename]
-
-    def decorator(real_method):
-        @wraps(real_method)
-        def wrapper(*args, **kwargs):
-            log.debug("Validate %s with %s", request.url_rule, filename)
-
-            data = request.get_json()
-
-            errors = list(validator.iter_errors(data))
-
-            if len(errors) != 0:
-                messages = []
-
-                for error in errors:
-                    messages.append(f"{error.message} on instance " + "".join([f"[{repr(i)}]" for i in error.path]))
-
-                log.error("\n".join(messages))
-                raise BadRequest("\n".join(messages))
-
-            return real_method(*args, **kwargs)
-
-        return wrapper
-
-    return decorator
-
-
-_validators = {}
-
-
-def _init():
-
-    store = {}
-
-    for dir_name in ("cms/schemas/",):
-        for root, _, files in os.walk(dir_name):
+        for root, _, files in os.walk(base_dir):
             for file in files:
                 if file.endswith(".json"):
                     filename = os.path.join(root, file)
@@ -60,13 +28,48 @@ def _init():
 
                     Draft7Validator.check_schema(data)
 
-                    data["$id"] = filename
-                    store[f"https://schemas/{filename}"] = data
+                    data["$id"] = filename[len(base_dir) :]
+                    store[f"{BASE_URI}{filename[len(base_dir):]}"] = data
 
-    for filename, data in store.items():
-        resolver = RefResolver(base_uri="https://schemas/", referrer=data, store=store)
-        log.debug("Compiling schemas %s", filename[16:])
-        _validators[filename[16:]] = Draft7Validator(data, resolver=resolver, format_checker=draft7_format_checker)
+        for filename, data in store.items():
+            resolver = RefResolver(base_uri=BASE_URI, referrer=data, store=store)
+            self._validators[filename[len(BASE_URI) :]] = Draft7Validator(
+                data, resolver=resolver, format_checker=draft7_format_checker
+            )
+
+    def validate(self, data, *filenames):
+        for filename in filenames:
+            validator = self._validators[filename]
+            errors = list(validator.iter_errors(data))
+
+            if len(errors) != 0:
+                messages = []
+
+                for error in errors:
+                    messages.append(f"{error.message} on instance " + "".join([f"[{repr(i)}]" for i in error.path]))
+
+                current_app.logger.error("\n".join(messages))
+                raise BadRequest("\n".join(messages))
+
+    def schema(self, filename):
+        if not self.exists(filename):
+            raise FileNotFoundError(f"{filename} does not exists")
+
+        def decorator(real_method):
+            @wraps(real_method)
+            def wrapper(*args, **kwargs):
+                current_app.logger.debug("Validate %s with %s", request.url_rule, filename)
+                self.validate(request.get_json(), filename)
+
+                return real_method(*args, **kwargs)
+
+            return wrapper
+
+        return decorator
+
+    def exists(self, filename):
+        return filename in self._validators
 
 
-_init()
+# expose a decorator for internal schema validation
+schema = SchemaValidator("cms/schemas/").schema

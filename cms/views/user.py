@@ -35,7 +35,7 @@ def get(user_id):
 
 
 @allow("blocked")
-@schema("cms/schemas/modify_user.json")
+@schema("modify_user.json")
 def post(user_id):
     """Modify an user"""
     if user_id != current_user.id:

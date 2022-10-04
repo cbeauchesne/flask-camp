@@ -45,7 +45,7 @@ def get():
 
 
 @allow("blocked")
-@schema("cms/schemas/modify_user_tag.json")
+@schema("modify_user_tag.json")
 def post():
     """create/modify an user tag"""
     data = request.get_json()
@@ -67,7 +67,7 @@ def post():
 
 
 @allow("blocked")
-@schema("cms/schemas/delete_user_tag.json")
+@schema("delete_user_tag.json")
 def delete():
     """Delete an user tag"""
     data = request.get_json()

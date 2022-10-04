@@ -2,10 +2,10 @@
   "description": "POST request to modify an user",
   "type": "object",
   "properties": {
-    "name": { "$ref": "/cms/schemas/entities/user_name.json" },
+    "name": { "$ref": "entities/user_name.json" },
     "password": { "type": "string" },
     "new_password": { "type": "string" },
-    "token": { "$ref": "/cms/schemas/entities/token.json" },
+    "token": { "$ref": "entities/token.json" },
     "email": {
       "type": "string",
       "format": "email"

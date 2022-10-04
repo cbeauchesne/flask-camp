@@ -5,7 +5,7 @@
     "document": {
       "allOf": [
         {
-          "$ref": "/cms/schemas/entities/document.json"
+          "$ref": "entities/document.json"
         },
         {
           "properties": {
@@ -15,7 +15,7 @@
         }
       ]
     },
-    "comment": { "$ref": "/cms/schemas/entities/comment.json" }
+    "comment": { "$ref": "entities/comment.json" }
   },
   "required": ["document", "comment"],
   "additionalProperties": false
