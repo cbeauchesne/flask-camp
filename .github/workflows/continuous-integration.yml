@@ -16,9 +16,17 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: '3.9'
-    - run: pip install -r requirements.txt -r dev-requirements.txt
-    - run: black --check --diff .
-    - run: pylint wiki_api tests
+    - name: Install deps
+      run: |
+        pip install --upgrade setuptools pip 
+        pip install -r dev-requirements.txt
+        pip install -e .
+    - name: Check format and lint
+      run: |
+        black --check --diff .
+        pylint wiki_api tests
+    - name: Start dev env
+      run: ./scripts/start_dev_env.sh
     - run: pytest
-      env:
-        PYTHONPATH: .
+      # env:
+      #   PYTHONPATH: .
