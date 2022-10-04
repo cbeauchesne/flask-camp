@@ -58,7 +58,7 @@ class Test_Merge(BaseTest):
         self.merge_documents(document_to_merge=v1, document_destination=v1, comment="test", expected_status=400)
         self.merge_documents(document_to_merge=v1, document_destination={"id": 42}, comment="test", expected_status=404)
 
-    def test_malformatted(self, moderator):
+    def test_no_comment(self, moderator):
         self.login_user(moderator)
 
         doc_1 = self.create_document().json["document"]
@@ -66,5 +66,25 @@ class Test_Merge(BaseTest):
 
         self.merge_documents(document_to_merge=doc_1, document_destination=doc_2, expected_status=400)
 
+    def test_do_not_see_merged_document(self, moderator):
+        self.login_user(moderator)
 
-# TODO : test modify a redirection
+        doc_1 = self.create_document().json["document"]
+        doc_2 = self.create_document().json["document"]
+
+        self.merge_documents(document_to_merge=doc_1, document_destination=doc_2, comment="merged")
+
+        r = self.get_documents().json
+
+        assert r["count"] == 1
+        assert r["documents"][0]["id"] == doc_2["id"], r["documents"][0]
+
+    def test_dont_modify_redirection(self, moderator):
+        self.login_user(moderator)
+
+        doc_1 = self.create_document().json["document"]
+        doc_2 = self.create_document().json["document"]
+
+        self.merge_documents(document_to_merge=doc_1, document_destination=doc_2, comment="merged")
+
+        self.modify_document(doc_1, expected_status=400)

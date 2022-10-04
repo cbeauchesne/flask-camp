@@ -63,7 +63,7 @@ class Document(BaseModel):
         post_update=True,
     )
 
-    redirect_to = Column(Integer, ForeignKey("document.id"))
+    redirect_to = Column(Integer, ForeignKey("document.id"), index=True)
 
     associated_ids = Column(ARRAY(Integer), index=True)
 

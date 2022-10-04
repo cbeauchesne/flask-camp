@@ -26,6 +26,8 @@ def get():
 
         query = base_query
 
+        query = query.where(Document.redirect_to.is_(None))
+
         tag_filters_args = {
             "user_id": request.args.get("tag_user_id", default=None, type=int),
             "name": request.args.get("tag_name", default=None, type=str),
