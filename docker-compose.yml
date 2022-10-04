@@ -17,9 +17,9 @@ services:
       dockerfile: docker/Dockerfile
     # user: www-data  # TODO
     volumes:
-      - ./wiki_api/:/app/wiki_api:ro
+      # - ./wiki_api/:/app/wiki_api:ro
       - ./logs/errors.log:/app/logs/errors.log
-      - ./docker/:/app/docker:ro
+      # - ./docker/:/app/docker:ro
     environment:
       - FLASK_SQLALCHEMY_DATABASE_URI=postgresql://wiki_api_user:wiki_api_user@pg:5432/wiki_api
       - FLASK_INIT_DATABASES=${FLASK_INIT_DATABASES:-False}

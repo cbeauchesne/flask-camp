@@ -6,3 +6,15 @@ __pycache__/
 /prof
 /data/
 /logs/
+.git
+.coveragerc
+.coverage
+.env
+.github
+.gitignore
+.vscode/
+docker-compose.yml
+tests/
+docs/
+dist/
+wiki_api.egg-info/

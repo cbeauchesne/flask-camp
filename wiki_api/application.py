@@ -277,3 +277,7 @@ class Application(Flask):
         for filename in self._schema_filenames:
             if not self._schema_validator.exists(filename):
                 raise FileNotFoundError(f"{filename} does not exists")
+
+
+def create():
+    return Application()

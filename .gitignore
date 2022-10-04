@@ -1,17 +1,13 @@
-.DS_Store
-/venv/
-
-/.pytest_cache/
+.pytest_cache/
 __pycache__/
+data/
+dist/
+htmlcov/
+logs/
+venv/
+wiki_api.egg-info/
 
-/htmlcov
+.DS_Store
 .coverage
-
-/prof
-
+prof
 wb.py
-sqlite.db
-
-/data/
-
-/logs/

@@ -95,7 +95,6 @@ class Test_Document(BaseTest):
         assert child["parent"] is None
 
     def test_circular_reference(self, app, user):
-
         def cooker(document, get_document):
             # Let's build an app with document. One rule: all documents have (or not) a parent
             # if a document has a parent, it must be present in document["parent"]
