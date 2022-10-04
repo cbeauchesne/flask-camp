@@ -274,3 +274,23 @@ class Test_Logout(BaseTest):
         self.login_user(user)
         self.logout_user()
         self.logout_user(403)
+
+
+class Test_Users(BaseTest):
+    def test_main(self, admin, moderator, user):
+        self.login_user(moderator)
+        r = self.get_users().json
+
+        assert r["count"] == 3
+        assert r["users"][0]["id"] == user.id
+        assert r["users"][0]["name"] == user.name
+        assert r["users"][1]["id"] == moderator.id
+        assert r["users"][1]["name"] == moderator.name
+        assert r["users"][2]["id"] == admin.id
+        assert r["users"][2]["name"] == admin.name
+
+    def test_errors(self, moderator):
+        self.get_users(expected_status=403)
+
+        self.login_user(moderator)
+        self.get_users(limit=1000, expected_status=400)

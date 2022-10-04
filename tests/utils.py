@@ -61,6 +61,14 @@ class ClientInterface:
         user_id = _get_user_id(user)
         return self.get(f"/user/{user_id}", expected_status=expected_status)
 
+    def get_users(self, limit=None, expected_status=None):
+        params = {}
+
+        if limit is not None:
+            params["limit"] = limit
+
+        return self.get("/users", params=params, expected_status=expected_status)
+
     def modify_user(
         self,
         user,

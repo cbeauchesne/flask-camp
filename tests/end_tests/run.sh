@@ -20,7 +20,7 @@ docker-compose up --remove-orphans --scale app=3 -d
 
 curl http://localhost:5000/init_databases
 
-python tests/end_tests/$TARGET/main.py
+PYTHONPATH=. python tests/end_tests/$TARGET/main.py
 
 docker-compose logs haproxy > logs/haproxy.log
 docker-compose logs redis > logs/redis.log

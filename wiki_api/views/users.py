@@ -14,6 +14,23 @@ log = logging.getLogger(__name__)
 rule = "/users"
 
 
+@allow("moderator")
+def get():
+    """Get a list of users"""
+
+    limit = request.args.get("limit", default=30, type=int)
+    offset = request.args.get("offset", default=0, type=int)
+
+    if not 0 <= limit <= 100:
+        raise BadRequest("Limit can't be lower than 0 or higher than 100")
+
+    query = UserModel.query
+
+    users = query.order_by(UserModel.id.desc()).limit(limit).offset(offset)
+
+    return {"status": "ok", "users": [user.as_dict() for user in users], "count": query.count()}
+
+
 @allow("anonymous")
 @schema("create_user.json")
 def put():

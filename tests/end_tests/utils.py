@@ -106,3 +106,7 @@ class ClientSession(ClientInterface):
     @property
     def is_anonymous(self):
         return self.logged_user is None
+
+    @property
+    def is_moderator(self):
+        return not self.is_anonymous and "moderator" in self.logged_user["roles"]
