@@ -10,6 +10,7 @@ on:
 
 jobs:
   lint_and_test:
+    name: Run format check and unit tests
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
