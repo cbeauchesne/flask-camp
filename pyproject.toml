@@ -1,7 +1,8 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
 [project]
 name = "wiki_api"
 version = "0.0.1"
@@ -46,6 +47,7 @@ packages = ["wiki_api"]
 line-length = 120
 
 [tool.pylint]
+init-hook='import sys; sys.path.append(".")'
 max-line-length = 120
 disable = "missing-module-docstring,missing-class-docstring,missing-function-docstring,fixme,too-many-arguments,redefined-builtin"
 generated-members = [
