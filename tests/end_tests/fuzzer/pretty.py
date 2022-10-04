@@ -67,7 +67,7 @@ def _build_container_graph(source, containers, x_range=None):
     mem_values = []
     for i, container in enumerate(containers):
 
-        mem_source = f"/wiki_api_{container}_mem"
+        mem_source = f"/wiki_api-{container}_mem"
         mem_values += source.data[mem_source]
 
         graph.line(
@@ -81,7 +81,7 @@ def _build_container_graph(source, containers, x_range=None):
 
         graph.line(
             "x",
-            f"/wiki_api_{container}_cpu",
+            f"/wiki_api-{container}_cpu",
             legend_label=f"CPU {container}",
             line_width=2,
             line_dash="dashed",
@@ -123,13 +123,13 @@ def _add_crosshair(figures):
 def main(filename="logs/docker_stats.json"):
     source = _compute_source(filename)
 
-    haproxy_graph = _build_container_graph(source, ("haproxy_1",))
+    haproxy_graph = _build_container_graph(source, ("haproxy-1",))
 
     figures = (
         haproxy_graph,
-        _build_container_graph(source, ("app_1", "app_2", "app_3"), x_range=haproxy_graph.x_range),
-        _build_container_graph(source, ("redis_1",), x_range=haproxy_graph.x_range),
-        _build_container_graph(source, ("pg_1",), x_range=haproxy_graph.x_range),
+        _build_container_graph(source, ("app-1", "app-2", "app-3"), x_range=haproxy_graph.x_range),
+        _build_container_graph(source, ("redis-1",), x_range=haproxy_graph.x_range),
+        _build_container_graph(source, ("pg-1",), x_range=haproxy_graph.x_range),
     )
 
     _add_crosshair(figures)

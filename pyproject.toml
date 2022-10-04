@@ -25,7 +25,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Framework :: Flask",
-    "Topic :: Wiki",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: Wiki",
 ]
 
 dependencies = [

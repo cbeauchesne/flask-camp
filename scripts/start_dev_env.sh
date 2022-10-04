@@ -1,4 +1,5 @@
 #!/bin/bash
 
-docker-compose down
-docker-compose up --remove-orphans redis pg
+mkdir logs/
+docker compose down
+docker compose up --remove-orphans --wait -d redis pg

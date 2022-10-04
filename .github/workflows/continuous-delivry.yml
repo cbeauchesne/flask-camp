@@ -1,0 +1,55 @@
+name: Continuous delivery
+
+on:
+  push:
+    branches:
+      - 'master'
+    tags:
+      - '**'
+  # pull_request: # TODO ? 
+  #   branches:
+  #     - "**"
+
+jobs:
+  build-and-publish:
+    name: Publish release to Pypi
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Build package
+        run: |
+          pip install build
+          python -m build
+
+      # TODO find a package name
+
+      # - name: Publish package to Test PyPI
+      #   uses: pypa/gh-action-pypi-publish@release/v1
+      #   with:
+      #     user: __token__
+      #     password: ${{ secrets.test_pypi_token }}
+      #     repository_url: https://test.pypi.org/legacy/
+      #     skip_existing: true
+
+      # - name: Test that package is published on Test PyPI
+      #   run: |
+      #     python -m venv venv
+      #     source venv/bin/activate
+      #     pip install --index-url https://test.pypi.org/simple/ --no-deps wiki_api
+
+      # - name: Check that version number from source is equal to release version number
+      #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      #   run: |
+      #     echo "Tag name is ${GITHUB_REF##*/}"
+      #     python -c "import campbot; print('Version is ' + campbot.__version__)"
+      #     python -c "import campbot; exit(1 if campbot.__version__ != '${GITHUB_REF##*/}' else 0)"
+      # - name: Publish package to PyPI
+        # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        # uses: pypa/gh-action-pypi-publish@release/v1
+        # with:
+        #   user: __token__
+        #   password: ${{ secrets.pypi_token }}

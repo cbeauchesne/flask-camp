@@ -11,21 +11,19 @@ export FLASK_REDIS_PORT=6379
 
 TARGET=fuzzer
 
-docker-compose down
-
 rm -rf logs/*
 touch logs/errors.log
 
-docker-compose up --remove-orphans --scale app=3 -d
+docker compose up --remove-orphans --force-recreate --wait --scale app=3 -d
 
 curl http://localhost:5000/init_databases
 
 PYTHONPATH=. python tests/end_tests/$TARGET/main.py
 
-docker-compose logs haproxy > logs/haproxy.log
-docker-compose logs redis > logs/redis.log
-docker-compose logs app > logs/app.log
+docker compose logs haproxy > logs/haproxy.log
+docker compose logs redis > logs/redis.log
+docker compose logs app > logs/app.log
 
-docker-compose down
+docker compose down
 
 python tests/end_tests/fuzzer/pretty.py
