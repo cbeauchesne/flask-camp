@@ -17,15 +17,19 @@ from wiki_api import Application
 
 app = Application()
 
-@app.cooker
-def my_cooker(document, get_document):  # pylint: disable=unused-argument
+def my_cooker(document, get_document):
     # here you can modify the document
-    document["cooked"] = "Some new info not present directly in base document"
+    document["cooked"] = {
+        "comment": "Some new info not present directly in base document",
+        "child": get_document(document["data"]["child_id"])
+    }
+
+app.register_cooker(cooker)
 ```
 
-## How to use it?
+## Parameters
 
-`document` is a python dict, as it would be send to a request. You can directly modify it. The function returns nothing
+* `document` is a python dict, as it would be send to a request. You can directly modify it. The function returns nothing
 
 ```
 document
@@ -40,10 +44,10 @@ document
     hidden          : Boolean, if this version is hidden
 ```
 
-`get_document` is a function that take a document id, and returns the non-cooked version of this document (or `None` if it dosn't exists).
+* `get_document` is a function that take a document id, and returns the non-cooked version of this document (or `None` if it dosn't exists).
 
 ## But keep in mind some rules to avoid any trouble
 
-* Do not modify `document["data"]`. Otherwise, your modification will be present when you try to modify a document, and you will need to clean it. A good way to to this is to put any extra data in `document["cooked"]`.
-* Do not put any dynamic content. It's cooked only once, and saved in memory cache: `document["cooked"] = datetime.now()  # bad`
+* Do not modify `document["data"]`. Otherwise, your modification will be present when you try to modify a document in the UI, and you will need to clean it. A good way to save cooked extra data in `document["cooked"]`.
+* Do not put any dynamic content. It's cooked only once, and saved in memory cache/ For instance, `document["cooked"] = datetime.now()` is bad
 * Even if you could get other documents using some other function of `app`, `get_document` provided in argument will memorize which documents has been requested to cook your document. This informations is saved, and will be used later to clean the memory cache if any of those document is modified. So use it, otherwise you may corrupt your memory cache!
