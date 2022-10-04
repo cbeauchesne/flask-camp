@@ -5,13 +5,13 @@ At the root folder of the repo :
 pytest
 
 # Run a test file
-pytest cms/views/protect_document.py
+pytest tests/unit_tests/test_document.py
 
 # Run a test class
-pytest cms/views/test_document.py::Test_Document
+pytest tests/unit_tests/test_document.py::Test_Document
 
 # Run a test method
-pytest cms/unit_tests/test_document.py::Test_Document::test_deletion
+pytest tests/unit_tests/test_document.py::Test_Document::test_deletion
 
 # see verbose output
 pytest -v

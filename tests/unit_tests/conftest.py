@@ -5,9 +5,9 @@ import sys
 from flask_login import current_user
 import pytest
 
-from cms import config as cms_config
-from cms.application import Application
-from cms.models.user import User
+from wiki_api import config as wiki_api_config
+from wiki_api import Application
+from wiki_api.models.user import User
 
 from tests.unit_tests.utils import BaseTest
 
@@ -21,7 +21,7 @@ def rate_limit_cost_function():
     return 1
 
 
-tested_app = Application(config_object=cms_config.Testing, rate_limit_cost_function=rate_limit_cost_function)
+tested_app = Application(config_object=wiki_api_config.Testing, rate_limit_cost_function=rate_limit_cost_function)
 
 # clean previous uncleaned state
 with tested_app.app_context():

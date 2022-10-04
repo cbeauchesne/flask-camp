@@ -11,7 +11,7 @@ class Production(_BaseConfig):
     # FLASK_SECRET_KEY
 
     ## It'll work, but you may want to configure it:
-    # FLASK_SQLALCHEMY_DATABASE_URI (default: postgresql://cms_user:cms_user@localhost:5432/cms)
+    # FLASK_SQLALCHEMY_DATABASE_URI (default: postgresql://wiki_api_user:wiki_api_user@localhost:5432/wiki_api)
     # FLASK_REDIS_HOST (default: localhost)
     # FLASK_REDIS_PORT (default: 6379)
     # FLASK_MAIL_DEFAULT_SENDER (default: do-not-reply@example.com)

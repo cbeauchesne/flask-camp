@@ -1,3 +1,3 @@
 #!/bin/bash
 black .
-pylint cms tests
+pylint wiki_api tests

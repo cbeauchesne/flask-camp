@@ -9,7 +9,7 @@ from sqlalchemy import Column, String, Text, Boolean, DateTime
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from cms.models import BaseModel
+from wiki_api.models import BaseModel
 
 log = logging.getLogger(__name__)
 

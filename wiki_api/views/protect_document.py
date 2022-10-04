@@ -1,10 +1,10 @@
 from flask import current_app, request
 from werkzeug.exceptions import NotFound, BadRequest
 
-from cms.decorators import allow
-from cms.models.document import Document
-from cms.models.log import add_log
-from cms.schemas import schema
+from wiki_api.decorators import allow
+from wiki_api.models.document import Document
+from wiki_api.models.log import add_log
+from wiki_api.schemas import schema
 
 rule = "/protect_document/<int:document_id>"
 

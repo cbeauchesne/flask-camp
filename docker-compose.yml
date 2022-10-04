@@ -5,23 +5,23 @@ services:
     volumes:
       - ./docker/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     depends_on:
-      cms:
+      app:
         condition: service_started
     ports:
       - 5000:80
       - 8404:8404
 
-  cms:
+  app:
     build:
       context: .
       dockerfile: docker/Dockerfile
     # user: www-data  # TODO
     volumes:
-      - ./cms/:/app/cms:ro
+      - ./wiki_api/:/app/wiki_api:ro
       - ./logs/errors.log:/app/logs/errors.log
       - ./docker/:/app/docker:ro
     environment:
-      - FLASK_SQLALCHEMY_DATABASE_URI=postgresql://cms_user:cms_user@pg:5432/cms
+      - FLASK_SQLALCHEMY_DATABASE_URI=postgresql://wiki_api_user:wiki_api_user@pg:5432/wiki_api
       - FLASK_INIT_DATABASES=${FLASK_INIT_DATABASES:-False}
       - FLASK_ERRORS_LOG_FILE=${FLASK_ERRORS_LOG_FILE:-}
       - FLASK_SECRET_KEY

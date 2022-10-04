@@ -1,10 +1,10 @@
 from flask import request, current_app
 from werkzeug.exceptions import BadRequest, NotFound
 
-from cms.decorators import allow
-from cms.models.log import add_log
-from cms.models.user import User
-from cms.schemas import schema
+from wiki_api.decorators import allow
+from wiki_api.models.log import add_log
+from wiki_api.models.user import User
+from wiki_api.schemas import schema
 
 rule = "/roles/<int:user_id>"
 

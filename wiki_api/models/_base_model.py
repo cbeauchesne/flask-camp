@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer
-from cms.services.database import database
+from wiki_api.services.database import database
 
 
 class BaseModel(database.Model):  # pylint: disable=too-few-public-methods

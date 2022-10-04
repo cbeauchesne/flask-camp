@@ -1,5 +1,5 @@
 #
-# docker build -f scripts/Dockerfile -t cms .
+# docker build -f scripts/Dockerfile -t wiki_api .
 
 FROM python:3.9
 

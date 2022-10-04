@@ -3,8 +3,8 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
-from cms.models import BaseModel
-from cms.models.user import User
+from wiki_api.models import BaseModel
+from wiki_api.models.user import User
 
 
 class UserTag(BaseModel):

@@ -8,9 +8,9 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
 from werkzeug.exceptions import BadRequest
 
-from cms.models import BaseModel
-from cms.models.user_tag import UserTag
-from cms.models.user import User
+from wiki_api.models import BaseModel
+from wiki_api.models.user_tag import UserTag
+from wiki_api.models.user import User
 
 
 def _as_dict(document, version, include_hidden_data_for_staff=False):

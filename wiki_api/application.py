@@ -49,6 +49,54 @@ class Application(Flask):
     def __init__(self, config_object=None, rate_limit_cost_function=None):
         super().__init__(__name__, static_folder=None)
 
+        self._init_config(config_object)
+
+        ###############################################################################################################
+        # init services
+
+        self._init_memory_cache()
+
+        self.database = database
+        database.init_app(self)
+
+        self.mail = SendMail(self)
+
+        self._login_manager = LoginManager(self)
+        self._login_manager.anonymous_user = AnonymousUser
+
+        self.limiter = Limiter(app=self, key_func=get_remote_address)
+        self._rate_limit_cost_function = rate_limit_cost_function
+
+        self._cooker = None
+
+        @self._login_manager.user_loader  # pylint: disable=no-member
+        def load_user(user_id):
+            return UserModel.get(id=int(user_id))
+
+        @self.teardown_appcontext
+        def shutdown_session(exception=None):  # pylint: disable=unused-argument
+            self.database.session.remove()
+
+        @self.errorhandler(HTTPException)
+        def rest_error_handler(e):
+            result = {"status": "error", "name": e.name, "description": e.description}
+            if hasattr(e, "data"):
+                result["data"] = e.data
+            return result, e.code
+
+        self._init_url_rules()
+
+        if self.config.get("ERRORS_LOG_FILE", ""):
+            self.logger.warning("Log errors to %s", self.config["ERRORS_LOG_FILE"])
+            handler = logging.FileHandler(self.config["ERRORS_LOG_FILE"])
+            handler.setLevel(logging.ERROR)
+            self.logger.addHandler(handler)
+
+        self._schema_validator = None
+        self._schema_filenames = None
+
+    def _init_config(self, config_object):
+
         if config_object:
             self.config.from_object(config_object)
         elif self.debug:  # pragma: no cover
@@ -70,61 +118,13 @@ class Application(Flask):
             self.config["MAIL_DEFAULT_SENDER"] = "do-not-reply@example.com"
 
         if self.config.get("SQLALCHEMY_DATABASE_URI", None) is None:
-            self.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://cms_user:cms_user@localhost:5432/cms"
+            self.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://wiki_api_user:wiki_api_user@localhost:5432/wiki_api"
 
         if "RATELIMIT_CONFIGURATION_FILE" in self.config:
             with open(self.config["RATELIMIT_CONFIGURATION_FILE"], mode="r", encoding="utf-8") as f:
                 self._rate_limits = json.load(f)
         else:
             self._rate_limits = {}  # pragma: no cover
-
-        self._rate_limit_cost_function = rate_limit_cost_function
-
-        ###############################################################################################################
-        # init services
-
-        self._init_memory_cache()
-
-        self.database = database
-        database.init_app(self)
-
-        self.mail = SendMail(self)
-
-        self._login_manager = LoginManager(self)
-        self._login_manager.anonymous_user = AnonymousUser
-
-        self.limiter = Limiter(app=self, key_func=get_remote_address)
-
-        self._cooker = None
-
-        @self._login_manager.user_loader  # pylint: disable=no-member
-        def load_user(user_id):
-            return UserModel.get(id=int(user_id))
-
-        @self.teardown_appcontext
-        def shutdownsession(exception=None):  # pylint: disable=unused-argument
-            self.database.session.remove()
-
-        @self.errorhandler(HTTPException)
-        def rest_error_handler(e):
-            result = {"status": "error", "name": e.name, "description": e.description}
-            if hasattr(e, "data"):
-                result["data"] = e.data
-            return result, e.code
-
-        self._init_url_rules()
-
-        if self.config.get("INIT_DATABASES", None) == "True":
-            self.add_url_rule("/init_databases", view_func=self.init_databases, methods=["GET"])
-
-        if self.config.get("ERRORS_LOG_FILE", ""):
-            self.logger.warning("Log errors to %s", self.config["ERRORS_LOG_FILE"])
-            handler = logging.FileHandler(self.config["ERRORS_LOG_FILE"])
-            handler.setLevel(logging.ERROR)
-            self.logger.addHandler(handler)
-
-        self._schema_validator = None
-        self._schema_filenames = None
 
     def _init_url_rules(self):
         # basic page: home and healtcheck
@@ -149,8 +149,12 @@ class Application(Flask):
         self.add_modules(block_user_view)
         self.add_modules(merge_view)
 
-        # and reserved for admins
+        # reserved for admins
         self.add_modules(roles_view)
+
+        # other routes
+        if self.config.get("INIT_DATABASES", None) == "True":
+            self.add_url_rule("/init_databases", view_func=self.init_databases, methods=["GET"])
 
     def _init_memory_cache(self):
         redis_host = self.config.get("REDIS_HOST", "localhost")
@@ -250,9 +254,13 @@ class Application(Flask):
 
         return result
 
+    def validate_user_schemas(self, data):
+        if self._schema_validator is not None:
+            self._schema_validator.validate(data, *self._schema_filenames)
+
     ###########################################################################
-    # public decorators
-    def cooker(self, cooker):
+    # public methods
+    def register_cooker(self, cooker):
         self.logger.info("Register cooker: %s", str(cooker))
 
         if not callable(cooker):
@@ -260,16 +268,12 @@ class Application(Flask):
 
         self._cooker = cooker
 
-        return cooker
-
     def register_schemas(self, base_dir, schema_filenames):
+        self.logger.info("Register schemas: %s, %s", base_dir, str(schema_filenames))
+
         self._schema_validator = SchemaValidator(base_dir)
         self._schema_filenames = schema_filenames
 
         for filename in self._schema_filenames:
             if not self._schema_validator.exists(filename):
                 raise FileNotFoundError(f"{filename} does not exists")
-
-    def validate_user_schemas(self, data):
-        if self._schema_validator is not None:
-            self._schema_validator.validate(data, *self._schema_filenames)

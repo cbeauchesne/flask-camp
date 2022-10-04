@@ -1,4 +1,4 @@
-from cms.decorators import allow
+from wiki_api.decorators import allow
 
 rule = "/healthcheck"
 

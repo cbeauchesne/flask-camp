@@ -1,10 +1,10 @@
 from flask import request, current_app
 from werkzeug.exceptions import NotFound, BadRequest
 
-from cms.schemas import schema
-from cms.decorators import allow
-from cms.models.document import Document, DocumentVersion
-from cms.models.log import add_log
+from wiki_api.schemas import schema
+from wiki_api.decorators import allow
+from wiki_api.models.document import Document, DocumentVersion
+from wiki_api.models.log import add_log
 
 rule = "/merge"
 

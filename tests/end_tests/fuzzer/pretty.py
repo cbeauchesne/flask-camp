@@ -127,7 +127,7 @@ def main(filename="logs/docker_stats.json"):
 
     figures = (
         haproxy_graph,
-        _build_container_graph(source, ("cms_1", "cms_2", "cms_3"), x_range=haproxy_graph.x_range),
+        _build_container_graph(source, ("app_1", "app_2", "app_3"), x_range=haproxy_graph.x_range),
         _build_container_graph(source, ("redis_1",), x_range=haproxy_graph.x_range),
         _build_container_graph(source, ("pg_1",), x_range=haproxy_graph.x_range),
     )

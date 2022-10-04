@@ -1,6 +1,6 @@
 import pytest
 
-from cms.schemas import schema
+from wiki_api.schemas import schema
 from tests.unit_tests.utils import BaseTest
 
 

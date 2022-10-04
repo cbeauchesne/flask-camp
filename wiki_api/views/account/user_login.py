@@ -4,9 +4,9 @@ from flask import request, current_app
 from flask_login import login_user, logout_user
 from werkzeug.exceptions import Unauthorized
 
-from cms.decorators import allow
-from cms.models.user import User as UserModel
-from cms.schemas import schema
+from wiki_api.decorators import allow
+from wiki_api.models.user import User as UserModel
+from wiki_api.schemas import schema
 
 
 rule = "/login"

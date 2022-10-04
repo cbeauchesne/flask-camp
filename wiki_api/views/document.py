@@ -6,10 +6,10 @@ from flask import request, current_app, Response
 from flask_login import current_user
 from werkzeug.exceptions import NotFound, Forbidden, Conflict, BadRequest
 
-from cms.decorators import allow
-from cms.models.document import Document, DocumentVersion
-from cms.models.log import add_log
-from cms.schemas import schema
+from wiki_api.decorators import allow
+from wiki_api.models.document import Document, DocumentVersion
+from wiki_api.models.log import add_log
+from wiki_api.schemas import schema
 
 log = logging.getLogger(__name__)
 

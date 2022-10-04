@@ -5,8 +5,8 @@ from flask_login import current_user
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 
-from cms.models import BaseModel
-from cms.models.user import User
+from wiki_api.models import BaseModel
+from wiki_api.models.user import User
 
 
 def add_log(action, comment=None, target_user=None, document=None, merged_document=None, version=None):

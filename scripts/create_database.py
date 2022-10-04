@@ -3,8 +3,8 @@
 if __name__ == "__main__":
     import logging
     import sys
-    from cms import config
-    from cms.application import Application
+    from wiki_api import config
+    from wiki_api.application import Application
 
     app = Application(config.Development)
 

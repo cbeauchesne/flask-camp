@@ -1,9 +1,9 @@
 from flask import request, current_app
 from werkzeug.exceptions import BadRequest
 
-from cms.decorators import allow
-from cms.models.document import DocumentVersion
-from cms.models.user import User
+from wiki_api.decorators import allow
+from wiki_api.models.document import DocumentVersion
+from wiki_api.models.user import User
 
 rule = "/versions"
 

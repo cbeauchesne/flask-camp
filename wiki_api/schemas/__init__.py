@@ -72,4 +72,4 @@ class SchemaValidator:
 
 
 # expose a decorator for internal schema validation
-schema = SchemaValidator("cms/schemas/").schema
+schema = SchemaValidator("wiki_api/schemas/").schema

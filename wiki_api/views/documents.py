@@ -5,9 +5,9 @@ from flask_login import current_user
 from sqlalchemy import select, func
 from werkzeug.exceptions import BadRequest
 
-from cms.decorators import allow
-from cms.models.document import Document, DocumentVersion
-from cms.schemas import schema
+from wiki_api.decorators import allow
+from wiki_api.models.document import Document, DocumentVersion
+from wiki_api.schemas import schema
 
 rule = "/documents"
 
