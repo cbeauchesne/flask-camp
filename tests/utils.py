@@ -5,6 +5,10 @@ def _get_user_id(user):
     return user if isinstance(user, int) else user["id"] if isinstance(user, dict) else user.id
 
 
+def _get_document_id(document):
+    return document if isinstance(document, int) else document["id"] if isinstance(document, dict) else document.id
+
+
 class ClientInterface:
     def get(self, url, params=None, headers=None, expected_status=None):
         raise NotImplementedError()
@@ -245,7 +249,7 @@ class ClientInterface:
         params = {}
 
         if document is not None:
-            params["document_id"] = document["id"]
+            params["document_id"] = _get_document_id(document)
 
         if user is not None:
             params["user_id"] = _get_user_id(user)
@@ -258,8 +262,8 @@ class ClientInterface:
 
         return self.get("/user_tags", params=params, expected_status=expected_status)
 
-    def add_user_tag(self, name, doc, value=None, expected_status=None):
-        payload = {"name": name, "document_id": doc["id"]}
+    def add_user_tag(self, name, document, value=None, expected_status=None):
+        payload = {"name": name, "document_id": _get_document_id(document)}
 
         if value is not None:
             payload["value"] = value
@@ -268,7 +272,12 @@ class ClientInterface:
 
     def remove_user_tag(self, name, document, expected_status=None):
         return self.delete(
-            "/user_tags", expected_status=expected_status, json={"name": name, "document_id": document["id"]}
+            "/user_tags",
+            expected_status=expected_status,
+            json={
+                "name": name,
+                "document_id": _get_document_id(document),
+            },
         )
 
     def merge_documents(self, document_to_merge, document_destination, comment=None, expected_status=None):

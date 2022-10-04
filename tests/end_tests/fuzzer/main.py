@@ -2,6 +2,7 @@ import collections
 from datetime import datetime, timedelta
 import json
 import random
+import string
 import threading
 import time
 
@@ -52,7 +53,7 @@ class FuzzerSession(ClientSession):
             doc,
             data=str(random.randbytes(8)),
             # params={"rc_sleep": rc_sleep},
-            expected_status=[200, 403, 409],
+            expected_status=[200, 400, 403, 409],
         )
 
     def fuzz_get_document(self):
@@ -87,6 +88,21 @@ class FuzzerSession(ClientSession):
             document_to_merge, document_destination, comment="merge it!", expected_status=[200, 400, 403]
         )
 
+    def fuzz_add_tag(self):
+        doc = random.choice(self.known_documents)
+
+        chars = string.ascii_letters + "-_" + string.digits
+        name = "".join(random.choices(chars, k=random.randint(1, 16)))
+
+        self.add_user_tag(name, doc)
+
+    def fuzz_remove_tag(self):
+        tags = self.get_user_tags(user=self.logged_user).json()["user_tags"]
+
+        if len(tags) != 0:
+            tag = random.choice(tags)
+            self.remove_user_tag(tag["name"], tag["document_id"])
+
     def possible_actions(self):
         result = [
             (self.fuzz_update_known_documents, 30),
@@ -103,6 +119,8 @@ class FuzzerSession(ClientSession):
                 (self.logout_user, 1),
                 (self.fuzz_create_document, 5),
                 (self.fuzz_modify_document, 20),
+                (self.fuzz_add_tag, 5),
+                (self.fuzz_remove_tag, 5),
             ]
 
         if self.is_moderator:
