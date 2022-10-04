@@ -79,6 +79,14 @@ class FuzzerSession(ClientSession):
         i = random.randint(0, self.session_count - 1)
         self.login_user(f"user_{i}")
 
+    def fuzz_merge_documents(self):
+        document_to_merge = random.choice(self.known_documents)
+        document_destination = random.choice(self.known_documents)
+
+        self.merge_documents(
+            document_to_merge, document_destination, comment="merge it!", expected_status=[200, 400, 403]
+        )
+
     def possible_actions(self):
         result = [
             (self.fuzz_update_known_documents, 30),
@@ -102,6 +110,7 @@ class FuzzerSession(ClientSession):
                 (self.fuzz_block_user, 1),
                 (self.fuzz_unblock_user, 1),
                 (self.fuzz_get_user, 1),
+                (self.fuzz_merge_documents, 3),
             ]
 
         return [item[0] for item in result], [item[1] for item in result]
