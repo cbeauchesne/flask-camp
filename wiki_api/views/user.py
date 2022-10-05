@@ -4,7 +4,7 @@ from flask import request, current_app
 from flask_login import current_user
 from werkzeug.exceptions import Forbidden, NotFound
 
-from wiki_api.decorators import allow
+from wiki_api.services.security import allow
 from wiki_api.models.user import User as UserModel
 from wiki_api.schemas import schema
 

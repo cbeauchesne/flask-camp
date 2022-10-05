@@ -58,9 +58,9 @@ class Test_Logs(BaseTest):
         self.add_user_role(user, "moderator", "comment")
         self.remove_user_role(user, "moderator", "comment")
         self.add_user_role(user, "admin", "comment")
-        self.add_user_role(user, "robot", "comment")
+        self.add_user_role(user, "bot", "comment")
         self.remove_user_role(user, "admin", "comment")
-        self.remove_user_role(user, "robot", "comment")
+        self.remove_user_role(user, "bot", "comment")
 
         self.delete_version(doc_v2)
         self.delete_document(doc)
@@ -80,10 +80,10 @@ class Test_Logs(BaseTest):
         _assert_log(logs[-6], "remove_role moderator", admin, target_user_id=user.id)
 
         _assert_log(logs[-7], "add_role admin", admin, target_user_id=user.id)
-        _assert_log(logs[-8], "add_role robot", admin, target_user_id=user.id)
+        _assert_log(logs[-8], "add_role bot", admin, target_user_id=user.id)
 
         _assert_log(logs[-9], "remove_role admin", admin, target_user_id=user.id)
-        _assert_log(logs[-10], "remove_role robot", admin, target_user_id=user.id)
+        _assert_log(logs[-10], "remove_role bot", admin, target_user_id=user.id)
 
         _assert_log(logs[-11], "delete_version", admin, document_id=doc["id"], version_id=doc_v2["version_id"])
         _assert_log(logs[-12], "delete_document", admin, document_id=doc["id"])

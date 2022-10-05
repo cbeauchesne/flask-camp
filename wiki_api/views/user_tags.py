@@ -2,7 +2,7 @@ from flask import request, current_app
 from flask_login import current_user
 from werkzeug.exceptions import BadRequest, NotFound
 
-from wiki_api.decorators import allow
+from wiki_api.services.security import allow
 from wiki_api.models.user_tag import UserTag
 from wiki_api.schemas import schema
 

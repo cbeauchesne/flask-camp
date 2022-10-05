@@ -2,7 +2,7 @@ from flask import request, current_app
 from werkzeug.exceptions import NotFound, BadRequest
 
 from wiki_api.schemas import schema
-from wiki_api.decorators import allow
+from wiki_api.services.security import allow
 from wiki_api.models.document import Document, DocumentVersion
 from wiki_api.models.log import add_log
 

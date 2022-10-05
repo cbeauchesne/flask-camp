@@ -1,6 +1,6 @@
 from flask_login import current_user
 
-from wiki_api.decorators import allow
+from wiki_api.services.security import allow
 
 rule = "/current_user"
 

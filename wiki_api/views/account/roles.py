@@ -1,7 +1,7 @@
 from flask import request, current_app
 from werkzeug.exceptions import BadRequest, NotFound
 
-from wiki_api.decorators import allow
+from wiki_api.services.security import allow
 from wiki_api.models.log import add_log
 from wiki_api.models.user import User
 from wiki_api.schemas import schema
@@ -33,6 +33,9 @@ def post(user_id):
     data = request.get_json()
 
     role = data["role"]
+
+    if role not in current_app.possible_user_roles:
+        raise BadRequest(f"'{role}' doesn't exists. Possible roles are {sorted(current_app.possible_user_roles)}.")
 
     if role in user.roles:
         raise BadRequest("User has this role")

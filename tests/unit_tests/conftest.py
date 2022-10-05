@@ -10,22 +10,11 @@ from tests.unit_tests.utils import BaseTest
 
 
 # clean previous uncleaned state
+# TODO put this in pytest hook, and don't do it if it's only collect
 with tested_app.app_context():
     tested_app.database.drop_all()
 
 tested_app.memory_cache.flushall()
-
-
-@tested_app.route("/__testing/500", methods=["GET"])
-def testing_500():
-    """This function will raise a 500 response"""
-    return 1 / 0
-
-
-@tested_app.route("/__testing/vuln/<int:user_id>", methods=["GET"])
-def testing_vuln(user_id):
-    """Calling this method without being authentified as user_id mys raise a Forbidden response"""
-    return User.get(id=user_id).as_dict(include_personal_data=True)
 
 
 def pytest_configure(config):

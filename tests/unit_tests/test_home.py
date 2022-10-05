@@ -10,3 +10,7 @@ class Test_Home(BaseTest):
             for method in response.json[entry_point]:
                 data = response.json[entry_point][method]
                 assert data["description"] is not None, f"Docstring is not set for {method} {entry_point}"
+
+                if not entry_point.startswith("/__") and entry_point not in ("/init_databases",):
+                    assert "allowed_roles" in data is not None, f"allowed_roles is not set for {method} {entry_point}"
+                    assert "allow_blocked" in data is not None, f"allow_blocked is not set for {method} {entry_point}"

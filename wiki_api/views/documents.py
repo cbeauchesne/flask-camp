@@ -5,7 +5,7 @@ from flask_login import current_user
 from sqlalchemy import select, func
 from werkzeug.exceptions import BadRequest
 
-from wiki_api.decorators import allow
+from wiki_api.services.security import allow
 from wiki_api.models.document import Document, DocumentVersion
 from wiki_api.schemas import schema
 

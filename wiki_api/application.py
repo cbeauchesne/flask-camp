@@ -17,6 +17,7 @@ from .models.user import User as UserModel, AnonymousUser
 from .schemas import SchemaValidator
 from .services.database import database
 from .services.memory_cache import MemoryCache
+from .services.security import allow, check_rights
 from .services.send_mail import SendMail
 from .utils import GetDocument
 
@@ -41,6 +42,10 @@ from .views import version as version_view
 
 
 logging.basicConfig(format="%(asctime)s [%(levelname)8s] %(message)s")
+
+
+class ConfigurationError(Exception):
+    pass
 
 
 class Application(Flask):
@@ -95,6 +100,8 @@ class Application(Flask):
         self._schema_validator = None
         self._schema_filenames = None
 
+        self.allow = allow
+
     def _init_config(self, config_object):
 
         if config_object:
@@ -125,6 +132,10 @@ class Application(Flask):
                 self._rate_limits = json.load(f)
         else:
             self._rate_limits = {}  # pragma: no cover
+
+        for role in ("anonymous", "authenticated"):
+            if role in self.possible_user_roles:
+                raise ConfigurationError(f"{role} ca't be a user role")
 
     def _init_url_rules(self):
         # basic page: home and healtcheck
@@ -163,29 +174,6 @@ class Application(Flask):
         self.config["RATELIMIT_STORAGE_URI"] = f"redis://{redis_host}:{redis_port}"
 
         self.memory_cache = MemoryCache(host=redis_host, port=redis_port)
-
-    def add_modules(self, *modules):
-
-        for module in modules:
-            for method in ["get", "post", "put", "delete"]:
-                if hasattr(module, method):
-                    function = getattr(module, method)
-                    method = method.upper()
-
-                    if module.rule in self._rate_limits and method in self._rate_limits[module.rule]:
-                        limit = self._rate_limits[module.rule][method]
-                        if limit is not None:
-                            function = self.limiter.limit(limit, cost=self._rate_limit_cost_function)(function)
-                            self.logger.info("Use %s rate limit for %s %s", limit, method, module.rule)
-                        else:
-                            function = self.limiter.exempt(function)
-
-                    self.add_url_rule(
-                        module.rule,
-                        view_func=function,
-                        methods=[method],
-                        endpoint=f"{method}_{module.__name__}",
-                    )
 
     def init_databases(self):
         """Will init database with an admin user"""
@@ -261,8 +249,55 @@ class Application(Flask):
         if self._schema_validator is not None:
             self._schema_validator.validate(data, *self._schema_filenames)
 
+    @property
+    def possible_user_roles(self):
+        custom_roles = set(
+            role.strip()
+            for role in self.config.get("POSSIBLE_USER_ROLES", "").lower().split(",")
+            if len(role.strip()) != 0
+        )
+
+        return custom_roles | {"admin", "moderator"}
+
     ###########################################################################
     # public methods
+
+    def add_modules(self, *modules):
+        possible_user_roles = self.possible_user_roles | {"anonymous", "authenticated"}
+
+        for module in modules:
+            if not hasattr(module, "rule"):
+                raise ConfigurationError(f"{module} does not have a rule attribute")
+
+            for method in ["get", "post", "put", "delete"]:
+                if hasattr(module, method):
+                    function = getattr(module, method)
+                    method = method.upper()
+
+                    if not hasattr(function, "allowed_roles") or not hasattr(function, "allow_blocked"):
+                        raise ConfigurationError("Please use @app.allow decorator on {function}")
+
+                    for role in function.allowed_roles:
+                        if role not in possible_user_roles:
+                            raise ConfigurationError(f"{role} is not recognised")
+
+                    function = check_rights(function)
+
+                    if module.rule in self._rate_limits and method in self._rate_limits[module.rule]:
+                        limit = self._rate_limits[module.rule][method]
+                        if limit is not None:
+                            function = self.limiter.limit(limit, cost=self._rate_limit_cost_function)(function)
+                            self.logger.info("Use %s rate limit for %s %s", limit, method, module.rule)
+                        else:
+                            function = self.limiter.exempt(function)
+
+                    self.add_url_rule(
+                        module.rule,
+                        view_func=function,
+                        methods=[method],
+                        endpoint=f"{method}_{module.__name__}",
+                    )
+
     def register_cooker(self, cooker):
         self.logger.info("Register cooker: %s", str(cooker))
 

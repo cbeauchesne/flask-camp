@@ -70,14 +70,16 @@ Build a wiki API with all common features, regardless of the content of document
 
 ## TODO
 
+test rate limit on class module pattern
+move Application inside Flask.api member to prevent any trouble in the future ? 
+do not clean DB in pytest if it's collect only
 find a name
 ban user
-allowed roles
 allowed namespaces
 forbid narcissus
 user profile page
 search must be configurable
-cooker conf
+cooker conf ??
 redis conf
 admin can rename user
 more test on delete

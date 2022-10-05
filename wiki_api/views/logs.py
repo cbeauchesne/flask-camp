@@ -1,7 +1,7 @@
 from flask import request
 from werkzeug.exceptions import BadRequest
 
-from wiki_api.decorators import allow
+from wiki_api.services.security import allow
 from wiki_api.models.log import Log
 
 rule = "/logs"

@@ -5,7 +5,7 @@ from flask_login import current_user
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import BadRequest
 
-from wiki_api.decorators import allow
+from wiki_api.services.security import allow
 from wiki_api.models.user import User as UserModel
 from wiki_api.schemas import schema
 

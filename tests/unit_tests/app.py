@@ -1,14 +1,17 @@
+# pylint: disable=too-few-public-methods
+
 from flask_login import current_user
 
-from wiki_api import config as wiki_api_config
-from wiki_api import Application
+from wiki_api import Application, config as wiki_api_config
+from wiki_api.models.user import User
 
 
-class Config(wiki_api_config.Testing):  # pylint: disable=too-few-public-methods
+class Config(wiki_api_config.Testing):
     RATELIMIT_CONFIGURATION_FILE = "tests/ratelimit_config.json"
+    POSSIBLE_USER_ROLES = "bot,contributor"
 
 
-def cooker(document, get_document):  # pylint: disable=unused-argument
+def cooker(document, get_document):
     if document["namespace"] in ("cook-me",):
         document["cooked"] = {}
 
@@ -26,5 +29,39 @@ app = Application(
     rate_limit_cost_function=lambda: 0 if current_user.is_admin else 1,
 )
 
+
+class BotModule:
+    rule = "/bot"
+
+    @staticmethod
+    @app.allow("bot")
+    def get():
+        """Here is a custom post, only for bots"""
+        return {"hello": "world"}
+
+
+class CustomModule:
+    rule = "/custom"
+
+    @staticmethod
+    @app.allow("anonymous")
+    def get():
+        """Here is a custom get"""
+        return {"hello": "world"}
+
+
+@app.route("/__testing/500", methods=["GET"])
+def testing_500():
+    """This function will raise a 500 response"""
+    return 1 / 0
+
+
+@app.route("/__testing/vuln/<int:user_id>", methods=["GET"])
+def testing_vuln(user_id):
+    """Calling this method without being authentified as user_id mys raise a Forbidden response"""
+    return User.get(id=user_id).as_dict(include_personal_data=True)
+
+
+app.add_modules(CustomModule, BotModule)
 app.register_cooker(cooker)
 app.register_schemas("tests/unit_tests/schemas", ["outing.json"])

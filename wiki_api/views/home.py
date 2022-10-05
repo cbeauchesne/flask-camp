@@ -2,9 +2,12 @@ import collections
 
 from flask import current_app
 
+from wiki_api.services.security import allow
+
 rule = "/"
 
 
+@allow("anonymous", "authenticated", allow_blocked=True)
 def get():
     """Display the possible route for this API"""
 
@@ -19,5 +22,11 @@ def get():
 
                 if url_rule.rule in current_app._rate_limits and method in current_app._rate_limits[url_rule.rule]:
                     site_map[url_rule.rule][method]["rate_limit"] = current_app._rate_limits[url_rule.rule][method]
+
+                if hasattr(view_func, "allowed_roles"):
+                    site_map[url_rule.rule][method]["allowed_roles"] = list(view_func.allowed_roles)
+
+                if hasattr(view_func, "allow_blocked"):
+                    site_map[url_rule.rule][method]["allow_blocked"] = view_func.allow_blocked
 
     return site_map

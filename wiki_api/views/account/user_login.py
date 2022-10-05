@@ -4,7 +4,7 @@ from flask import request, current_app
 from flask_login import login_user, logout_user
 from werkzeug.exceptions import Unauthorized
 
-from wiki_api.decorators import allow
+from wiki_api.services.security import allow
 from wiki_api.models.user import User as UserModel
 from wiki_api.schemas import schema
 
