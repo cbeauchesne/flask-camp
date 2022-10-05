@@ -125,7 +125,9 @@ class Application(Flask):
             self.config["MAIL_DEFAULT_SENDER"] = "do-not-reply@example.com"
 
         if self.config.get("SQLALCHEMY_DATABASE_URI", None) is None:
-            self.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://flask_camp_user:flask_camp_user@localhost:5432/flask_camp"
+            self.config[
+                "SQLALCHEMY_DATABASE_URI"
+            ] = "postgresql://flask_camp_user:flask_camp_user@localhost:5432/flask_camp"
 
         if "RATELIMIT_CONFIGURATION_FILE" in self.config:
             with open(self.config["RATELIMIT_CONFIGURATION_FILE"], mode="r", encoding="utf-8") as f:
