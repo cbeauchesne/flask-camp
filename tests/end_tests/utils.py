@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from tests.utils import ClientInterface
 
 
-engine = create_engine("postgresql://wiki_api_user:wiki_api_user@localhost:5432/wiki_api")
+engine = create_engine("postgresql://flask_camp_user:flask_camp_user@localhost:5432/flask_camp")
 
 
 def get_email_token(user_name):

@@ -13,7 +13,7 @@ Document served by the API are by default the document produced by the database.
 You need to provide a cooking function using the `@app.cooker` decorator : 
 
 ```python
-from wiki_api import Application
+from flask_camp import Application
 
 app = Application()
 

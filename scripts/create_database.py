@@ -3,8 +3,8 @@
 if __name__ == "__main__":
     import logging
     import sys
-    from wiki_api import config
-    from wiki_api.application import Application
+    from flask_camp import config
+    from flask_camp.application import Application
 
     app = Application(config.Development)
 

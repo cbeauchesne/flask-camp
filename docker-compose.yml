@@ -17,11 +17,11 @@ services:
       dockerfile: docker/Dockerfile
     # user: www-data  # TODO
     volumes:
-      - ./wiki_api/:/app/wiki_api:ro
+      - ./flask_camp/:/app/flask_camp:ro
       - ./logs/errors.log:/app/logs/errors.log
       # - ./docker/:/app/docker:ro
     environment:
-      - FLASK_SQLALCHEMY_DATABASE_URI=postgresql://wiki_api_user:wiki_api_user@pg:5432/wiki_api
+      - FLASK_SQLALCHEMY_DATABASE_URI=postgresql://flask_camp_user:flask_camp_user@pg:5432/flask_camp
       - FLASK_INIT_DATABASES=${FLASK_INIT_DATABASES:-False}
       - FLASK_ERRORS_LOG_FILE=${FLASK_ERRORS_LOG_FILE:-}
       - FLASK_SECRET_KEY

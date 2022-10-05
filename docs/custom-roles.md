@@ -15,7 +15,7 @@ Then, you'll be able to define any authorization using the `@allow` decorator:
 ```python
 # my_custom_route.py
 
-from wiki_api.services.security import allow
+from flask_camp.services.security import allow
 
 
 rule = "/my_custom_route"

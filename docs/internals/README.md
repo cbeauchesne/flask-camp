@@ -1,4 +1,4 @@
-This folder will contains any helpful information to modify wiki_adpi project
+This folder will contains any helpful information to modify Flask-Camp project
 
 ## How to modify the project
 

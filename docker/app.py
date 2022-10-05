@@ -1,4 +1,4 @@
-from wiki_api import Application
+from flask_camp import Application
 
 
 app = Application()

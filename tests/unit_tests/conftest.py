@@ -3,7 +3,7 @@ import sys
 
 import pytest
 
-from wiki_api.models.user import User
+from flask_camp.models.user import User
 
 from tests.unit_tests.app import app as tested_app
 from tests.unit_tests.utils import BaseTest

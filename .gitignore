@@ -5,7 +5,7 @@ dist/
 htmlcov/
 logs/
 venv/
-wiki_api.egg-info/
+flask_camp.egg-info/
 
 .DS_Store
 .coverage

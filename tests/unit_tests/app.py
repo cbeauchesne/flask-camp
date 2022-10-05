@@ -2,11 +2,11 @@
 
 from flask_login import current_user
 
-from wiki_api import Application, config as wiki_api_config
-from wiki_api.models.user import User
+from flask_camp import Application, config as flask_camp_config
+from flask_camp.models.user import User
 
 
-class Config(wiki_api_config.Testing):
+class Config(flask_camp_config.Testing):
     RATELIMIT_CONFIGURATION_FILE = "tests/ratelimit_config.json"
     POSSIBLE_USER_ROLES = "bot,contributor"
 

@@ -25,7 +25,7 @@ jobs:
     - name: Check format and lint
       run: |
         black --check --diff .
-        pylint wiki_api tests
+        pylint flask_camp tests
     - name: Start dev env
       run: ./scripts/start_dev_env.sh
     - run: pytest

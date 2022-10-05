@@ -10,7 +10,7 @@
             "request": "launch",
             "module": "flask",
             "env": {
-                "FLASK_APP": "wiki_api.application:create",
+                "FLASK_APP": "flask_camp.application:create",
                 "FLASK_DEBUG": "1",
                 "FLASK_SECRET_KEY": "not secret",
                 "FLASK_RATELIMIT_CONFIGURATION_FILE": "tests/ratelimit_config.json"

@@ -1,3 +1,3 @@
 #!/bin/bash
 black .
-pylint wiki_api tests
+pylint flask_camp tests

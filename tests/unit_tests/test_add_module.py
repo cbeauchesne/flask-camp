@@ -2,8 +2,8 @@
 
 import pytest
 
-from wiki_api import Application
-from wiki_api.application import ConfigurationError
+from flask_camp import Application
+from flask_camp.application import ConfigurationError
 
 
 class Config:

@@ -15,7 +15,7 @@ As a module:
 ```python
 # my_custom_route.py
 
-from wiki_api.services.security import allow
+from flask_camp.services.security import allow
 
 
 rule = "/my_custom_route"
@@ -34,7 +34,7 @@ Or as a class:
 ```python
 # module_with_class.py
 
-from wiki_api.services.security import allow
+from flask_camp.services.security import allow
 
 
 class CustomRoute:
@@ -52,7 +52,7 @@ class CustomRoute:
 Both of them can be imported with the `add_modules` method :
 
 ```python
-from wiki_api import Application
+from flask_camp import Application
 
 import my_custom_route
 from module_with_class import CustomRoute

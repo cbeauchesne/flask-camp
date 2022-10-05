@@ -67,7 +67,7 @@ def _build_container_graph(source, containers, x_range=None):
     mem_values = []
     for i, container in enumerate(containers):
 
-        mem_source = f"/wiki_api-{container}_mem"
+        mem_source = f"/flask-camp-{container}_mem"
         mem_values += source.data[mem_source]
 
         graph.line(
@@ -81,7 +81,7 @@ def _build_container_graph(source, containers, x_range=None):
 
         graph.line(
             "x",
-            f"/wiki_api-{container}_cpu",
+            f"/flask-camp-{container}_cpu",
             legend_label=f"CPU {container}",
             line_width=2,
             line_dash="dashed",

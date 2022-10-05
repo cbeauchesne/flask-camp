@@ -17,4 +17,4 @@ docker-compose.yml
 tests/
 docs/
 dist/
-wiki_api.egg-info/
+flask_camp.egg-info/
