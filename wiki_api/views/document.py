@@ -30,8 +30,13 @@ def get(document_id):
     """Get a document"""
     document_as_dict = current_app.get_cooked_document(document_id)  # it handles not found
 
-    if "redirect_to" in document_as_dict:
-        return Response(headers={"Location": f"/document/{document_as_dict['redirect_to']}"}, status=301)
+    if document_as_dict.get("redirect_to"):
+        return Response(
+            headers={"Location": f"/document/{document_as_dict['redirect_to']}"},
+            content_type="application/json",
+            response=json.dumps({"status": "ok", "document": document_as_dict}),
+            status=301,
+        )
 
     response = Response(
         response=json.dumps({"status": "ok", "document": document_as_dict}),
@@ -57,7 +62,7 @@ def post(document_id):
     if document.protected and not current_user.is_moderator:
         raise Forbidden("The document is protected")
 
-    if document.redirect_to:
+    if document.is_redirection:
         raise BadRequest("The document is a redirection")
 
     body = request.get_json()

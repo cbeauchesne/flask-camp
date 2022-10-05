@@ -18,7 +18,7 @@ def post(document_id):
     if document is None:
         raise NotFound()
 
-    if document.redirect_to is not None:
+    if document.is_redirection:
         raise BadRequest()
 
     protected = request.get_json()["protected"]

@@ -15,7 +15,7 @@ from wiki_api.models.user import User
 
 def _as_dict(document, version, include_hidden_data_for_staff=False):
 
-    if document.redirect_to:
+    if document.is_redirection:
         return {"id": document.id, "redirect_to": document.redirect_to}
 
     result = {
@@ -89,6 +89,10 @@ class Document(BaseModel):
 
     def as_dict(self):
         return _as_dict(self, self.last_version)
+
+    @property
+    def is_redirection(self):
+        return self.redirect_to is not None
 
 
 class DocumentVersion(BaseModel):

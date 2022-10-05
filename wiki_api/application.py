@@ -229,7 +229,10 @@ class Application(Flask):
                 raise NotFound()
 
             document_as_dict = document.as_dict()
-            cooked_document_as_dict = self.cook(document_as_dict, save_in_memory_cache=True)
+            if document.is_redirection:
+                cooked_document_as_dict = document_as_dict
+            else:
+                cooked_document_as_dict = self.cook(document_as_dict, save_in_memory_cache=True)
 
         return cooked_document_as_dict
 

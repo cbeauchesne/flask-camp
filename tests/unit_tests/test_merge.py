@@ -88,3 +88,17 @@ class Test_Merge(BaseTest):
         self.merge_documents(document_to_merge=doc_1, document_destination=doc_2, comment="merged")
 
         self.modify_document(doc_1, expected_status=400)
+
+    def test_dont_cook_redirections(self, moderator):
+        self.login_user(moderator)
+
+        doc_1 = self.create_document(namespace="cook-me").json["document"]
+        doc_2 = self.create_document(namespace="cook-me").json["document"]
+
+        self.merge_documents(document_to_merge=doc_1, document_destination=doc_2, comment="merged")
+
+        doc_1 = self.get_document(doc_1, expected_status=301).json["document"]
+        doc_2 = self.get_document(doc_2).json["document"]
+
+        assert "cooked" not in doc_1
+        assert "cooked" in doc_2

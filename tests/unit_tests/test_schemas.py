@@ -12,15 +12,14 @@ class Test_Schemas(BaseTest):
             app.register_schemas("tests/not_the_dir/", ["notfound.json"])
 
     def test_missing_tailing_slash(self, user, app):
-        app.register_schemas("tests/unit_tests/schemas", ["data.json"])
+        app.register_schemas("tests/unit_tests/schemas", ["outing.json"])
 
         self.login_user(user)
         self.create_document(namespace="outing", data=None, expected_status=400)
         self.create_document(namespace="route", data=None, expected_status=200)
         self.create_document(namespace="outing", data={"value": "str", "rating": "6a"}, expected_status=200)
 
-    def test_basic(self, user, app):
-        app.register_schemas("tests/unit_tests/schemas/", ["data.json"])
+    def test_basic(self, user):
 
         invalid_data = (
             None,

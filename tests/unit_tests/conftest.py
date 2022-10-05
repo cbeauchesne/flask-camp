@@ -1,27 +1,13 @@
 import logging
-import os
 import sys
 
-from flask_login import current_user
 import pytest
 
-from wiki_api import config as wiki_api_config
-from wiki_api import Application
 from wiki_api.models.user import User
 
+from tests.unit_tests.app import app as tested_app
 from tests.unit_tests.utils import BaseTest
 
-os.environ["FLASK_RATELIMIT_CONFIGURATION_FILE"] = "tests/ratelimit_config.json"
-
-
-def rate_limit_cost_function():
-    if current_user.is_admin:
-        return 0
-
-    return 1
-
-
-tested_app = Application(config_object=wiki_api_config.Testing, rate_limit_cost_function=rate_limit_cost_function)
 
 # clean previous uncleaned state
 with tested_app.app_context():
@@ -169,6 +155,3 @@ def drop_all():
 @pytest.fixture()
 def app():
     yield tested_app
-    tested_app._cooker = None
-    tested_app._schema_filenames = None
-    tested_app._schema_validator = None
