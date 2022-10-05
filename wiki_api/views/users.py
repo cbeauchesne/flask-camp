@@ -31,7 +31,7 @@ def get():
     return {"status": "ok", "users": [user.as_dict() for user in users], "count": query.count()}
 
 
-@allow("anonymous")
+@allow("anonymous", "authenticated")
 @schema("create_user.json")
 def put():
     """create an user"""

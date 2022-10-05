@@ -15,12 +15,17 @@ log = logging.getLogger(__name__)
 
 
 class AnonymousUser:  # pylint: disable=too-few-public-methods
+    id = None
+
+    blocked = False
     is_anonymous = True
     is_authenticated = False
     is_admin = False
     is_moderator = False
-    id = None
-    roles = []
+
+    @property
+    def roles(self):
+        return ["anonymous"]
 
     # useless ?
     # def get_id(self):

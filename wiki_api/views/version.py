@@ -9,7 +9,7 @@ from wiki_api.models.log import add_log
 rule = "/version/<int:version_id>"
 
 
-@allow("anonymous")
+@allow("anonymous", "authenticated", allow_blocked=True)
 def get(version_id):
     """Get a given version of a document"""
 

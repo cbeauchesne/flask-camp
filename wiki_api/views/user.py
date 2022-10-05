@@ -12,7 +12,7 @@ from wiki_api.schemas import schema
 rule = "/user/<int:user_id>"
 
 
-@allow("anonymous")
+@allow("anonymous", "authenticated", allow_blocked=True)
 def get(user_id):
     """Get an user"""
     user = UserModel.get(id=user_id)
@@ -34,7 +34,7 @@ def get(user_id):
     }
 
 
-@allow("blocked")
+@allow("authenticated", allow_blocked=True)
 @schema("modify_user.json")
 def post(user_id):
     """Modify an user"""

@@ -10,7 +10,7 @@ from wiki_api.schemas import schema
 rule = "/reset_password"
 
 
-@allow("anonymous")
+@allow("anonymous", "authenticated")
 @schema("reset_password.json")
 def post():
     """Send an email with a login token to this user"""

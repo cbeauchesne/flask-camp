@@ -13,7 +13,7 @@ def _build_filters(**kwargs):
     return {key: value for key, value in kwargs.items() if value is not None}
 
 
-@allow("anonymous")
+@allow("anonymous", "authenticated")
 def get():
     """Get user tag list"""
     limit = request.args.get("limit", default=100, type=int)
@@ -44,7 +44,7 @@ def get():
     }
 
 
-@allow("blocked")
+@allow("authenticated", allow_blocked=True)
 @schema("modify_user_tag.json")
 def post():
     """create/modify an user tag"""
@@ -66,7 +66,7 @@ def post():
     return {"status": "ok", "user_tag": tag.as_dict()}
 
 
-@allow("blocked")
+@allow("authenticated", allow_blocked=True)
 @schema("delete_user_tag.json")
 def delete():
     """Delete an user tag"""

@@ -4,7 +4,7 @@ from tests.unit_tests.utils import BaseTest
 # TODO : test block when user is currently logged in
 
 
-class Test_Protection(BaseTest):
+class Test_UserBlock(BaseTest):
     def test_not_allowed(self, user):
         self.block_user(user, expected_status=403)
         self.unblock_user(user, expected_status=403)

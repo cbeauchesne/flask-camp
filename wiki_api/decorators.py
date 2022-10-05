@@ -8,38 +8,30 @@ from werkzeug.exceptions import Forbidden
 log = logging.getLogger(__name__)
 
 
-def allow(*args):
+def allow(*args, allow_blocked=False):
 
-    items = set(args)
+    allowed_roles = set(args)
 
-    for item in items:
-        assert item in ["anonymous", "blocked", "authenticated", "moderator", "admin"], f"{item} is not recognised"
+    for role in allowed_roles:
+        assert role in ["anonymous", "authenticated", "moderator", "admin"], f"{role} is not recognised"
 
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            allowed = False
 
-            if "anonymous" in items:
-                allowed = True
+            if current_user.blocked and not allow_blocked:
+                raise Forbidden("You have been blocked, you can't access to this resource")
 
-            elif current_user.is_authenticated:
+            user_roles = current_user.roles
 
-                if "blocked" in items:
-                    allowed = True
+            if current_user.is_authenticated:
+                user_roles.append("authenticated")
 
-                if not current_user.blocked:
-                    if "authenticated" in items:
-                        allowed = True
-                    elif "moderator" in items and current_user.is_moderator:
-                        allowed = True
-                    elif "admin" in items and current_user.is_admin:
-                        allowed = True
+            for user_role in user_roles:
+                if user_role in allowed_roles:
+                    return f(*args, **kwargs)
 
-            if not allowed:
-                raise Forbidden()
-
-            return f(*args, **kwargs)
+            raise Forbidden("You can't access to this resource")
 
         return wrapper
 

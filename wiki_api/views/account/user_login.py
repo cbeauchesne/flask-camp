@@ -12,7 +12,7 @@ from wiki_api.schemas import schema
 rule = "/login"
 
 
-@allow("anonymous")
+@allow("anonymous", "authenticated")
 @schema("login_user.json")
 def post():
     """Authentificate an user"""
@@ -40,7 +40,7 @@ def post():
     return {"status": "ok", "user": user.as_dict(include_personal_data=True)}
 
 
-@allow("blocked")
+@allow("authenticated", allow_blocked=True)
 def delete():
     """Logout current user"""
     logout_user()

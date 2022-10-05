@@ -9,7 +9,7 @@ from wiki_api.schemas import schema
 rule = "/roles/<int:user_id>"
 
 
-@allow("anonymous")
+@allow("anonymous", "authenticated")
 def get(user_id):
     """Get roles for a given user"""
 

@@ -8,7 +8,7 @@ from wiki_api.models.user import User
 rule = "/versions"
 
 
-@allow("anonymous")
+@allow("anonymous", "authenticated", allow_blocked=True)
 def get():
     """Get a list of versions"""
     filters = {}

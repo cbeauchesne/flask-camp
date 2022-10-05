@@ -25,7 +25,7 @@ class EditConflict(Conflict):
         }
 
 
-@allow("anonymous")
+@allow("anonymous", "authenticated", allow_blocked=True)
 def get(document_id):
     """Get a document"""
     document_as_dict = current_app.get_cooked_document(document_id)  # it handles not found

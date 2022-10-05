@@ -70,6 +70,10 @@ Build a wiki API with all common features, regardless of the content of document
 
 ## TODO
 
+find a name
+ban user
+allowed roles
+allowed namespaces
 forbid narcissus
 user profile page
 search must be configurable

@@ -7,7 +7,7 @@ from wiki_api.models.log import Log
 rule = "/logs"
 
 
-@allow("anonymous")
+@allow("anonymous", "authenticated")
 def get():
     """return all logs"""
     limit = request.args.get("limit", default=30, type=int)

@@ -12,7 +12,7 @@ from wiki_api.schemas import schema
 rule = "/documents"
 
 
-@allow("anonymous")
+@allow("anonymous", "authenticated", allow_blocked=True)
 def get():
     """Get a list of documents"""
 

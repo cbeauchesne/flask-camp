@@ -28,7 +28,7 @@ def get():
     return {"status": "ok"}
 
 
-@allow("anonymous")
+@allow("anonymous", "authenticated")
 @schema("validate_email.json")
 def post():
     """Validate an email"""
