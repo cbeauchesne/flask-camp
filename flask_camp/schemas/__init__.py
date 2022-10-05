@@ -4,7 +4,7 @@ import json
 import os
 
 from flask import request, current_app
-from jsonschema import Draft7Validator, RefResolver, draft7_format_checker
+from jsonschema import Draft7Validator, RefResolver
 from werkzeug.exceptions import BadRequest
 
 
@@ -34,7 +34,7 @@ class SchemaValidator:
         for filename, data in store.items():
             resolver = RefResolver(base_uri=BASE_URI, referrer=data, store=store)
             self._validators[filename[len(BASE_URI) :]] = Draft7Validator(
-                data, resolver=resolver, format_checker=draft7_format_checker
+                data, resolver=resolver, format_checker=Draft7Validator.FORMAT_CHECKER
             )
 
     def validate(self, data, *filenames):
