@@ -72,7 +72,6 @@ Build a wiki API with all common features, regardless of the content of document
 
 test rate limit on class module pattern
 move Application inside Flask.api member to prevent any trouble in the future ? 
-do not clean DB in pytest if it's collect only
 ban user
 allowed namespaces
 forbid narcissus

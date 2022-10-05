@@ -9,18 +9,19 @@ from tests.unit_tests.app import app as tested_app
 from tests.unit_tests.utils import BaseTest
 
 
-# clean previous uncleaned state
-# TODO put this in pytest hook, and don't do it if it's only collect
-with tested_app.app_context():
-    tested_app.database.drop_all()
-
-tested_app.memory_cache.flushall()
-
-
 def pytest_configure(config):
     if config.getoption("-v") > 1:
         logging.getLogger("sqlalchemy").addHandler(logging.StreamHandler(sys.stdout))
         logging.getLogger("sqlalchemy").setLevel(logging.INFO)
+
+    if not config.option.collectonly:
+        # clean previous uncleaned state
+        # do not perform this on collect, editors that automatically collect tests on file change
+        # may break current test session
+        with tested_app.app_context():
+            tested_app.database.drop_all()
+
+        tested_app.memory_cache.flushall()
 
 
 @pytest.fixture(autouse=True)
