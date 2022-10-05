@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 # https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
 [project]
-name = "flask_camp"
+name = "Flask-Camp"
 version = "0.0.1"
 authors = [
   { name="Charles de Beauchesne", email="charles.de.beauchesne@gmail.com" },
 ]
-description = "Headless generic API for wikis"
+description = "Full featured (but generic) headless API for wikis"
 readme = "README.md"
 requires-python = ">=3.7"
 
@@ -29,15 +29,15 @@ classifiers = [
 ]
 
 dependencies = [
-    "Flask==2.2.2",
-    "Flask-Limiter==2.6.2",
-    "Flask-Login==0.6.2",
-    "Flask-Mail==0.9.1",
-    "Flask-SQLAlchemy==2.5.1",
-    "jsonschema==4.15.0",
-    "psycopg2-binary==2.9.3",
-    "redis==4.3.4",
-    "SQLAlchemy==1.4.40",
+    "Flask>=2.2.2",
+    "Flask-Limiter>=2.6.2",
+    "Flask-Login>=0.6.2",
+    "Flask-Mail>=0.9.1",
+    "Flask-SQLAlchemy>=2.5.1",
+    "jsonschema>=4.15.0",
+    "psycopg2-binary>=2.9.3",
+    "redis>=4.3.4",
+    "SQLAlchemy>=1.4.40",
 ]
 
 [tool.setuptools]
