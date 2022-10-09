@@ -4,7 +4,7 @@ from datetime import datetime
 from flask_login import current_user
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, select
 from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, reconstructor
 from werkzeug.exceptions import BadRequest
 
 from flask_camp.models._base_model import BaseModel
@@ -33,9 +33,9 @@ def _as_dict(document, version, include_hidden_data_for_staff=False):
     }
 
     if not version.hidden:
-        result["data"] = json.loads(version.data)
+        result["data"] = version.data
     elif include_hidden_data_for_staff and (current_user.is_admin or current_user.is_moderator):
-        result["data"] = json.loads(version.data)
+        result["data"] = version.data
 
     return result
 
@@ -81,7 +81,7 @@ class Document(BaseModel):
             document=result,
             user=current_user if author is None else author,
             comment=comment,
-            data=json.dumps(data),
+            data=data,
         )
 
         result.last_version = version
@@ -134,7 +134,7 @@ class DocumentVersion(BaseModel):
     comment = Column(String)
 
     hidden = Column(Boolean, default=False, nullable=False)
-    data = Column(String)
+    _data = Column("data", String)
 
     user_tags = relationship(
         "UserTag",
@@ -145,18 +145,23 @@ class DocumentVersion(BaseModel):
         viewonly=True,
     )
 
-    def __init__(self, **kwargs):
+    def __init__(self, data, **kwargs):
         kwargs["timestamp"] = datetime.now()
-        super().__init__(**kwargs)
+        super().__init__(_data=json.dumps(data), **kwargs)
+        self._init_from_database()
+
+    @reconstructor
+    def _init_from_database(self):
+        self._raw_data = json.loads(self._data)
 
     def as_dict(self):
         return _as_dict(self.document, self, include_hidden_data_for_staff=True)
 
-    # @property
-    # def data(self):
-    #     return self._raw_data
+    @property
+    def data(self):
+        return self._raw_data
 
     # @data.setter
     # def data(self, value):
     #     self._raw_data = value
-    #     self._data = json.dumps(value) 
+    #     self._data = json.dumps(value)

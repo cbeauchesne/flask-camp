@@ -85,7 +85,7 @@ def post(document_id):
         document=document,
         user=current_user,
         comment=comment,
-        data=json.dumps(data),
+        data=data,
     )
 
     database.session.add(version)
