@@ -1,0 +1,11 @@
+{
+    "/": {
+        "GET": "5 per second"
+    },
+    "/healthcheck": {
+        "GET": null
+    },
+    "/rate_limited": {
+        "GET": "5 per second"
+    }
+}

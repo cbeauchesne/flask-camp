@@ -1,0 +1,10 @@
+{
+  "description": "POST request to validate user creation",
+  "type": "object",
+  "properties": {
+    "name": { "$ref": "entities/user_name.json" },
+    "token": { "$ref": "entities/token.json" }
+  },
+  "required": ["name", "token"],
+  "additionalProperties": false
+}

@@ -1,0 +1,16 @@
+{
+  "description": "POST request to modify an user",
+  "type": "object",
+  "properties": {
+    "name": { "$ref": "entities/user_name.json" },
+    "password": { "type": "string" },
+    "new_password": { "type": "string" },
+    "token": { "$ref": "entities/token.json" },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "ui_preferences": {}
+  },
+  "additionalProperties": false
+}

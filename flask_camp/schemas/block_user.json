@@ -1,0 +1,10 @@
+{
+  "description": "POST request to block/unblock an user",
+  "type": "object",
+  "properties": {
+    "blocked": { "type": "boolean" },
+    "comment": { "$ref": "entities/comment.json" }
+  },
+  "required": ["blocked", "comment"],
+  "additionalProperties": false
+}

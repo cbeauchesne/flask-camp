@@ -1,0 +1,10 @@
+{
+  "description": "DELETE request to delete an user tag",
+  "type": "object",
+  "properties": {
+    "name": { "$ref": "entities/user_tag_name.json" },
+    "document_id": { "type": "integer" }
+  },
+  "required": ["name", "document_id"],
+  "additionalProperties": false
+}

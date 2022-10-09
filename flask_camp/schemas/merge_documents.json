@@ -1,0 +1,11 @@
+{
+  "description": "POST request to merge two documents",
+  "type": "object",
+  "properties": {
+    "document_to_merge": { "type": "integer" },
+    "document_destination": { "type": "integer" },
+    "comment": { "$ref": "entities/comment.json" }
+  },
+  "required": ["document_to_merge", "document_destination", "comment"],
+  "additionalProperties": false
+}

@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+[project]
+name = "Flask-Camp"
+version = "0.0.1"
+authors = [
+  { name="Charles de Beauchesne", email="charles.de.beauchesne@gmail.com" },
+]
+description = "Full featured (but generic) headless API for wikis"
+readme = "README.md"
+requires-python = ">=3.7"
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Development Status :: 1 - Planning",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Framework :: Flask",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: Wiki",
+]
+
+dependencies = [
+    "Flask>=2.2.2",
+    "Flask-Limiter>=2.6.2",
+    "Flask-Login>=0.6.2",
+    "Flask-Mail>=0.9.1",
+    "Flask-SQLAlchemy>=2.5.1",
+    "jsonschema>=4.16.0",
+    "psycopg2-binary>=2.9.3",
+    "redis>=4.3.4",
+    "SQLAlchemy>=1.4.40",
+]
+
+[tool.setuptools]
+packages = ["flask_camp"]
+
+[tool.black]
+line-length = 120
+
+[tool.pylint]
+init-hook='import sys; sys.path.append(".")'
+max-line-length = 120
+disable = "missing-module-docstring,missing-class-docstring,missing-function-docstring,fixme,too-many-arguments,redefined-builtin"
+generated-members = [
+    ".*database\\.session\\..*",
+    ".*self\\.logger\\..*"
+]
+
+[tool.pylint.tests]
+disable = "invalid-name,protected-access,too-many-public-methods"
+
+[tool.pytest.ini_options]
+log_format = "%(asctime)s.%(msecs)03d %(levelname)s %(message)s"
+log_date_format = "%H:%M:%S"
+addopts = "--cov=flask_camp --cov-report html --cov-report term --no-cov-on-fail --cov-fail-under=99.5"
+filterwarnings = [
+    "ignore::DeprecationWarning:flask_sqlalchemy.*:"
+]

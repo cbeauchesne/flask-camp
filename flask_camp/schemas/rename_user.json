@@ -1,0 +1,10 @@
+{
+  "description": "POST request to rename an user",
+  "type": "object",
+  "properties": {
+    "name": { "$ref": "entities/user_name.json" },
+    "comment": { "$ref": "entities/comment.json" }
+  },
+  "required": ["name", "comment"],
+  "additionalProperties": false
+}

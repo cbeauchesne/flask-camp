@@ -1,0 +1,13 @@
+.pytest_cache/
+__pycache__/
+data/
+dist/
+htmlcov/
+logs/
+venv/
+flask_camp.egg-info/
+
+.DS_Store
+.coverage
+prof
+wb.py

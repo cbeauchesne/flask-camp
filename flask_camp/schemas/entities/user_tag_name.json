@@ -1,0 +1,6 @@
+{
+  "description": "User tag names are string with min length of 1, and max length of 16",
+  "type": "string",
+  "maxLength": 128,
+  "minLength": 1
+}

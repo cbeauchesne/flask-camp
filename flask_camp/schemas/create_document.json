@@ -1,0 +1,10 @@
+{
+  "description": "PUT request to create a document",
+  "type": "object",
+  "properties": {
+    "document": { "$ref": "entities/document.json" },
+    "comment": { "$ref": "entities/comment.json" }
+  },
+  "required": ["document", "comment"],
+  "additionalProperties": false
+}

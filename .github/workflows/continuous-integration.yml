@@ -1,0 +1,33 @@
+name: Continuous integration
+
+on:
+  workflow_dispatch: {}
+  # schedule:
+  #   - cron:  '00 02 * * 2-6'
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  lint_and_test:
+    name: Run format check and unit tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    - name: Install deps
+      run: |
+        pip install --upgrade setuptools pip 
+        pip install -r dev-requirements.txt
+        pip install -e .
+    - name: Check format and lint
+      run: |
+        black --check --diff .
+        pylint flask_camp tests
+    - name: Start dev env
+      run: ./scripts/start_dev_env.sh
+    - run: pytest
+      # env:
+      #   PYTHONPATH: .

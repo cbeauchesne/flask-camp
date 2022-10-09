@@ -1,0 +1,14 @@
+{
+  "description": "POST request to login an user",
+  "type": "object",
+  "properties": {
+    "name": { "$ref": "entities/user_name.json" },
+    "password": { "type": "string" },
+    "token": { "$ref": "entities/token.json" }
+  },
+  "oneOf": [
+    { "required": ["name", "password"] },
+    { "required": ["name", "token"] }
+  ],
+  "additionalProperties": false
+}

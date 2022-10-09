@@ -1,0 +1,10 @@
+{
+  "description": "POST/DELETE request to add/remove a user role",
+  "type": "object",
+  "properties": {
+    "comment": { "$ref": "entities/comment.json" },
+    "role": { "$ref": "entities/role.json" }
+  },
+  "required": ["comment", "role"],
+  "additionalProperties": false
+}

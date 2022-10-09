@@ -1,0 +1,10 @@
+{
+  "description": "POST request to protect/unprotect an user",
+  "type": "object",
+  "properties": {
+    "protected": { "type": "boolean" },
+    "comment": { "$ref": "entities/comment.json" }
+  },
+  "required": ["protected", "comment"],
+  "additionalProperties": false
+}

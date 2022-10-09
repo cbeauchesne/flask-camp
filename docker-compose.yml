@@ -1,0 +1,121 @@
+version: "3.7"
+services:
+  haproxy:
+    image: haproxytech/haproxy-alpine:2.4
+    volumes:
+      - ./docker/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - 5000:80
+      - 8404:8404
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    # user: www-data  # TODO
+    volumes:
+      - ./flask_camp/:/app/flask_camp:ro
+      - ./logs/errors.log:/app/logs/errors.log
+      - ./app.py:/app/app.py
+      - ./docker/:/app/docker:ro
+    environment:
+      - FLASK_SQLALCHEMY_DATABASE_URI=postgresql://flask_camp_user:flask_camp_user@pg:5432/flask_camp
+      - FLASK_SECRET_KEY
+      - FLASK_MAIL_DEFAULT_SENDER
+      - FLASK_MAIL_SUPPRESS_SEND
+      - FLASK_RATELIMIT_ENABLED
+      - FLASK_REDIS_HOST
+      - FLASK_REDIS_PORT
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/healthcheck"]
+      interval: 1s
+      retries: 25
+
+    depends_on:
+      pg:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    expose:
+      - 5000
+
+  redis:
+    # image: redis:latest
+    # image: redis/redis-stack-server:latest
+    image: redis/redis-stack:latest
+    expose:
+      - 6379
+    ports:
+      - 6379:6379
+      - 8001:8001  # with redis/redis-stack:latest
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+
+  pg:
+    image: postgres
+    user: postgres
+    environment:
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - ./docker/init_db.sh:/docker-entrypoint-initdb.d/init_db.sh
+      # - ./data/pg:/var/lib/postgresql/data
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # es:
+  #   image: elasticsearch:8.4.2
+  #   environment:
+  #     - logger.level=ERROR
+  #     # - discovery.type=single-node
+  #     # - ES_JAVA_OPTS=-Xms750m -Xmx750m
+  #     - xpack.security.enabled=false
+  #   volumes:
+  #     - ./docker/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+  #   ports:
+  #     - 9200:9200
+
+
+
+########################################################################
+# postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}
+
+# export db_host = localhost
+# export db_port = 5432
+# export db_user = www-data
+# export db_password = www-data
+
+  # postgresql_c2c:
+  #   image: docker.io/c2corg/c2corg_pgsql:anon-2018-11-02
+  #   environment:
+  #     PGDATA: '/c2corg_anon'
+  #   # volumes:
+  #     # - ./docker-compose/pgsql-settings.d/:/c2corg_anon/pgsql-settings.d/
+  #   ports:
+  #     - 5432:5432
+
+  # pg_ui:
+  #   image: dpage/pgadmin4:4.0
+  #   depends_on:
+  #     - postgresql_c2c
+  #   environment:
+  #     - PGADMIN_DEFAULT_EMAIL=admin@example.com
+  #     - PGADMIN_DEFAULT_PASSWORD=password
+
+  #     # do not require auth
+  #     - PGADMIN_CONFIG_SERVER_MODE=False
+  #     - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
+  #   ports:
+  #     - 5050:80
