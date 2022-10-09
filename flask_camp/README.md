@@ -62,11 +62,12 @@ Build a wiki API with all common features, regardless of the content of document
   * [x] get all versions on document with an user flag ? `/versions?flag=XX` (AKA follow list ?)
 * [ ] Customization
   * [x] define custom schema for document
-  * [ ] define custom schema for any route ?
   * [x] define custom cooker
   * [x] User can delete option
-  * [ ] before save hook
-  * [ ] before user creation savee hook
+  * [x] before save hook
+  * [x] before user creation hook
+  * [ ] after user login hook
+  * [ ] after user logout hook
 
 ## TODO
 
@@ -75,9 +76,6 @@ redis conf
 more test on delete
 more test on logs
 more test!
-after_user_creation_hook
-after_document_creation_hook
-after_document_modification_hook
 set an expiration date in redis for documents: https://stackoverflow.com/questions/21091132/redis-as-cache-reset-expiry
 documentation
 forbid narcissus
