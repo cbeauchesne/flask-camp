@@ -27,26 +27,3 @@ You can use json schema references inside your schema if they are present in you
   "enum": ["6a", "6b"]
 }
 ```
-
-## Conditionnal schemas
-
-TODO move in recipes, and remove namespace ref 
-
-One common need is to define schema conditionnaly ... for a given namespace. A good design to achieve this is to declare as many schema as you have namespace: 
-
-```json
-{
-  "if": {
-    "properties": { "namespace": { "const": "outing" } }
-  },
-  "then": {
-    "properties": {
-      "data": {
-        "properties": {
-          "specific_outing_property": { "type": "string" },
-        }
-      }
-    }
-  }
-}
-```

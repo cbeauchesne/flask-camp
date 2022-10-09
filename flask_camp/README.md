@@ -71,18 +71,13 @@ Build a wiki API with all common features, regardless of the content of document
 ## TODO
 
 user 1 is system user, not admin user
-search must be configurable
 redis conf
 more test on delete
 more test on logs
 more test!
-before_document_delete hook
 after_user_creation_hook
-before_user_creation_hook
 after_document_creation_hook
-before_document_creation_hook
 after_document_modification_hook
-before_document_modification_hook
 set an expiration date in redis for documents: https://stackoverflow.com/questions/21091132/redis-as-cache-reset-expiry
 documentation
 forbid narcissus
