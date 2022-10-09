@@ -38,6 +38,8 @@ def get():
         if len(tag_filters_args) != 0:
             query = query.where(Document.user_tags.any(**tag_filters_args))
 
+        query = current_api.update_search_query(query)
+
         return database.session.execute(query)
 
     count = make_query(select(func.count(Document.id)))
@@ -60,6 +62,10 @@ def put():
         comment=body["comment"],
         data=body["document"]["data"],
     )
+
+    database.session.flush()
+
+    current_api.before_document_save(document)
 
     database.session.commit()
 

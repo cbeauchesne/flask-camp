@@ -151,3 +151,12 @@ class DocumentVersion(BaseModel):
 
     def as_dict(self):
         return _as_dict(self.document, self, include_hidden_data_for_staff=True)
+
+    # @property
+    # def data(self):
+    #     return self._raw_data
+
+    # @data.setter
+    # def data(self, value):
+    #     self._raw_data = value
+    #     self._data = json.dumps(value) 

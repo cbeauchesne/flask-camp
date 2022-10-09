@@ -47,7 +47,7 @@ logging.basicConfig(format="%(asctime)s [%(levelname)8s] %(message)s")
 
 # pylint: disable=too-many-instance-attributes
 class RestApi:
-    def __init__(
+    def __init__(  # pylint: disable=too-many-locals
         self,
         app=None,
         cooker=None,
@@ -59,14 +59,19 @@ class RestApi:
         namespaces=None,
         user_can_delete=False,
         before_user_creation=None,
+        before_document_save=None,
         before_document_delete=None,
+        update_search_query=None,
     ):
         self.limiter = None
         self._rate_limit_cost_function = rate_limit_cost_function
 
         self.user_can_delete = user_can_delete
-        self.before_document_delete = self._hook_function(before_document_delete)
+
         self.before_user_creation = self._hook_function(before_user_creation)
+        self.before_document_save = self._hook_function(before_document_save)
+        self.before_document_delete = self._hook_function(before_document_delete)
+        self.update_search_query = update_search_query if update_search_query is not None else lambda query: query
 
         if rate_limits_file:
             with open(rate_limits_file, mode="r", encoding="utf-8") as f:

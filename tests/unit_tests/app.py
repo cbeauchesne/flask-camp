@@ -1,9 +1,12 @@
 # pylint: disable=too-few-public-methods
 
+from flask import request
 from flask_login import current_user
+from sqlalchemy import Column, String, ForeignKey
 
 from flask_camp import RestApi
-from flask_camp.models.user import User
+from flask_camp.services.database import database
+from flask_camp.models import User, BaseModel, Document
 
 from tests.unit_tests.utils import create_test_app
 
@@ -21,6 +24,36 @@ def cooker(document, get_document):
             document["cooked"]["parent"] = None
 
 
+class DocumentSearch(BaseModel):
+    id = Column(ForeignKey(Document.id, ondelete="CASCADE"), index=True, nullable=True, primary_key=True)
+
+    namespace = Column(String(16), index=True)
+
+    @classmethod
+    def from_document(cls, document):
+        result = cls.get(id=document.id)
+        if result is None:
+            result = cls(id=document.id)
+            database.session.add(result)
+
+        result.namespace = document.namespace
+
+        return result
+
+
+def before_document_save(document):
+    DocumentSearch.from_document(document)
+
+
+def update_search_query(query):
+    namespace = request.args.get("namespace", default=None, type=str)
+
+    if namespace is not None:
+        query = query.join(DocumentSearch).where(DocumentSearch.namespace == namespace)
+
+    return query
+
+
 app = create_test_app()
 
 api = RestApi(
@@ -32,6 +65,8 @@ api = RestApi(
     document_schemas=["outing.json"],
     user_roles="bot,contributor",
     namespaces=["", "outing", "route", "cook-me", "x"],
+    before_document_save=before_document_save,
+    update_search_query=update_search_query,
 )
 
 

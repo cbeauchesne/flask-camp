@@ -137,9 +137,16 @@ class ClientInterface:
         )
 
     def get_documents(
-        self, tag_name=None, tag_user=None, tag_value=None, limit=None, offset=None, expected_status=None
+        self,
+        params=None,
+        tag_name=None,
+        tag_user=None,
+        tag_value=None,
+        limit=None,
+        offset=None,
+        expected_status=None,
     ):
-        params = {}
+        params = {} if params is None else params
 
         if tag_name is not None:
             params["tag_name"] = tag_name
