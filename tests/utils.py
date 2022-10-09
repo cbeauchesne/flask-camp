@@ -129,11 +129,11 @@ class ClientInterface:
 
         return self.get(f"/roles/{user_id}", expected_status=expected_status)
 
-    def create_document(self, namespace="", data=None, expected_status=None):
+    def create_document(self, data=None, expected_status=None):
         return self.put(
             "/documents",
             expected_status=expected_status,
-            json={"comment": "creation", "document": {"namespace": namespace, "data": data if data else {}}},
+            json={"comment": "creation", "document": {"data": data if data else {}}},
         )
 
     def get_documents(
@@ -198,7 +198,7 @@ class ClientInterface:
     def modify_document(self, document, comment="default comment", data=None, params=None, expected_status=None):
         document_id = document["id"]
         new_version = deepcopy(document)
-        new_version["data"] = data if data else {}
+        new_version["data"] = data if data else document["data"]
 
         return self.post(
             f"/document/{document_id}",

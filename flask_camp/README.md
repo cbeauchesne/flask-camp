@@ -22,7 +22,7 @@ Build a wiki API with all common features, regardless of the content of document
 * [x] rate limiting
   * [x] configurable
   * [x] use redis
-* [x] unique document type, shipping a namespace field.
+* [x] unique document type
   * [x] `/documents`
     * [x] add a document
     * [x] get list of document
@@ -71,7 +71,6 @@ Build a wiki API with all common features, regardless of the content of document
 ## TODO
 
 user 1 is system user, not admin user
-documentation on namespaces
 search must be configurable
 redis conf
 more test on delete

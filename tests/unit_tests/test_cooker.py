@@ -14,7 +14,7 @@ class Test_Cooker(BaseTest):
     def test_basic(self, user, memory_cache):
         self.login_user(user)
 
-        doc = self.create_document(namespace="cook-me", data={"value": "42"}).json["document"]
+        doc = self.create_document(data={"namespace": "cook-me", "value": "42"}).json["document"]
         assert "cooked" in doc, doc
 
         doc = self.get_document(doc).json["document"]
@@ -47,19 +47,20 @@ class Test_Cooker(BaseTest):
 
         # create a doc
         parent_v1 = self.create_document(
-            namespace="cook-me",
-            data={"parent_id": None, "content": "v1"},
+            data={"namespace": "cook-me", "parent_id": None, "content": "v1"},
         ).json["document"]
 
         # create another doc. It's parent is doc_1
-        child = self.create_document(namespace="cook-me", data={"parent_id": parent_v1["id"]}).json["document"]
+        child = self.create_document(data={"namespace": "cook-me", "parent_id": parent_v1["id"]}).json["document"]
         assert "cooked" in child
         assert "parent" in child["cooked"]
         assert child["cooked"]["parent"]["id"] == parent_v1["id"]
         assert child["cooked"]["parent"]["data"]["content"] == "v1"
 
         # now, modify the parent
-        parent_v2 = self.modify_document(parent_v1, data={"parent_id": None, "content": "v2"}).json["document"]
+        parent_v2 = self.modify_document(
+            parent_v1, data={"namespace": "cook-me", "parent_id": None, "content": "v2"}
+        ).json["document"]
 
         # the child must have the updated value of the parent
         child = self.get_document(child).json["document"]
@@ -91,10 +92,10 @@ class Test_Cooker(BaseTest):
     def test_circular_reference(self, user):
 
         self.login_user(user)
-        twin_a = self.create_document(namespace="cook-me", data={"parent_id": None}).json["document"]
-        twin_b = self.create_document(namespace="cook-me", data={"parent_id": twin_a["id"]}).json["document"]
+        twin_a = self.create_document(data={"namespace": "cook-me", "parent_id": None}).json["document"]
+        twin_b = self.create_document(data={"namespace": "cook-me", "parent_id": twin_a["id"]}).json["document"]
 
-        twin_a = self.modify_document(twin_a, data={"parent_id": twin_b["id"]}).json["document"]
+        twin_a = self.modify_document(twin_a, data={"namespace": "cook-me", "parent_id": twin_b["id"]}).json["document"]
         assert twin_a["cooked"]["parent"]["version_id"] == twin_b["version_id"]
 
         twin_a = self.get_document(twin_a).json["document"]
@@ -104,8 +105,10 @@ class Test_Cooker(BaseTest):
         assert twin_b["cooked"]["parent"]["version_id"] == twin_a["version_id"]
 
         # self reference
-        narcissus = self.create_document(namespace="cook-me", data={"parent_id": None}).json["document"]
-        narcissus = self.modify_document(narcissus, data={"parent_id": narcissus["id"]}).json["document"]
+        narcissus = self.create_document(data={"namespace": "cook-me", "parent_id": None}).json["document"]
+        narcissus = self.modify_document(narcissus, data={"namespace": "cook-me", "parent_id": narcissus["id"]}).json[
+            "document"
+        ]
 
         assert "cooked" in narcissus, narcissus
         assert "parent" in narcissus["cooked"], narcissus["cooked"]

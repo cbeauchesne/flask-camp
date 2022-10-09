@@ -19,9 +19,8 @@ def before_user_creation(user):
 
     # create the page. This function adds the page in the session
     user_page = Document.create(
-        namespace="profile",
         comment="Automatic creation of user page",
-        data=None,
+        data="Please present yourself !",
         author=admin_user,
     )
 

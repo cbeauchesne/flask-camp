@@ -92,8 +92,8 @@ class Test_Merge(BaseTest):
     def test_dont_cook_redirections(self, moderator):
         self.login_user(moderator)
 
-        doc_1 = self.create_document(namespace="cook-me").json["document"]
-        doc_2 = self.create_document(namespace="cook-me").json["document"]
+        doc_1 = self.create_document(data={"namespace": "cook-me"}).json["document"]
+        doc_2 = self.create_document(data={"namespace": "cook-me"}).json["document"]
 
         self.merge_documents(document_to_merge=doc_1, document_destination=doc_2, comment="merged")
 

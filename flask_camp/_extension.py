@@ -56,7 +56,6 @@ class RestApi:
         user_roles="",
         rate_limit_cost_function=None,
         rate_limits_file=None,
-        namespaces=None,
         user_can_delete=False,
         before_user_creation=None,
         before_document_save=None,
@@ -80,7 +79,6 @@ class RestApi:
             self._rate_limits = {}
 
         self._user_roles = {"admin", "moderator"} | self._parse_user_roles(user_roles)
-        self.namespaces = self._parse_namespaces(namespaces)
         self._cooker = cooker
 
         if schemas_directory:
@@ -127,30 +125,12 @@ class RestApi:
             if role in self._user_roles:
                 raise ConfigurationError(f"{role} ca't be a user role")
 
-        if self.namespaces is not None:
-            namespace_max_len = Document.namespace.type.length
-            for namespace in self.namespaces:
-                if len(namespace) > namespace_max_len:
-                    raise ConfigurationError(f"'{namespace}' name is too long (max is {namespace_max_len})")
-                if " " in namespace:
-                    raise ConfigurationError("Namespaces can't contain a space char")
-
     @staticmethod
     def _parse_user_roles(user_roles):
         if isinstance(user_roles, str):  # allow comma separated string
             user_roles = user_roles.split(",")
 
         return set(role.lower().strip() for role in user_roles if len(role.strip()) != 0)
-
-    @staticmethod
-    def _parse_namespaces(namespaces):
-        if namespaces is None:
-            return None
-
-        if isinstance(namespaces, str):  # allow comma separated string
-            namespaces = namespaces.split(",")
-
-        return set(namespace.lower().strip() for namespace in namespaces)
 
     @staticmethod
     def _hook_function(function):

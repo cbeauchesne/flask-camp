@@ -22,7 +22,6 @@ def _as_dict(document, version, include_hidden_data_for_staff=False):
 
     result = {
         "id": document.id,
-        "namespace": document.namespace,
         "protected": document.protected,
         "comment": version.comment,
         "hidden": version.hidden,
@@ -44,7 +43,6 @@ class Document(BaseModel):
     __tablename__ = "document"
 
     id = Column(Integer, primary_key=True, index=True)
-    namespace = Column(String(16), index=True)
 
     protected = Column(Boolean, nullable=False, default=False)
 
@@ -70,12 +68,9 @@ class Document(BaseModel):
     associated_ids = Column(ARRAY(Integer), index=True)
 
     @classmethod
-    def create(cls, namespace, comment, data, author=None):
+    def create(cls, comment, data, author=None):
 
-        if current_api.namespaces is not None and namespace not in current_api.namespaces:
-            raise BadRequest(f"'{namespace}' is not a valid namespace.")
-
-        result = cls(namespace=namespace)
+        result = cls()
 
         version = DocumentVersion(
             document=result,

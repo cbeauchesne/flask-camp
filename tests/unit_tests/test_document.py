@@ -5,7 +5,6 @@ from tests.unit_tests.utils import BaseTest
 class Test_Document(BaseTest):
     def assert_document(self, document, user, data, comment="creation"):
         assert document["comment"] == comment
-        assert document["namespace"] == "x"
         assert json.dumps(document["data"]) == json.dumps(data)
         assert isinstance(document["id"], int)
         assert isinstance(document["timestamp"], str)
@@ -17,13 +16,10 @@ class Test_Document(BaseTest):
 
         self.login_user(user)
 
-        fake_doc = {"id": 1, "namespace": "x", "version_id": 1}
+        fake_doc = {"id": 1, "version_id": 1, "data": None}
 
         self.get_document(fake_doc, expected_status=404)
         self.modify_document(fake_doc, expected_status=404)
-
-        r = self.put("/documents", json={"comment": "xxx", "document": {"data": {}}}, expected_status=400)
-        assert r.json["description"] == "'namespace' is a required property on instance ['document']"
 
         r = self.put("/documents", json={"comment": "xxx", "document": {"namespace": "x"}}, expected_status=400)
         assert r.json["description"] == "'data' is a required property on instance ['document']"
@@ -34,7 +30,7 @@ class Test_Document(BaseTest):
     def test_creation(self, user):
         self.login_user(user)
 
-        r = self.create_document(namespace="x", data={"value": "42"})
+        r = self.create_document(data={"value": "42"})
         self.assert_document(r.json["document"], user, data={"value": "42"})
 
         document_id = r.json["document"]["id"]
@@ -46,7 +42,7 @@ class Test_Document(BaseTest):
     def test_modification(self, user):
         self.login_user(user)
 
-        v1 = self.create_document(namespace="x", expected_status=200).json["document"]
+        v1 = self.create_document(expected_status=200).json["document"]
         v2 = self.modify_document(v1, comment="test", data={"value": "43"}, expected_status=200).json["document"]
 
         self.assert_document(v2, user, comment="test", data={"value": "43"})

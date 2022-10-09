@@ -1,7 +1,7 @@
 Out of the box, the REST API provide search with limit/offset paraemters, and user tags. You will probably need to extend this feature> Here is the recipe to achieve that.
 
 1. Define a database table that will store your search fields
-2. Add a `before_document_save` that will fill this table opn each document save
+2. Add a `before_document_save` that will fill this table on each document save
 3. Add a `update_search_query` that will complete the SQL query for the `/documents` endpoint
 
 
@@ -23,16 +23,16 @@ class DocumentSearch(BaseModel):
     namespace = Column(String(16), index=True)
 
 
-def before_document_save(document):
+def before_document_save(version):
 
-    search_item = DocumentSearch.get(id=document.id)
+    search_item = DocumentSearch.get(id=version.document.id)
     if search_item is None:  # means the document is not yet created
-        search_item = DocumentSearch(id=document.id)
+        search_item = DocumentSearch(id=version.document.id)
 
         # we need to ass the item in the session
         database.session.add(search_item)
 
-    search_item.namespace = document.namespace
+    search_item.namespace = version.data["namespace"]
 
 
 def update_search_query(query):

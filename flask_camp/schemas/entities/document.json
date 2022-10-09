@@ -2,8 +2,7 @@
   "description": "Document structure",
   "type": "object",
   "properties": {
-    "namespace": { "type": "string", "minLength": 0, "maxLength": 16 },
     "data": {}
   },
-  "required": ["namespace", "data"]
+  "required": ["data"]
 }

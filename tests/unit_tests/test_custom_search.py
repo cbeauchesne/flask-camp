@@ -5,8 +5,8 @@ class Test_CustomSearch(BaseTest):
     def test_main(self, admin):
         self.login_user(admin)
 
-        doc = self.create_document(namespace="x").json["document"]
-        self.create_document(namespace="")
+        doc = self.create_document(data={"namespace": "x"}).json["document"]
+        self.create_document(data={"namespace": ""})
 
         documents = self.get_documents(params={"namespace": "x"}).json["documents"]
 

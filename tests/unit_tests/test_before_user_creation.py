@@ -14,7 +14,7 @@ def before_user_creation(user):
     """
     Two actions:
     1. user must provide a captcha
-    2. a document in profile namespace is created, and user id is set to the document's id
+    2. a document is created, and user id is set to the document's id
     """
 
     data = request.get_json()
@@ -23,7 +23,6 @@ def before_user_creation(user):
 
     admin_user = User.get(id=1)
     user_page = Document.create(
-        namespace="profile",
         comment="Automatic creation of user page",
         data=None,
         author=admin_user,

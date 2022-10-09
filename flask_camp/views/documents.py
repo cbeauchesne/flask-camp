@@ -58,14 +58,13 @@ def put():
     current_api.validate_user_schemas(body["document"])
 
     document = Document.create(
-        namespace=body["document"]["namespace"],
         comment=body["comment"],
         data=body["document"]["data"],
     )
 
     database.session.flush()
 
-    current_api.before_document_save(document)
+    current_api.before_document_save(document.last_version)
 
     database.session.commit()
 

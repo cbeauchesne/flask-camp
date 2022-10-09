@@ -12,7 +12,9 @@ from tests.unit_tests.utils import create_test_app
 
 
 def cooker(document, get_document):
-    if document["namespace"] in ("cook-me",):
+    data = document.get("data")
+
+    if isinstance(data, dict) and data.get("namespace") in ("cook-me",):
         document["cooked"] = {}
 
         # Let's build an app with document. One rule: all documents have (or not) a parent
@@ -30,19 +32,20 @@ class DocumentSearch(BaseModel):
     namespace = Column(String(16), index=True)
 
     @classmethod
-    def from_document(cls, document):
-        result = cls.get(id=document.id)
+    def from_document(cls, version):
+        result = cls.get(id=version.document.id)
         if result is None:
-            result = cls(id=document.id)
+            result = cls(id=version.document.id)
             database.session.add(result)
 
-        result.namespace = document.namespace
+        if isinstance(version.data, dict):
+            result.namespace = version.data.get("namespace")
 
         return result
 
 
-def before_document_save(document):
-    DocumentSearch.from_document(document)
+def before_document_save(version):
+    DocumentSearch.from_document(version)
 
 
 def update_search_query(query):
@@ -64,7 +67,6 @@ api = RestApi(
     schemas_directory="tests/unit_tests/schemas",
     document_schemas=["outing.json"],
     user_roles="bot,contributor",
-    namespaces=["", "outing", "route", "cook-me", "x"],
     before_document_save=before_document_save,
     update_search_query=update_search_query,
 )

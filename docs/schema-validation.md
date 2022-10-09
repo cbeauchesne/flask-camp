@@ -30,7 +30,9 @@ You can use json schema references inside your schema if they are present in you
 
 ## Conditionnal schemas
 
-One common need is to define schema only for a given namespace. A good design to achieve this is to declare as many schema as you have namespace: 
+TODO move in recipes, and remove namespace ref 
+
+One common need is to define schema conditionnaly ... for a given namespace. A good design to achieve this is to declare as many schema as you have namespace: 
 
 ```json
 {

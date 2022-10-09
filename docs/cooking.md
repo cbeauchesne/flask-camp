@@ -33,7 +33,6 @@ api = RestApi(cooker=my_cooker)
 ```
 document
     id              : The id of the document
-    namespace       : Document's namespace
     last_version_id : The current last version of the document
     version_id      : The version of the document. If version_id==last_version_id, it means that this obkect is the current version of the document
     comment         : Modification's omment of the that mades this versions
@@ -41,6 +40,7 @@ document
     user            : User who made this document
     protected       : Boolean, if the document is protected
     hidden          : Boolean, if this version is hidden
+    data            : content of the document, may be missing when hidden is True 
 ```
 
 * `get_document` is a function that take a document id, and returns the non-cooked version of this document (or `None` if it dosn't exists).

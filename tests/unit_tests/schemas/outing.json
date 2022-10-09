@@ -1,18 +1,19 @@
 {
-  "if": {
-    "properties": { "namespace": { "const": "outing" } }
-  },
-  "then": {
-    "properties": {
-      "data": {
+  "properties": {
+    "data": {
+      "if": {
+        "properties": { "namespace": { "const": "outing" } },
+        "required": ["namespace"]
+      },
+      "then": {
         "properties": {
           "value": { "type": "string" },
-          "rating": { "$ref": "entities/rating.json" }
+          "rating": { "$ref": "entities/rating.json" },
+          "namespace": { "const": "outing" }
         },
-        "required": ["value", "rating"],
+        "required": ["value", "rating", "namespace"],
         "additionalProperties": false
       }
     }
-  },
-  "required": ["namespace"]
+  }
 }

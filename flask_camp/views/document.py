@@ -97,7 +97,7 @@ def post(document_id):
 
     database.session.flush()
 
-    current_api.before_document_save(document)
+    current_api.before_document_save(version)
 
     database.session.commit()
 
