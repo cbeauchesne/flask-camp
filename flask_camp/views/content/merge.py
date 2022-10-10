@@ -25,6 +25,9 @@ def post():
     if document_to_merge.id == document_destination.id:
         raise BadRequest()
 
+    if document_destination.is_redirection or document_to_merge.is_redirection:
+        raise BadRequest()
+
     document_to_merge.redirect_to = document_destination.id
     DocumentVersion.query.filter_by(document_id=document_to_merge.id).update({"document_id": document_destination.id})
     document_to_merge.last_version_id = None

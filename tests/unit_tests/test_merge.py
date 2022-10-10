@@ -103,5 +103,14 @@ class Test_Merge(BaseTest):
         assert "cooked" not in doc_1
         assert "cooked" in doc_2
 
-    # TODO do not merge redirections
-    
+    def test_merge_redirections(self, moderator):
+        self.login_user(moderator)
+
+        doc_1 = self.create_document().json["document"]
+        doc_2 = self.create_document().json["document"]
+        doc_3 = self.create_document().json["document"]
+
+        self.merge_documents(doc_1, doc_2, comment="Doc 1 is now a redirection")
+
+        self.merge_documents(doc_1, doc_3, comment="nope", expected_status=400)
+        self.merge_documents(doc_3, doc_1, comment="nope", expected_status=400)

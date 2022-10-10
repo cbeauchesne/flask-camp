@@ -1,6 +1,5 @@
 import copy
 import json
-import logging
 from types import ModuleType
 import warnings
 
@@ -41,10 +40,6 @@ from .views.content import user_tags as user_tags_view
 from .views import healthcheck as healthcheck_view
 from .views import home as home_view
 from .views import logs as logs_view
-
-
-# TODO : should not be part of the extension, let user decide how to log
-logging.basicConfig(format="%(asctime)s [%(levelname)8s] %(message)s")
 
 
 # pylint: disable=too-many-instance-attributes

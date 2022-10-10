@@ -11,6 +11,9 @@ from tests.unit_tests.app import app as tested_app, api as tested_api
 from tests.unit_tests.utils import BaseTest
 
 
+logging.basicConfig(format="%(asctime)s [%(levelname)8s] %(message)s")
+
+
 def pytest_configure(config):
     if config.getoption("-v") > 1:
         logging.getLogger("sqlalchemy").addHandler(logging.StreamHandler(sys.stdout))
