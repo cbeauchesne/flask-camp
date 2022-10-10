@@ -35,4 +35,47 @@ class Test_CustomSearch(BaseTest):
         documents = self.get_documents(params={"t": "x"}).json["documents"]
         assert len(documents) == 0
 
-    #     # merge
+    def test_merge_1(self, moderator):
+        self.login_user(moderator)
+
+        doc_1 = self.create_document(data={"type": "x"}).json["document"]
+        doc_2 = self.create_document(data={"type": ""}).json["document"]
+        self.merge_documents(doc_1, doc_2, comment="comment")
+        documents = self.get_documents(params={"t": "x"}).json["documents"]
+        assert len(documents) == 0
+
+    def test_merge_2(self, moderator):
+        self.login_user(moderator)
+
+        doc_1 = self.create_document(data={"type": "x"}).json["document"]
+        doc_2 = self.create_document(data={"type": ""}).json["document"]
+        self.merge_documents(doc_2, doc_1, comment="comment")
+        documents = self.get_documents(params={"t": "x"}).json["documents"]
+        assert len(documents) == 0
+
+    def test_merge_3(self, moderator):
+        self.login_user(moderator)
+        doc_1 = self.create_document(data={"type": ""}).json["document"]
+        doc_2 = self.create_document(data={"type": "x"}).json["document"]
+        self.merge_documents(doc_1, doc_2, comment="comment")
+        documents = self.get_documents(params={"t": "x"}).json["documents"]
+        assert len(documents) == 1
+        assert documents[0]["id"] == doc_2["id"]
+
+    def test_merge_4(self, moderator):
+        self.login_user(moderator)
+        doc_1 = self.create_document(data={"type": ""}).json["document"]
+        doc_2 = self.create_document(data={"type": "x"}).json["document"]
+        self.merge_documents(doc_2, doc_1, comment="comment")
+        documents = self.get_documents(params={"t": "x"}).json["documents"]
+        assert len(documents) == 1
+        assert documents[0]["id"] == doc_1["id"]
+
+    def test_merge_5(self, moderator):
+        self.login_user(moderator)
+        doc_1 = self.create_document(data={"type": "x"}).json["document"]
+        doc_2 = self.create_document(data={"type": "x"}).json["document"]
+        self.merge_documents(doc_1, doc_2, comment="comment")
+        documents = self.get_documents(params={"t": "x"}).json["documents"]
+        assert len(documents) == 1
+        assert documents[0]["id"] == doc_2["id"]

@@ -89,15 +89,15 @@ def post(document_id):
     )
 
     database.session.add(version)
-
     document.last_version = version
+
     document.associated_ids = current_api.get_associated_ids(version.as_dict())
 
     assert _RACE_CONDITION_TESTING()
 
     database.session.flush()
 
-    current_api.before_document_save(version)
+    current_api.before_document_save(document)
 
     database.session.commit()
 

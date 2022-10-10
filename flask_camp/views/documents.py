@@ -64,7 +64,7 @@ def put():
 
     database.session.flush()
 
-    current_api.before_document_save(document.last_version)
+    current_api.before_document_save(document)
 
     database.session.commit()
 

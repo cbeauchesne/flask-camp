@@ -23,16 +23,20 @@ class DocumentSearch(BaseModel):
     document_type = Column(String(16), index=True)
 
 
-def before_document_save(version):
+def before_document_save(document):
+    if document.last_version is None:  # document as been merged
+        delete(DocumentSearch).where(DocumentSearch.id == document.id)
+        return
 
-    search_item = DocumentSearch.get(id=version.document.id)
+    version = document.last_version
+
+    search_item = DocumentSearch.get(id=document.id)
     if search_item is None:  # means the document is not yet created
-        search_item = DocumentSearch(id=version.document.id)
-
-        # we need to ass the item in the session
+        search_item = DocumentSearch(id=document.id)
         database.session.add(search_item)
 
-    search_item.document_type = version.data["type"]
+    if isinstance(version.data, dict):
+        search_item.document_type = version.data.get("type")
 
 
 def update_search_query(query):

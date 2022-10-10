@@ -2,7 +2,7 @@
 
 from flask import request
 from flask_login import current_user
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, String, ForeignKey, delete
 
 from flask_camp import RestApi
 from flask_camp.services.database import database
@@ -31,21 +31,21 @@ class DocumentSearch(BaseModel):
 
     document_type = Column(String(16), index=True)
 
-    @classmethod
-    def from_document(cls, version):
-        result = cls.get(id=version.document.id)
-        if result is None:
-            result = cls(id=version.document.id)
-            database.session.add(result)
 
-        if isinstance(version.data, dict):
-            result.document_type = version.data.get("type")
+def before_document_save(document):
+    if document.last_version is None:  # document as been merged
+        delete(DocumentSearch).where(DocumentSearch.id == document.id)
+        return
 
-        return result
+    version = document.last_version
 
+    result = DocumentSearch.get(id=document.id)
+    if result is None:
+        result = DocumentSearch(id=document.id)
+        database.session.add(result)
 
-def before_document_save(version):
-    DocumentSearch.from_document(version)
+    if isinstance(version.data, dict):
+        result.document_type = version.data.get("type")
 
 
 def update_search_query(query):

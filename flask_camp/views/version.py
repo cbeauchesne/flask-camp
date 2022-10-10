@@ -43,7 +43,7 @@ def post(version_id):
     needs_update = old_last_version_id != version.document.last_version_id
 
     if needs_update:
-        current_api.before_document_save(document.last_version)
+        current_api.before_document_save(document)
 
     add_log("hide_version" if hidden else "unhide_version", version=version, document=version.document)
 
@@ -74,7 +74,7 @@ def delete(version_id):
     needs_update = old_last_version_id != version.document.last_version_id
 
     if needs_update:
-        current_api.before_document_save(document.last_version)
+        current_api.before_document_save(document)
 
     database.session.delete(version)
 

@@ -6,6 +6,7 @@ from flask_camp.services.security import allow
 from flask_camp.models.document import Document, DocumentVersion
 from flask_camp.models.log import add_log
 from flask_camp.services.database import database
+from flask_camp.utils import current_api
 
 rule = "/merge"
 
@@ -29,7 +30,11 @@ def post():
     document_to_merge.redirect_to = document_destination.id
     DocumentVersion.query.filter_by(document_id=document_to_merge.id).update({"document_id": document_destination.id})
     document_to_merge.last_version_id = None
+    document_to_merge.last_version = None
     document_destination.update_last_version_id()
+
+    current_api.before_document_save(document_to_merge)
+    current_api.before_document_save(document_destination)
 
     add_log("merge", comment=data["comment"], document=document_destination, merged_document=document_to_merge)
 
