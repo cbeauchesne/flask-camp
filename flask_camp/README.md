@@ -91,8 +91,8 @@ Here is a list of golden rules.
 3. keep it stupid and simple
 4. Do not reinvent the wheel
 5. 80/20 usage: Do the 80%. DON'T do the 20%
-6. keep round API
-7. API is security/consitency, UI is usability
+6. keep a round API
+7. API is security/consistency, UI is usability/ergonomy
 8. security: everything is forbidden, except if it's allowed
 
 ## Stack
@@ -121,7 +121,7 @@ And on develpment side :
 
 It's not maintenaind anymore : https://github.com/flask-restful/flask-restful/issues/883
 
-And it turns out that flask handle pretty well json requests and response out-of-the-box. Furthermore, a rest framework adds some opiniated choices that can be imcompatible with orher well known flask plugin. So let's try with raw flask. As now, the only code we had to add is the exception handler.
+And it turns out that flask handle pretty well json requests and response out-of-the-box. Furthermore, a rest framework adds some opiniated choices that can be imcompatible with other well known flask plugin. So let's try with raw flask. As now, the only code we had to add is the exception handler.
 
 
 ## Target archi 

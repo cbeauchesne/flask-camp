@@ -5,6 +5,7 @@ import secrets
 
 from flask_login import current_user
 from sqlalchemy import Column, String, Text, Boolean, DateTime
+from sqlalchemy.dialects.postgresql import ARRAY
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -50,7 +51,7 @@ class User(BaseModel):
 
     ui_preferences = Column(String, default="{}", nullable=False)
 
-    _roles = Column("roles", Text, default="", nullable=False)
+    roles = Column(ARRAY(String(16)), index=True, default=[])
 
     blocked = Column(Boolean, default=False, nullable=False)
 
@@ -179,14 +180,6 @@ class User(BaseModel):
     @property
     def is_moderator(self):
         return "moderator" in self.roles
-
-    @property
-    def roles(self):
-        return [] if not self._roles else self._roles.split(",")
-
-    @roles.setter
-    def roles(self, value):
-        self._roles = ",".join(value)
 
     @property
     def login_token_expiration_date(self):

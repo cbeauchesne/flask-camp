@@ -55,7 +55,7 @@ def post(user_id):
 @schema("modify_role.json")
 def delete(user_id):
     """Remove a role from an user"""
-    user = User.get(id=user_id)
+    user = User.get(id=user_id, with_for_update=True)
 
     if user is None:
         raise NotFound()
@@ -67,7 +67,7 @@ def delete(user_id):
     if role not in user.roles:
         raise BadRequest("User does not have this role")
 
-    roles = user.roles
+    roles = list(user.roles)
     roles.remove(role)
     user.roles = roles
 

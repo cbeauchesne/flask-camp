@@ -29,7 +29,7 @@ def check_rights(f):
         if current_user.blocked and not f.allow_blocked:
             raise Forbidden("You have been blocked, you can't access to this resource")
 
-        user_roles = current_user.roles
+        user_roles = list(current_user.roles)
 
         if current_user.is_authenticated:
             user_roles.append("authenticated")

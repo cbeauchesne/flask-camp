@@ -42,15 +42,12 @@ def setup_app():
     app_memory_cache.flushall()
 
 
-def _db_add_user(name="name", email=None, password="password", validate_email=True, roles=""):
+def _db_add_user(name="name", email=None, password="password", validate_email=True, roles=None):
+
     with tested_app.app_context():
         instance = User(
             name=name,
-            roles=roles
-            if isinstance(roles, (list, tuple))
-            else [
-                roles,
-            ],
+            roles=roles if isinstance(roles, (list, tuple)) else roles.split(",") if isinstance(roles, str) else [],
         )
         instance.set_password(password)
 
