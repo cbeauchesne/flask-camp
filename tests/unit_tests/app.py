@@ -4,8 +4,7 @@ from flask import request
 from flask_login import current_user
 from sqlalchemy import Column, String, ForeignKey, delete
 
-from flask_camp import RestApi
-from flask_camp.services.database import database
+from flask_camp import RestApi, current_api
 from flask_camp.models import User, BaseModel, Document
 
 from tests.unit_tests.utils import create_test_app
@@ -42,7 +41,7 @@ def before_document_save(document):
     result = DocumentSearch.get(id=document.id)
     if result is None:
         result = DocumentSearch(id=document.id)
-        database.session.add(result)
+        current_api.database.session.add(result)
 
     if isinstance(version.data, dict):
         result.document_type = version.data.get("type")

@@ -5,13 +5,13 @@ from flask_login import current_user
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 
-from flask_camp.models import BaseModel
-from flask_camp.models.user import User
-from flask_camp.services.database import database
+from flask_camp._utils import current_api
+from flask_camp.models._base_model import BaseModel
+from flask_camp.models._user import User
 
 
 def add_log(action, comment=None, target_user=None, document=None, merged_document=None, version=None):
-
+    # TODO: move in extension
     if comment is None:
         comment = request.get_json()["comment"]
 
@@ -27,7 +27,7 @@ def add_log(action, comment=None, target_user=None, document=None, merged_docume
         merged_document_id=merged_document_id,
         version_id=version_id,
     )
-    database.session.add(log)
+    current_api.database.session.add(log)
 
 
 class Log(BaseModel):

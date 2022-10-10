@@ -1,12 +1,11 @@
 from flask import request
 from werkzeug.exceptions import BadRequest, NotFound
 
-from flask_camp.services.security import allow
-from flask_camp.models.log import add_log
-from flask_camp.models.user import User
-from flask_camp.schemas import schema
-from flask_camp.services.database import database
-from flask_camp.utils import current_api
+from flask_camp._schemas import schema
+from flask_camp._utils import current_api
+from flask_camp.models._log import add_log
+from flask_camp.models._user import User
+from flask_camp._services._security import allow
 
 rule = "/roles/<int:user_id>"
 
@@ -46,7 +45,7 @@ def post(user_id):
 
     add_log(action=f"add_role {role}", comment=data["comment"], target_user=user)
 
-    database.session.commit()
+    current_api.database.session.commit()
 
     return {"status": "ok", "roles": user.roles}
 
@@ -73,6 +72,6 @@ def delete(user_id):
 
     add_log(action=f"remove_role {role}", comment=data["comment"], target_user=user)
 
-    database.session.commit()
+    current_api.database.session.commit()
 
     return {"status": "ok", "roles": user.roles}

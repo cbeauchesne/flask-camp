@@ -7,12 +7,10 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship, reconstructor
 from werkzeug.exceptions import BadRequest
 
+from flask_camp._utils import current_api
 from flask_camp.models._base_model import BaseModel
-from flask_camp.models.user_tag import UserTag
-from flask_camp.models.user import User
-from flask_camp.services.database import database
-from flask_camp.services.memory_cache import memory_cache
-from flask_camp.utils import current_api
+from flask_camp.models._user import User
+from flask_camp.models._user_tag import UserTag
 
 
 def _as_dict(document, version, include_hidden_data_for_staff=False):
@@ -82,9 +80,9 @@ class Document(BaseModel):
         result.last_version = version
         result.associated_ids = current_api.get_associated_ids(version.as_dict())
 
-        database.session.add(result)
-        database.session.add(version)
-        database.session.flush()
+        current_api.database.session.add(result)
+        current_api.database.session.add(version)
+        current_api.database.session.flush()
 
         return result
 
@@ -104,11 +102,11 @@ class Document(BaseModel):
         self.last_version_id = self.last_version.id
 
     def clear_memory_cache(self):
-        memory_cache.delete_document(self.id)
+        current_api.memory_cache.delete_document(self.id)
 
         query = select(Document.id).where(Document.associated_ids.contains([self.id]))
-        for row in database.session.execute(query):
-            memory_cache.delete_document(row[0])
+        for row in current_api.database.session.execute(query):
+            current_api.memory_cache.delete_document(row[0])
 
     def as_dict(self):
         return _as_dict(self, self.last_version)

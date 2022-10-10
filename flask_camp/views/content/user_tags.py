@@ -2,10 +2,10 @@ from flask import request
 from flask_login import current_user
 from werkzeug.exceptions import BadRequest, NotFound
 
-from flask_camp.services.security import allow
-from flask_camp.models.user_tag import UserTag
-from flask_camp.schemas import schema
-from flask_camp.services.database import database
+from flask_camp._schemas import schema
+from flask_camp._utils import current_api
+from flask_camp._services._security import allow
+from flask_camp.models._user_tag import UserTag
 
 rule = "/user_tags"
 
@@ -58,11 +58,11 @@ def post():
     tag = UserTag.get(name=name, document_id=document_id, user_id=current_user.id)
     if tag is None:
         tag = UserTag(name=name, document_id=document_id, user_id=current_user.id)
-        database.session.add(tag)
+        current_api.database.session.add(tag)
 
     tag.value = value
 
-    database.session.commit()
+    current_api.database.session.commit()
 
     return {"status": "ok", "user_tag": tag.as_dict()}
 
@@ -81,7 +81,7 @@ def delete():
     if not tag:
         raise NotFound()
 
-    database.session.delete(tag)
-    database.session.commit()
+    current_api.database.session.delete(tag)
+    current_api.database.session.commit()
 
     return {"status": "ok"}

@@ -2,11 +2,10 @@ from flask import request
 from sqlalchemy import select, func
 from werkzeug.exceptions import BadRequest
 
-from flask_camp.services.security import allow
-from flask_camp.models.document import Document
-from flask_camp.schemas import schema
-from flask_camp.services.database import database
-from flask_camp.utils import get_cooked_document, cook, current_api
+from flask_camp._schemas import schema
+from flask_camp._utils import get_cooked_document, cook, current_api
+from flask_camp._services._security import allow
+from flask_camp.models._document import Document
 
 rule = "/documents"
 
@@ -40,7 +39,7 @@ def get():
 
         query = current_api.update_search_query(query)
 
-        return database.session.execute(query)
+        return current_api.database.session.execute(query)
 
     count = make_query(select(func.count(Document.id)))
     document_ids = make_query(select(Document.id).limit(limit).offset(offset).order_by(Document.id.asc()))
@@ -62,11 +61,11 @@ def put():
         data=body["document"]["data"],
     )
 
-    database.session.flush()
+    current_api.database.session.flush()
 
     current_api.before_document_save(document)
 
-    database.session.commit()
+    current_api.database.session.commit()
 
     document.clear_memory_cache()
 

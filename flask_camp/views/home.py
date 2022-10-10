@@ -2,8 +2,8 @@ import collections
 
 from flask import current_app
 
-from flask_camp.services.security import allow
-from flask_camp.utils import current_api
+from flask_camp._utils import current_api
+from flask_camp._services._security import allow
 
 rule = "/"
 

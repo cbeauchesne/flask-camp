@@ -8,7 +8,7 @@ Out of the box, the REST API provide search with limit/offset paraemters, and us
 ```python
 
 from flask import request
-from flask_camp import RestApi
+from flask_camp import RestApi, current_api
 from flask_camp.models import BaseModel, Document
 from sqlalchemy import Column, String, ForeignKey
 
@@ -33,7 +33,7 @@ def before_document_save(document):
     search_item = DocumentSearch.get(id=document.id)
     if search_item is None:  # means the document is not yet created
         search_item = DocumentSearch(id=document.id)
-        database.session.add(search_item)
+        current_api.database.session.add(search_item)
 
     if isinstance(version.data, dict):
         search_item.document_type = version.data.get("type")

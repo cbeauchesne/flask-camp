@@ -3,9 +3,9 @@ import sys
 
 import pytest
 
-from flask_camp.models.user import User
-from flask_camp.services.database import database as app_database
-from flask_camp.services.memory_cache import memory_cache as app_memory_cache
+from flask_camp.models import User
+from flask_camp._services._database import database as app_database
+from flask_camp._services._memory_cache import memory_cache as app_memory_cache
 
 from tests.unit_tests.app import app as tested_app, api as tested_api
 from tests.unit_tests.utils import BaseTest

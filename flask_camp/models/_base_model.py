@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer
-from flask_camp.services.database import database
+from flask_camp._services._database import database
 
 
 class BaseModel(database.Model):  # pylint: disable=too-few-public-methods

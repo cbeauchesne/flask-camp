@@ -1,12 +1,11 @@
 from flask import request
 from werkzeug.exceptions import NotFound, BadRequest
 
-from flask_camp.schemas import schema
-from flask_camp.services.security import allow
-from flask_camp.models.document import DocumentVersion, Document
-from flask_camp.models.log import add_log
-from flask_camp.services.database import database
-from flask_camp.utils import cook, current_api
+from flask_camp._schemas import schema
+from flask_camp._utils import cook, current_api
+from flask_camp.models._log import add_log
+from flask_camp.models._document import DocumentVersion, Document
+from flask_camp._services._security import allow
 
 rule = "/version/<int:version_id>"
 
@@ -35,7 +34,7 @@ def post(version_id):
     old_last_version_id = version.document.last_version_id
     hidden = request.get_json()["hidden"]
     version.hidden = hidden
-    database.session.flush()
+    current_api.database.session.flush()
 
     document = Document.get(id=version.document_id, with_for_update=True)
     document.update_last_version_id()
@@ -47,7 +46,7 @@ def post(version_id):
 
     add_log("hide_version" if hidden else "unhide_version", version=version, document=version.document)
 
-    database.session.commit()
+    current_api.database.session.commit()
 
     if needs_update:
         version.document.clear_memory_cache()
@@ -76,11 +75,11 @@ def delete(version_id):
     if needs_update:
         current_api.before_document_save(document)
 
-    database.session.delete(version)
+    current_api.database.session.delete(version)
 
     add_log("delete_version", version=version, document=version.document)
 
-    database.session.commit()
+    current_api.database.session.commit()
 
     if needs_update:
         version.document.clear_memory_cache()

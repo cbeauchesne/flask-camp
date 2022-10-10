@@ -1,8 +1,8 @@
 from flask import request
 from werkzeug.exceptions import BadRequest
 
-from flask_camp.services.security import allow
-from flask_camp.models.log import Log
+from flask_camp.models._log import Log
+from flask_camp._services._security import allow
 
 rule = "/logs"
 

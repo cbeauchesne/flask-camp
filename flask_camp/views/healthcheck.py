@@ -1,4 +1,4 @@
-from flask_camp.services.security import allow
+from flask_camp._services._security import allow
 
 rule = "/healthcheck"
 

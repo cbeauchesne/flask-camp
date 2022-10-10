@@ -2,10 +2,10 @@
 
 from flask import request
 
-from flask_camp.services.security import allow
-from flask_camp.models.user import User as UserModel
-from flask_camp.schemas import schema
-from flask_camp.services.database import database
+from flask_camp._schemas import schema
+from flask_camp._utils import current_api
+from flask_camp._services._security import allow
+from flask_camp.models._user import User as UserModel
 
 
 rule = "/reset_password"
@@ -27,7 +27,7 @@ def post():
 
     user.set_login_token()
 
-    database.session.commit()
+    current_api.database.session.commit()
 
     user.send_login_token_mail()
 

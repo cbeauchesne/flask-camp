@@ -4,10 +4,10 @@ from flask import request
 from flask_login import current_user
 from werkzeug.exceptions import Forbidden, NotFound
 
-from flask_camp.services.security import allow
-from flask_camp.models.user import User as UserModel
-from flask_camp.schemas import schema
-from flask_camp.services.database import database
+from flask_camp._schemas import schema
+from flask_camp._utils import current_api
+from flask_camp._services._security import allow
+from flask_camp.models._user import User as UserModel
 
 
 rule = "/user/<int:user_id>"
@@ -63,7 +63,7 @@ def post(user_id):
     if "ui_preferences" in data:
         user.ui_preferences = json.dumps(data["ui_preferences"])
 
-    database.session.commit()
+    current_api.database.session.commit()
 
     # personal data : user is current user, so always true
     return {"status": "ok", "user": user.as_dict(include_personal_data=True)}

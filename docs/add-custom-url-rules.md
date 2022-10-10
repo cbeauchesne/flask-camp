@@ -15,7 +15,7 @@ As a module:
 ```python
 # my_custom_route.py
 
-from flask_camp.services.security import allow
+from flask_camp import allow
 
 
 rule = "/my_custom_route"
@@ -34,7 +34,7 @@ Or as a class:
 ```python
 # module_with_class.py
 
-from flask_camp.services.security import allow
+from flask_camp import allow
 
 
 class CustomRoute:

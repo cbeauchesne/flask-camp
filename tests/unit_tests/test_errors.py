@@ -1,6 +1,6 @@
 import pytest
 
-from flask_camp.schemas import schema
+from flask_camp._schemas import schema
 from tests.unit_tests.utils import BaseTest
 
 

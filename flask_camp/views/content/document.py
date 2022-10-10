@@ -6,12 +6,11 @@ from flask import request, Response
 from flask_login import current_user
 from werkzeug.exceptions import NotFound, Forbidden, Conflict, BadRequest
 
-from flask_camp.services.security import allow
-from flask_camp.models.document import Document, DocumentVersion
-from flask_camp.models.log import add_log
-from flask_camp.services.database import database
-from flask_camp.schemas import schema
-from flask_camp.utils import get_cooked_document, get_document, cook, current_api
+from flask_camp._schemas import schema
+from flask_camp._utils import get_cooked_document, get_document, cook, current_api
+from flask_camp.models._document import Document, DocumentVersion
+from flask_camp.models._log import add_log
+from flask_camp._services._security import allow
 
 log = logging.getLogger(__name__)
 
@@ -88,18 +87,18 @@ def post(document_id):
         data=data,
     )
 
-    database.session.add(version)
+    current_api.database.session.add(version)
     document.last_version = version
 
     document.associated_ids = current_api.get_associated_ids(version.as_dict())
 
     assert _RACE_CONDITION_TESTING()
 
-    database.session.flush()
+    current_api.database.session.flush()
 
     current_api.before_document_save(document)
 
-    database.session.commit()
+    current_api.database.session.commit()
 
     document.clear_memory_cache()
 
@@ -118,13 +117,13 @@ def delete(document_id):
     current_api.before_document_delete(current_user, document_as_dict)
 
     document = Document.get(id=document_id)
-    database.session.delete(document)
+    current_api.database.session.delete(document)
 
     add_log("delete_document", document=document, comment=request.get_json()["comment"])
 
-    database.session.flush()
+    current_api.database.session.flush()
 
-    database.session.commit()
+    current_api.database.session.commit()
 
     document.clear_memory_cache()
 

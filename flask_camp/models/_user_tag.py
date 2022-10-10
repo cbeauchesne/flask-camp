@@ -4,7 +4,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from flask_camp.models._base_model import BaseModel
-from flask_camp.models.user import User
+from flask_camp.models._user import User
 
 
 class UserTag(BaseModel):

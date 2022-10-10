@@ -1,12 +1,11 @@
 from flask import request
 from werkzeug.exceptions import NotFound, BadRequest
 
-from flask_camp.schemas import schema
-from flask_camp.services.security import allow
-from flask_camp.models.document import Document, DocumentVersion
-from flask_camp.models.log import add_log
-from flask_camp.services.database import database
-from flask_camp.utils import current_api
+from flask_camp._schemas import schema
+from flask_camp._utils import current_api
+from flask_camp.models._document import Document, DocumentVersion
+from flask_camp.models._log import add_log
+from flask_camp._services._security import allow
 
 rule = "/merge"
 
@@ -38,7 +37,7 @@ def post():
 
     add_log("merge", comment=data["comment"], document=document_destination, merged_document=document_to_merge)
 
-    database.session.commit()
+    current_api.database.session.commit()
 
     document_destination.clear_memory_cache()
     document_to_merge.clear_memory_cache()

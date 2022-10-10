@@ -1,11 +1,11 @@
 from flask import request
 from werkzeug.exceptions import NotFound, BadRequest
 
-from flask_camp.services.security import allow
-from flask_camp.models.document import Document
-from flask_camp.models.log import add_log
-from flask_camp.schemas import schema
-from flask_camp.services.database import database
+from flask_camp._schemas import schema
+from flask_camp._utils import current_api
+from flask_camp.models._document import Document
+from flask_camp.models._log import add_log
+from flask_camp._services._security import allow
 
 rule = "/protect_document/<int:document_id>"
 
@@ -30,7 +30,7 @@ def post(document_id):
     document.protected = protected
     add_log("protect" if protected else "unprotect", document=document)
 
-    database.session.commit()
+    current_api.database.session.commit()
 
     document.clear_memory_cache()
 

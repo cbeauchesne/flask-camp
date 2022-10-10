@@ -1,11 +1,11 @@
 from flask import request
 from werkzeug.exceptions import BadRequest
 
-from flask_camp.services.security import allow
-from flask_camp.models.document import DocumentVersion
-from flask_camp.models.user import User
-from flask_camp.services.database import database
-from flask_camp.utils import cook
+from flask_camp._utils import current_api
+from flask_camp._services._security import allow
+from flask_camp.models._document import DocumentVersion
+from flask_camp.models._user import User
+from flask_camp._utils import cook
 
 rule = "/versions"
 
@@ -31,7 +31,7 @@ def get():
 
     tag_filters_args = {k: v for k, v in tag_filters_args.items() if v is not None}
 
-    query = database.session.query(DocumentVersion)
+    query = current_api.database.session.query(DocumentVersion)
 
     if len(tag_filters_args) != 0:
         query = query.filter(DocumentVersion.user_tags.any(**tag_filters_args))

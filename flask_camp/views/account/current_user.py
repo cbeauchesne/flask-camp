@@ -1,6 +1,6 @@
 from flask_login import current_user
 
-from flask_camp.services.security import allow
+from flask_camp._services._security import allow
 
 rule = "/current_user"
 

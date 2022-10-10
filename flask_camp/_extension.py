@@ -9,36 +9,36 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from werkzeug.exceptions import HTTPException, NotFound
 
+from ._schemas import SchemaValidator
+from ._services._database import database
+from ._services._memory_cache import memory_cache
+from ._services._security import check_rights, allow
+from ._services._send_mail import SendMail
+from ._utils import GetDocument
 from .exceptions import ConfigurationError
-from .models.document import Document
-from .models.user import User as UserModel, AnonymousUser
-from .schemas import SchemaValidator
-from .services.database import database
-from .services.memory_cache import memory_cache
-from .services.security import check_rights, allow
-from .services.send_mail import SendMail
+from .models._document import Document
+from .models._user import User as UserModel, AnonymousUser
 
-from .utils import GetDocument
 
-from .views.account import user_login as user_login_view
+from .views.account import block_user as block_user_view
+from .views.account import current_user as current_user_view
 from .views.account import email_validation as email_validation_view
-from .views.account import reset_password as reset_password_view
 from .views.account import rename_user as rename_user_view
+from .views.account import reset_password as reset_password_view
 from .views.account import roles as roles_view
-from .views import block_user as block_user_view
-from .views import current_user as current_user_view
-from .views import document as document_view
-from .views import documents as documents_view
+from .views.account import user as user_view
+from .views.account import user_login as user_login_view
+from .views.account import users as users_view
+from .views.content import document as document_view
+from .views.content import documents as documents_view
+from .views.content import version as version_view
+from .views.content import versions as versions_view
+from .views.content import merge as merge_view
+from .views.content import protect_document as protect_document_view
+from .views.content import user_tags as user_tags_view
 from .views import healthcheck as healthcheck_view
 from .views import home as home_view
 from .views import logs as logs_view
-from .views import merge as merge_view
-from .views import protect_document as protect_document_view
-from .views import user as user_view
-from .views import users as users_view
-from .views import user_tags as user_tags_view
-from .views import versions as versions_view
-from .views import version as version_view
 
 
 # TODO : should not be part of the extension, let user decide how to log
@@ -62,7 +62,11 @@ class RestApi:
         before_document_delete=None,
         update_search_query=None,
     ):
-        self.limiter = None
+        self.database = database
+        self.limiter = Limiter(key_func=get_remote_address)
+        self.memory_cache = memory_cache
+        self.mail = SendMail()
+
         self._rate_limit_cost_function = rate_limit_cost_function
 
         self.user_can_delete = user_can_delete
@@ -99,8 +103,8 @@ class RestApi:
 
         self._init_config(app)
         self._init_database(app)
-        memory_cache.init_app(app)
-        self.mail = SendMail(app)
+        self.memory_cache.init_app(app)
+        self.mail.init_app(app)
         self._init_login_manager(app)
         self._init_error_handler(app)
         self._init_rate_limiter(app)
@@ -123,7 +127,7 @@ class RestApi:
 
         for role in ("anonymous", "authenticated"):
             if role in self._user_roles:
-                raise ConfigurationError(f"{role} ca't be a user role")
+                raise ConfigurationError(f"{role} can't be a user role")
 
     @staticmethod
     def _parse_user_roles(user_roles):
@@ -157,11 +161,11 @@ class RestApi:
             if not app.testing and not app.debug:
                 warnings.warn(f"SQLALCHEMY_DATABASE_URI is not set, defaulting to {default}")
 
-        database.init_app(app)
+        self.database.init_app(app)
 
         @app.teardown_appcontext
         def shutdown_session(exception=None):  # pylint: disable=unused-argument
-            database.session.remove()
+            self.database.session.remove()
 
     def _init_login_manager(self, app):
         login_manager = LoginManager(app)
@@ -186,7 +190,7 @@ class RestApi:
             redis_port = app.config.get("REDIS_PORT", 6379)
             app.config["RATELIMIT_STORAGE_URI"] = f"redis://{redis_host}:{redis_port}"
 
-        self.limiter = Limiter(app=app, key_func=get_remote_address)
+        self.limiter.init_app(app)
 
     def _init_url_rules(self, app):
         # basic page: home and healtcheck

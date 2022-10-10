@@ -10,7 +10,7 @@ from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask_camp.models._base_model import BaseModel
-from flask_camp.utils import current_api
+from flask_camp._utils import current_api
 
 log = logging.getLogger(__name__)
 
