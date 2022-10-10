@@ -1,4 +1,4 @@
-Out of the box, the REST API provide search with limit/offset paraemters, and user tags. You will probably need to extend this feature> Here is the recipe to achieve that.
+Out of the box, the REST API provide search with limit/offset paraemters, and user tags. You will probably need to extend this feature. Here is the recipe to achieve that.
 
 1. Define a database table that will store your search fields
 2. Add a `before_document_save` that will fill this table on each document save
@@ -18,9 +18,9 @@ class DocumentSearch(BaseModel):
     # ondelete is mandatory, as a deletion of the document must delete the search item
     id = Column(ForeignKey(Document.id, ondelete='CASCADE'), index=True, nullable=True, primary_key=True)
 
-    # We want to be able to search on a namespace property
+    # We want to be able to search on a document type property
     # index is very import, obviously
-    namespace = Column(String(16), index=True)
+    document_type = Column(String(16), index=True)
 
 
 def before_document_save(version):
@@ -32,14 +32,14 @@ def before_document_save(version):
         # we need to ass the item in the session
         database.session.add(search_item)
 
-    search_item.namespace = version.data["namespace"]
+    search_item.document_type = version.data["type"]
 
 
 def update_search_query(query):
-    namespace = request.args.get("namespace", default=None, type=str)
+    document_type = request.args.get("t", default=None, type=str)
 
-    if namespace is not None:
-        query = query.join(DocumentSearch).where(DocumentSearch.namespace == namespace)
+    if document_type is not None:
+        query = query.join(DocumentSearch).where(DocumentSearch.document_type == document_type)
 
     return query
 

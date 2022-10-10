@@ -29,7 +29,7 @@ def cooker(document, get_document):
 class DocumentSearch(BaseModel):
     id = Column(ForeignKey(Document.id, ondelete="CASCADE"), index=True, nullable=True, primary_key=True)
 
-    namespace = Column(String(16), index=True)
+    document_type = Column(String(16), index=True)
 
     @classmethod
     def from_document(cls, version):
@@ -39,7 +39,7 @@ class DocumentSearch(BaseModel):
             database.session.add(result)
 
         if isinstance(version.data, dict):
-            result.namespace = version.data.get("namespace")
+            result.document_type = version.data.get("type")
 
         return result
 
@@ -49,10 +49,10 @@ def before_document_save(version):
 
 
 def update_search_query(query):
-    namespace = request.args.get("namespace", default=None, type=str)
+    document_type = request.args.get("t", default=None, type=str)
 
-    if namespace is not None:
-        query = query.join(DocumentSearch).where(DocumentSearch.namespace == namespace)
+    if document_type is not None:
+        query = query.join(DocumentSearch).where(DocumentSearch.document_type == document_type)
 
     return query
 

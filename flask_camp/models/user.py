@@ -4,7 +4,7 @@ import logging
 import secrets
 
 from flask_login import current_user
-from sqlalchemy import Column, String, Text, Boolean, DateTime
+from sqlalchemy import Column, String, Boolean, DateTime
 from sqlalchemy.dialects.postgresql import ARRAY
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 from werkzeug.security import generate_password_hash, check_password_hash

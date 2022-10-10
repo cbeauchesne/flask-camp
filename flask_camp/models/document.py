@@ -101,6 +101,8 @@ class Document(BaseModel):
         if self.last_version is None:
             raise BadRequest("There is no visible version associated with this document")
 
+        self.last_version_id = self.last_version.id
+
     def clear_memory_cache(self):
         memory_cache.delete_document(self.id)
 
