@@ -30,13 +30,13 @@ class Test_Document(BaseTest):
     def test_creation(self, user):
         self.login_user(user)
 
-        r = self.create_document(data={"value": "42"})
-        self.assert_document(r.json["document"], user, data={"value": "42"})
+        r = self.create_document(data={"value": "42"}, comment="XXX")
+        self.assert_document(r.json["document"], user, data={"value": "42"}, comment="XXX")
 
         document_id = r.json["document"]["id"]
 
         r = self.get_document(document_id)
-        self.assert_document(r.json["document"], user, data={"value": "42"})
+        self.assert_document(r.json["document"], user, data={"value": "42"}, comment="XXX")
         assert r.json["document"]["version_id"] == r.json["document"]["last_version_id"]
 
     def test_modification(self, user):

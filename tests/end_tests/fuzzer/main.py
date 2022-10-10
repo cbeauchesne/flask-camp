@@ -26,14 +26,14 @@ class FuzzerSession(ClientSession):
         while user_id == self.logged_user["id"]:
             user_id = random.randint(1, self.session_count)
 
-        self.block_user(user_id, expected_status=(200, 400))
+        self.block_user(user_id, comment="Ha!", expected_status=(200, 400))
 
     def fuzz_unblock_user(self):
         users = self.get_users().json()["users"]
 
         for user in users:
             if user["blocked"]:
-                self.block_user(user, expected_status=(200, 400))
+                self.block_user(user, comment="Ha!", expected_status=(200, 400))
 
     def fuzz_update_known_documents(self):
         self.known_documents = self.get_documents().json()["documents"]
@@ -47,12 +47,10 @@ class FuzzerSession(ClientSession):
 
         doc = random.choice(self.known_documents)
 
-        # rc_sleep = random.random() ** 4
-
         self.modify_document(
             doc,
             data=str(random.randbytes(8)),
-            # params={"rc_sleep": rc_sleep},
+            comment="Hop!",
             expected_status=[200, 400, 403, 409],
         )
 
@@ -185,7 +183,7 @@ def main():
 
     for i, session in enumerate(sessions):
         session.setup_user(f"user_{i}")
-        session.create_document()
+        session.create_document(data="init", comment="init")
 
     sessions[0].login_user("admin")
     sessions[0].add_user_role(2, role="moderator", comment="I trust him")

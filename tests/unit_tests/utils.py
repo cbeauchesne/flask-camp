@@ -98,8 +98,8 @@ class BaseTest(ClientInterface):
     def unblock_user(self, user, comment="Default comment", **kwargs):
         return super().unblock_user(user, comment, **kwargs)
 
-    def create_document(self, data=None, **kwargs):
-        return super().create_document(data={} if data is None else data, **kwargs)
+    def create_document(self, data=None, comment="Default comment", **kwargs):
+        return super().create_document(data={} if data is None else data, comment=comment, **kwargs)
 
     def modify_document(self, document, comment="Default comment", data=None, **kwargs):
         data = data if data is not None else document["data"]

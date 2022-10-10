@@ -129,10 +129,10 @@ class ClientInterface:
         user_id = self._get_user_id(user)
         return self.get(f"/roles/{user_id}", **kwargs)
 
-    def create_document(self, data, **kwargs):
+    def create_document(self, data, comment, **kwargs):
         return self.put(
             "/documents",
-            json={"comment": "creation", "document": {"data": data}} | kwargs.pop("json", {}),
+            json={"comment": comment, "document": {"data": data}} | kwargs.pop("json", {}),
             **kwargs,
         )
 
