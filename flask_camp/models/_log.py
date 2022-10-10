@@ -1,33 +1,11 @@
 from datetime import datetime
 
-from flask import request
 from flask_login import current_user
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 
-from flask_camp._utils import current_api
 from flask_camp.models._base_model import BaseModel
 from flask_camp.models._user import User
-
-
-def add_log(action, comment=None, target_user=None, document=None, merged_document=None, version=None):
-    # TODO: move in extension
-    if comment is None:
-        comment = request.get_json()["comment"]
-
-    document_id = document.id if document is not None else None
-    merged_document_id = merged_document.id if merged_document is not None else None
-    version_id = version.id if version is not None else None
-
-    log = Log(
-        action=action,
-        comment=comment,
-        target_user=target_user,
-        document_id=document_id,
-        merged_document_id=merged_document_id,
-        version_id=version_id,
-    )
-    current_api.database.session.add(log)
 
 
 class Log(BaseModel):

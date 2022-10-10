@@ -4,6 +4,7 @@ import logging
 from types import ModuleType
 import warnings
 
+from flask import request
 from flask_login import LoginManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -17,6 +18,7 @@ from ._services._send_mail import SendMail
 from ._utils import GetDocument
 from .exceptions import ConfigurationError
 from .models._document import Document
+from .models._log import Log
 from .models._user import User as UserModel, AnonymousUser
 
 
@@ -339,3 +341,21 @@ class RestApi:
                         methods=[method],
                         endpoint=endpoint,
                     )
+
+    def add_log(self, action, comment=None, target_user=None, document=None, merged_document=None, version=None):
+        if comment is None:
+            comment = request.get_json().get("comment", "")
+
+        document_id = document.id if document is not None else None
+        merged_document_id = merged_document.id if merged_document is not None else None
+        version_id = version.id if version is not None else None
+
+        log = Log(
+            action=action,
+            comment=comment,
+            target_user=target_user,
+            document_id=document_id,
+            merged_document_id=merged_document_id,
+            version_id=version_id,
+        )
+        self.database.session.add(log)

@@ -3,7 +3,6 @@ from werkzeug.exceptions import BadRequest, NotFound
 
 from flask_camp._schemas import schema
 from flask_camp._utils import current_api
-from flask_camp.models._log import add_log
 from flask_camp.models._user import User
 from flask_camp._services._security import allow
 
@@ -43,8 +42,7 @@ def post(user_id):
 
     user.roles = user.roles + [role]
 
-    add_log(action=f"add_role {role}", comment=data["comment"], target_user=user)
-
+    current_api.add_log(action=f"add_role {role}", comment=data["comment"], target_user=user)
     current_api.database.session.commit()
 
     return {"status": "ok", "roles": user.roles}
@@ -70,8 +68,7 @@ def delete(user_id):
     roles.remove(role)
     user.roles = roles
 
-    add_log(action=f"remove_role {role}", comment=data["comment"], target_user=user)
-
+    current_api.add_log(action=f"remove_role {role}", comment=data["comment"], target_user=user)
     current_api.database.session.commit()
 
     return {"status": "ok", "roles": user.roles}

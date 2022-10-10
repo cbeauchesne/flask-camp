@@ -4,7 +4,6 @@ from werkzeug.exceptions import NotFound, BadRequest
 from flask_camp._schemas import schema
 from flask_camp._utils import current_api
 from flask_camp.models._document import Document
-from flask_camp.models._log import add_log
 from flask_camp._services._security import allow
 
 rule = "/protect_document/<int:document_id>"
@@ -28,8 +27,8 @@ def post(document_id):
         raise BadRequest("User is still blocked/unblocked")
 
     document.protected = protected
-    add_log("protect" if protected else "unprotect", document=document)
 
+    current_api.add_log("protect" if protected else "unprotect", document=document)
     current_api.database.session.commit()
 
     document.clear_memory_cache()

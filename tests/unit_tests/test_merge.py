@@ -102,3 +102,6 @@ class Test_Merge(BaseTest):
 
         assert "cooked" not in doc_1
         assert "cooked" in doc_2
+
+    # TODO do not merge redirections
+    

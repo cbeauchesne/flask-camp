@@ -3,7 +3,6 @@ from werkzeug.exceptions import NotFound, BadRequest
 
 from flask_camp._schemas import schema
 from flask_camp._utils import cook, current_api
-from flask_camp.models._log import add_log
 from flask_camp.models._document import DocumentVersion, Document
 from flask_camp._services._security import allow
 
@@ -44,8 +43,7 @@ def post(version_id):
     if needs_update:
         current_api.before_document_save(document)
 
-    add_log("hide_version" if hidden else "unhide_version", version=version, document=version.document)
-
+    current_api.add_log("hide_version" if hidden else "unhide_version", version=version, document=version.document)
     current_api.database.session.commit()
 
     if needs_update:
@@ -76,9 +74,7 @@ def delete(version_id):
         current_api.before_document_save(document)
 
     current_api.database.session.delete(version)
-
-    add_log("delete_version", version=version, document=version.document)
-
+    current_api.add_log("delete_version", version=version, document=version.document)
     current_api.database.session.commit()
 
     if needs_update:

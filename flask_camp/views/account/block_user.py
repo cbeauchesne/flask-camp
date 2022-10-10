@@ -4,7 +4,6 @@ from werkzeug.exceptions import NotFound, BadRequest
 from flask_camp._schemas import schema
 from flask_camp._utils import current_api
 from flask_camp.models._user import User as UserModel
-from flask_camp.models._log import add_log
 from flask_camp._services._security import allow
 
 rule = "/block_user/<int:user_id>"
@@ -27,8 +26,7 @@ def post(user_id):
 
     user.blocked = blocked
 
-    add_log(action="block" if blocked else "unblock", target_user=user)
-
+    current_api.add_log(action="block" if blocked else "unblock", target_user=user)
     current_api.database.session.commit()
 
     return {"status": "ok"}

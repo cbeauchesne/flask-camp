@@ -9,7 +9,6 @@ from werkzeug.exceptions import NotFound, Forbidden, Conflict, BadRequest
 from flask_camp._schemas import schema
 from flask_camp._utils import get_cooked_document, get_document, cook, current_api
 from flask_camp.models._document import Document, DocumentVersion
-from flask_camp.models._log import add_log
 from flask_camp._services._security import allow
 
 log = logging.getLogger(__name__)
@@ -119,10 +118,7 @@ def delete(document_id):
     document = Document.get(id=document_id)
     current_api.database.session.delete(document)
 
-    add_log("delete_document", document=document, comment=request.get_json()["comment"])
-
-    current_api.database.session.flush()
-
+    current_api.add_log("delete_document", document=document, comment=request.get_json()["comment"])
     current_api.database.session.commit()
 
     document.clear_memory_cache()
