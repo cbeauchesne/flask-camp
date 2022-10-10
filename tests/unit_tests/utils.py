@@ -1,5 +1,5 @@
 from flask import Flask
-from tests.utils import ClientInterface
+from flask_camp.client import ClientInterface
 
 
 def create_test_app():
@@ -13,26 +13,44 @@ def create_test_app():
 class BaseTest(ClientInterface):
     client = None
 
-    def get(self, url, params=None, headers=None, expected_status=None, **kwargs):
-        r = BaseTest.client.get(url, query_string=params, headers=headers, **kwargs)
+    @staticmethod
+    def _convert_kwargs(kwargs):
+        """convert request argument to flask test client argument"""
+        kwargs["query_string"] = kwargs.pop("params", None)
+
+    def get(self, url, **kwargs):
+        expected_status = kwargs.pop("expected_status", 200)
+        self._convert_kwargs(kwargs)
+
+        r = BaseTest.client.get(url, **kwargs)
+
         self.assert_status_code(r, expected_status)
 
         return r
 
-    def post(self, url, params=None, json=None, headers=None, expected_status=None):
-        r = BaseTest.client.post(url, query_string=params, json=json, headers=headers)
+    def post(self, url, **kwargs):
+        expected_status = kwargs.pop("expected_status", 200)
+        self._convert_kwargs(kwargs)
+
+        r = BaseTest.client.post(url, **kwargs)
         self.assert_status_code(r, expected_status)
 
         return r
 
-    def put(self, url, params=None, data=None, json=None, headers=None, expected_status=None):
-        r = BaseTest.client.put(url, query_string=params, data=data, json=json, headers=headers)
+    def put(self, url, **kwargs):
+        expected_status = kwargs.pop("expected_status", 200)
+        self._convert_kwargs(kwargs)
+
+        r = BaseTest.client.put(url, **kwargs)
         self.assert_status_code(r, expected_status)
 
         return r
 
-    def delete(self, url, params=None, json=None, headers=None, expected_status=None):
-        r = BaseTest.client.delete(url, query_string=params, json=json, headers=headers)
+    def delete(self, url, **kwargs):
+        expected_status = kwargs.pop("expected_status", 200)
+        self._convert_kwargs(kwargs)
+
+        r = BaseTest.client.delete(url, **kwargs)
         self.assert_status_code(r, expected_status)
 
         return r
@@ -64,10 +82,37 @@ class BaseTest(ClientInterface):
                 assert r.json["status"] == "error", r.json
                 assert "description" in r.json, r.json
 
+    def create_user(self, name="user", email=None, password="password", **kwargs):
+        email = f"{name}@example.com" if email is None else email
+        return super().create_user(name, email, password, **kwargs)
+
+    def login_user(self, user, password=None, token=None, **kwargs):
+        if password is None and token is None:
+            password = "password"
+
+        return super().login_user(user, password=password, token=token, **kwargs)
+
+    def block_user(self, user, comment="Default comment", **kwargs):
+        return super().block_user(user, comment, **kwargs)
+
+    def unblock_user(self, user, comment="Default comment", **kwargs):
+        return super().unblock_user(user, comment, **kwargs)
+
+    def create_document(self, data=None, **kwargs):
+        return super().create_document(data={} if data is None else data, **kwargs)
+
+    def modify_document(self, document, comment="Default comment", data=None, **kwargs):
+        data = data if data is not None else document["data"]
+        return super().modify_document(document, comment, data, **kwargs)
+
     def get_document(
-        self, document, headers=None, expected_status=200, data_should_be_present=True, version_should_be=None
+        self,
+        document,
+        data_should_be_present=True,
+        version_should_be=None,
+        **kwargs,
     ):
-        r = super().get_document(document, headers=headers, expected_status=expected_status)
+        r = super().get_document(document, **kwargs)
 
         if r.status_code == 200:
             if data_should_be_present:
@@ -80,8 +125,20 @@ class BaseTest(ClientInterface):
 
         return r
 
-    def get_version(self, version, expected_status=200, data_should_be_present=True):
-        r = super().get_version(version, expected_status=expected_status)
+    def protect_document(self, document, comment="Default comment", **kwargs):
+        return super().protect_document(document, comment, **kwargs)
+
+    def unprotect_document(self, document, comment="Default comment", **kwargs):
+        return super().unprotect_document(document, comment, **kwargs)
+
+    def merge_documents(self, document_to_merge, document_destination, comment="Default comment", **kwargs):
+        return super().merge_documents(document_to_merge, document_destination, comment, **kwargs)
+
+    def delete_document(self, document, comment="Default comment", **kwargs):
+        return super().delete_document(document, comment, **kwargs)
+
+    def get_version(self, version, data_should_be_present=True, **kwargs):
+        r = super().get_version(version, **kwargs)
 
         if r.status_code == 200:
             if data_should_be_present:
@@ -90,3 +147,15 @@ class BaseTest(ClientInterface):
                 assert "data" not in r.json["document"]
 
         return r
+
+    def hide_version(self, version, comment="Default comment", **kwargs):
+        return super().hide_version(version, comment, **kwargs)
+
+    def unhide_version(self, version, comment="Default comment", **kwargs):
+        return super().unhide_version(version, comment, **kwargs)
+
+    def delete_version(self, version, comment="Default comment", **kwargs):
+        return super().delete_version(version, comment, **kwargs)
+
+    def rename_user(self, user, name, comment="Default comment", **kwargs):
+        return super().rename_user(user, name, comment, **kwargs)

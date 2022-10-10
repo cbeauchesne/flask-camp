@@ -64,7 +64,7 @@ class Test_Merge(BaseTest):
         doc_1 = self.create_document().json["document"]
         doc_2 = self.create_document().json["document"]
 
-        self.merge_documents(document_to_merge=doc_1, document_destination=doc_2, expected_status=400)
+        self.merge_documents(document_to_merge=doc_1, document_destination=doc_2, comment=None, expected_status=400)
 
     def test_do_not_see_merged_document(self, moderator):
         self.login_user(moderator)

@@ -55,7 +55,7 @@ class Test_BeforeUserCreation(BaseTest):
             self.logout_user()
 
             self.create_user(expected_status=403)
-            user = self.create_user(extra_payload={"captcha": 42}, expected_status=200).json["user"]
+            user = self.create_user(json={"captcha": 42}, expected_status=200).json["user"]
 
             self.get_document(4, expected_status=200)
             assert user["id"] == 4  # without before_user_creation, it would have been 2

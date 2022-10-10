@@ -270,10 +270,10 @@ class Test_UserUniqueness(BaseTest):
 
 class Test_Logout(BaseTest):
     def test_main(self, user):
-        self.logout_user(403)
+        self.logout_user(expected_status=403)
         self.login_user(user)
         self.logout_user()
-        self.logout_user(403)
+        self.logout_user(expected_status=403)
 
 
 class Test_Users(BaseTest):
