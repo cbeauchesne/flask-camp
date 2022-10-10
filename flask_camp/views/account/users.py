@@ -1,6 +1,4 @@
-import logging
-
-from flask import request
+from flask import request, current_app
 from flask_login import current_user
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import BadRequest
@@ -9,8 +7,6 @@ from flask_camp._schemas import schema
 from flask_camp._utils import current_api
 from flask_camp._services._security import allow
 from flask_camp.models._user import User as UserModel
-
-log = logging.getLogger(__name__)
 
 rule = "/users"
 
@@ -58,6 +54,6 @@ def put():
     try:
         user.send_account_creation_mail()
     except:  # pylint: disable=bare-except
-        log.exception("Fail to send mail", exc_info=True)
+        current_app.logger.exception("Fail to send mail", exc_info=True)
 
     return {"status": "ok", "user": user.as_dict()}

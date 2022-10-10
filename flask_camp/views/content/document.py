@@ -1,5 +1,4 @@
 import json
-import logging
 import time
 
 from flask import request, Response
@@ -10,8 +9,6 @@ from flask_camp._schemas import schema
 from flask_camp._utils import get_cooked_document, get_document, cook, current_api
 from flask_camp.models._document import Document, DocumentVersion
 from flask_camp._services._security import allow
-
-log = logging.getLogger(__name__)
 
 rule = "/document/<int:document_id>"
 

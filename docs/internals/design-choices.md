@@ -1,7 +1,3 @@
-## Why users are identified by their names instead of their id?
-
-Because names are importants in a wiki. It create the identity of their owner. Changing name introduce some blur.... TODO
-
 ## Why not having user name as identifiers, instead of id?
 
 Yes it makes prettier URL. But renaming is always possible (even if it's an admin action). It would ask to update all versions made by the user in database 

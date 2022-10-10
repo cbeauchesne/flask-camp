@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 import json
-import logging
 import secrets
 
+from flask import current_app
 from flask_login import current_user
 from sqlalchemy import Column, String, Boolean, DateTime
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -11,8 +11,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask_camp.models._base_model import BaseModel
 from flask_camp._utils import current_api
-
-log = logging.getLogger(__name__)
 
 
 class AnonymousUser:  # pylint: disable=too-few-public-methods
@@ -62,7 +60,7 @@ class User(BaseModel):
         # last security fence, it should never happen
 
         if current_user.id != self.id and not current_user.is_admin and not current_user.is_moderator:
-            log.error("Unexpected access to user.%s", property_name)
+            current_app.logger.error("Unexpected access to user.%s", property_name)
             raise Forbidden()
 
         return getattr(self, property_name)
@@ -78,7 +76,7 @@ class User(BaseModel):
         return self._email is not None
 
     def set_password(self, password):
-        log.info("Set %s's password", self)
+        current_app.logger.info("Set %s's password", self)
         self.password_hash = generate_password_hash(password)
         self._login_token = None  # disable any login token
 
@@ -93,7 +91,7 @@ class User(BaseModel):
 
     def _check_password(self, password):
         if not check_password_hash(self.password_hash, password):
-            log.info("Check password failed for %s", self)
+            current_app.logger.info("Check password failed for %s", self)
             return False
 
         return True
@@ -103,11 +101,11 @@ class User(BaseModel):
             return False
 
         if datetime.now() > self._login_token_expiration_date:
-            log.info("Login token is expired for %s", self)
+            current_app.logger.info("Login token is expired for %s", self)
             return False
 
         if self._login_token != login_token:
-            log.error("Login token check fails for %s", self)
+            current_app.logger.error("Login token check fails for %s", self)
             return False
 
         return True
@@ -145,7 +143,7 @@ class User(BaseModel):
         # each byte is converted to two hex digit, so we need len/2
         self._email_token = secrets.token_hex(int(self.__class__._email_token.type.length / 2))
 
-        log.info("Update %s's email", self)
+        current_app.logger.info("Update %s's email", self)
 
     def send_account_creation_mail(self):
         current_api.mail.send_account_creation(self._email_to_validate, self._email_token, self)

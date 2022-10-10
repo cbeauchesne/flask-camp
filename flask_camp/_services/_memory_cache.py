@@ -1,10 +1,5 @@
-import logging
-
 from redis import Redis as RedisClient
 from redis.commands.json.path import Path
-
-
-log = logging.getLogger(__name__)
 
 
 class _MemoryCacheCollection:
