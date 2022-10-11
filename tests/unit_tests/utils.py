@@ -1,17 +1,23 @@
-from flask import Flask
 from flask_camp.client import ClientInterface
 
-
-def create_test_app():
-    app = Flask(__name__, static_folder=None)
-    app.config.from_prefixed_env()
-    app.config.update({"TESTING": True, "SECRET_KEY": "not very secret", "SQLALCHEMY_TRACK_MODIFICATIONS": False})
-
-    return app
+from tests.unit_tests.app import app as tested_app, api as tested_api
 
 
 class BaseTest(ClientInterface):
     client = None
+
+    def setup_method(self):
+        with tested_app.app_context():
+            tested_api.create_all()
+
+        with tested_app.test_client() as client:
+            self.client = client
+
+    def teardown_method(self):
+        with tested_app.app_context():
+            tested_api.database.drop_all()
+
+        tested_api.memory_cache.flushall()
 
     @staticmethod
     def _convert_kwargs(kwargs):
@@ -22,7 +28,7 @@ class BaseTest(ClientInterface):
         expected_status = kwargs.pop("expected_status", 200)
         self._convert_kwargs(kwargs)
 
-        r = BaseTest.client.get(url, **kwargs)
+        r = self.client.get(url, **kwargs)
 
         self.assert_status_code(r, expected_status)
 
@@ -32,7 +38,7 @@ class BaseTest(ClientInterface):
         expected_status = kwargs.pop("expected_status", 200)
         self._convert_kwargs(kwargs)
 
-        r = BaseTest.client.post(url, **kwargs)
+        r = self.client.post(url, **kwargs)
         self.assert_status_code(r, expected_status)
 
         return r
@@ -41,7 +47,7 @@ class BaseTest(ClientInterface):
         expected_status = kwargs.pop("expected_status", 200)
         self._convert_kwargs(kwargs)
 
-        r = BaseTest.client.put(url, **kwargs)
+        r = self.client.put(url, **kwargs)
         self.assert_status_code(r, expected_status)
 
         return r
@@ -50,7 +56,7 @@ class BaseTest(ClientInterface):
         expected_status = kwargs.pop("expected_status", 200)
         self._convert_kwargs(kwargs)
 
-        r = BaseTest.client.delete(url, **kwargs)
+        r = self.client.delete(url, **kwargs)
         self.assert_status_code(r, expected_status)
 
         return r

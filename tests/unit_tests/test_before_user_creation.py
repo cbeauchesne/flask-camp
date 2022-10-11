@@ -6,7 +6,7 @@ from flask_camp import RestApi
 from flask_camp.models import Document, User
 from flask_camp.exceptions import ConfigurationError
 
-from tests.unit_tests.utils import create_test_app
+from tests.unit_tests.app import create_test_app
 from tests.unit_tests.utils import BaseTest
 
 
@@ -40,22 +40,24 @@ class Test_BeforeUserCreation(BaseTest):
         app = create_test_app()
         RestApi(app=app, before_user_creation=before_user_creation)
 
+        client = BaseTest()
+
         with app.test_client() as base_client:
-            BaseTest.client = base_client
+            client.client = base_client
 
             # first create some pages
-            self.login_user(admin)
-            self.create_document()
-            self.create_document()
-            self.create_document()
+            client.login_user(admin)
+            client.create_document()
+            client.create_document()
+            client.create_document()
 
             # admin id = 1
             # page 1, 2 and 3 exists
 
-            self.logout_user()
+            client.logout_user()
 
-            self.create_user(expected_status=403)
-            user = self.create_user(json={"captcha": 42}, expected_status=200).json["user"]
+            client.create_user(expected_status=403)
+            user = client.create_user(json={"captcha": 42}, expected_status=200).json["user"]
 
-            self.get_document(4, expected_status=200)
+            client.get_document(4, expected_status=200)
             assert user["id"] == 4  # without before_user_creation, it would have been 2

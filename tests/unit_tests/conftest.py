@@ -8,7 +8,6 @@ from flask_camp._services._database import database as app_database
 from flask_camp._services._memory_cache import memory_cache as app_memory_cache
 
 from tests.unit_tests.app import app as tested_app, api as tested_api
-from tests.unit_tests.utils import BaseTest
 
 
 logging.basicConfig(format="%(asctime)s [%(levelname)8s] %(message)s")
@@ -29,20 +28,20 @@ def pytest_configure(config):
         app_memory_cache.flushall()
 
 
-@pytest.fixture(autouse=True)
-def setup_app():
+# @pytest.fixture(autouse=True)
+# def setup_app():
 
-    with tested_app.app_context():
-        tested_api.create_all()
+#     with tested_app.app_context():
+#         tested_api.create_all()
 
-    with tested_app.test_client() as client:
-        BaseTest.client = client
-        yield
+#     with tested_app.test_client() as client:
+#         BaseTest.client = client
+#         yield
 
-    with tested_app.app_context():
-        app_database.drop_all()
+#     with tested_app.app_context():
+#         app_database.drop_all()
 
-    app_memory_cache.flushall()
+#     app_memory_cache.flushall()
 
 
 def _db_add_user(name="name", email=None, password="password", validate_email=True, roles=None):

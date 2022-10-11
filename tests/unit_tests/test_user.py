@@ -176,7 +176,7 @@ class Test_UserModification(BaseTest):
         self.logout_user()
 
         r = self.login_user(user)
-        assert r.json["user"]["email"] == user.email  # not yet validated
+        assert r.json["user"]["email"] == user._email  # not yet validated
 
         self.validate_email(user, token, expected_status=200)
 

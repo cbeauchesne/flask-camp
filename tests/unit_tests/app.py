@@ -1,13 +1,19 @@
 # pylint: disable=too-few-public-methods
 
-from flask import request
+from flask import request, Flask
 from flask_login import current_user
 from sqlalchemy import Column, String, ForeignKey, delete
 
 from flask_camp import RestApi, current_api
 from flask_camp.models import User, BaseModel, Document
 
-from tests.unit_tests.utils import create_test_app
+
+def create_test_app():
+    result = Flask(__name__, static_folder=None)
+    result.config.from_prefixed_env()
+    result.config.update({"TESTING": True, "SECRET_KEY": "not very secret", "SQLALCHEMY_TRACK_MODIFICATIONS": False})
+
+    return result
 
 
 def cooker(document, get_document):

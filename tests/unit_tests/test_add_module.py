@@ -5,7 +5,7 @@ import pytest
 from flask_camp import RestApi
 from flask_camp.exceptions import ConfigurationError
 
-from tests.unit_tests.utils import create_test_app
+from tests.unit_tests.app import create_test_app
 
 
 def create_api():
