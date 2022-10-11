@@ -226,9 +226,9 @@ class RestApi:
 
     def add_system_user(self):
         if UserModel.get(id=1) is None:
-            user = UserModel(name="admin", roles=["admin"])
+            user = UserModel(name="system", roles=["admin"])
             user.set_password("password")
-            user.set_email("admin@example.com")
+            user.set_email("system@example.com")
             user.validate_email(user._email_token)
             database.session.add(user)
             database.session.commit()

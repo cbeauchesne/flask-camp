@@ -63,16 +63,7 @@ def _db_add_user(name="name", email=None, password="password", validate_email=Tr
 
 @pytest.fixture()
 def admin():
-    with tested_app.app_context():
-        instance = User.get(name="admin")
-        yield User(
-            id=instance.id,
-            name=instance.name,
-            _email=instance._email,
-            _email_to_validate=instance._email_to_validate,
-            _email_token=instance._email_token,
-            roles=instance.roles,
-        )
+    yield _db_add_user(name="admin", roles="admin")
 
 
 @pytest.fixture()

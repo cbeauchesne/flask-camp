@@ -2,7 +2,6 @@ from flask import Flask
 
 from flask_camp import RestApi
 from flask_camp.client import ClientInterface
-# from flask_camp.models import UserTag, Document, DocumentVersion, Log, User
 
 
 class BaseTest(ClientInterface):
@@ -27,15 +26,6 @@ class BaseTest(ClientInterface):
 
     def teardown_method(self):
         with self.app.app_context():
-            # Document.query.update({Document.last_version_id : None})
-            # UserTag.query.delete()
-            # Log.query.delete()
-            # DocumentVersion.query.delete()
-            # Document.query.delete()
-            # User.query.delete()
-
-            # self.api.database.session.commit()
-
             self.api.database.drop_all()
 
         self.api.memory_cache.flushall()
@@ -50,7 +40,6 @@ class BaseTest(ClientInterface):
         self._convert_kwargs(kwargs)
 
         r = self.client.get(url, **kwargs)
-
         self.assert_status_code(r, expected_status)
 
         return r
