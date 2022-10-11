@@ -11,6 +11,8 @@ def _assert_log(log, action, user, document_id=None, version_id=None, target_use
 
 
 class Test_Logs(BaseTest):
+    rest_api_kwargs = {"user_roles": "bot,contributor"}
+
     def test_anonymous_get(self):
         self.get_logs()
 

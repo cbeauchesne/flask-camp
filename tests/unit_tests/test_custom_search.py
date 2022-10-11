@@ -1,7 +1,49 @@
+from flask import request
+from sqlalchemy import Column, String, ForeignKey, delete
+
+from flask_camp import current_api
+from flask_camp.models import BaseModel, Document
+
 from tests.unit_tests.utils import BaseTest
 
 
+class DocumentSearch(BaseModel):
+    id = Column(ForeignKey(Document.id, ondelete="CASCADE"), index=True, nullable=True, primary_key=True)
+
+    document_type = Column(String(16), index=True)
+
+
+def before_document_save(document):
+    if document.last_version is None:  # document as been merged
+        delete(DocumentSearch).where(DocumentSearch.id == document.id)
+        return
+
+    version = document.last_version
+
+    result = DocumentSearch.get(id=document.id)
+    if result is None:
+        result = DocumentSearch(id=document.id)
+        current_api.database.session.add(result)
+
+    if isinstance(version.data, dict):
+        result.document_type = version.data.get("type")
+
+
+def update_search_query(query):
+    document_type = request.args.get("t", default=None, type=str)
+
+    if document_type is not None:
+        query = query.join(DocumentSearch).where(DocumentSearch.document_type == document_type)
+
+    return query
+
+
 class Test_CustomSearch(BaseTest):
+    rest_api_kwargs = {
+        "before_document_save": before_document_save,
+        "update_search_query": update_search_query,
+    }
+
     def test_main(self, admin):
         self.login_user(admin)
         self.add_user_role(admin, "moderator", "I'am god")

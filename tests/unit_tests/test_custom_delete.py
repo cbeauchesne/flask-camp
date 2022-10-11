@@ -3,7 +3,6 @@ from werkzeug.exceptions import Forbidden
 
 from flask_camp import RestApi
 from flask_camp.exceptions import ConfigurationError
-from tests.unit_tests.app import create_test_app
 from tests.unit_tests.utils import BaseTest
 
 
@@ -13,29 +12,28 @@ def before_document_delete(user, document_as_dict):
         raise Forbidden()
 
 
-class Test_CustomDelete(BaseTest):
+class Test_errors:
     def test_error(self):
         with pytest.raises(ConfigurationError):
             RestApi(before_document_delete={})
 
+
+class Test_CustomDelete(BaseTest):
+    rest_api_kwargs = {"user_can_delete": True, "before_document_delete": before_document_delete}
+
     def test_main(self, user, user_2):
-        app = create_test_app()
-        RestApi(app=app, user_can_delete=True, before_document_delete=before_document_delete)
+        self.login_user(user)
 
-        client = BaseTest()
+        document = self.create_document().json["document"]
 
-        with app.test_client() as base_client:
-            client.client = base_client
-            client.login_user(user)
+        self.delete_document(document, expected_status=403)
 
-            document = client.create_document().json["document"]
+        self.login_user(user_2)
+        self.delete_document(document, expected_status=200)
 
-            client.delete_document(document, expected_status=403)
 
-            client.login_user(user_2)
-            client.delete_document(document, expected_status=200)
-
-    def test_normal_conf(self, user, user_2):
+class Test_NormalConf(BaseTest):
+    def test_main(self, user, user_2):
         self.login_user(user)
         document = self.create_document().json["document"]
         self.delete_document(document, expected_status=403)

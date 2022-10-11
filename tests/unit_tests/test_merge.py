@@ -1,7 +1,16 @@
 from tests.unit_tests.utils import BaseTest
 
 
+def cooker(document, get_document):  # pylint: disable=unused-argument
+    data = document.get("data")
+
+    if isinstance(data, dict):
+        document["cooked"] = True
+
+
 class Test_Merge(BaseTest):
+    rest_api_kwargs = {"cooker": cooker}
+
     def test_main(self, moderator, admin):
         self.login_user(moderator)
 

@@ -4,13 +4,20 @@ from flask_camp import RestApi
 from tests.unit_tests.utils import BaseTest
 
 
-class Test_Schemas(BaseTest):
+class Test_Errors:
     def test_error(self):
         with pytest.raises(FileNotFoundError):
             RestApi(schemas_directory="tests/unit_tests/schemas/", document_schemas=["notfound.json"])
 
         with pytest.raises(FileNotFoundError):
             RestApi(schemas_directory="tests/not_the_dir/")
+
+
+class Test_Schemas(BaseTest):
+    rest_api_kwargs = {
+        "schemas_directory": "tests/unit_tests/schemas",
+        "document_schemas": ["outing.json"],
+    }
 
     def test_basic(self, user):
 

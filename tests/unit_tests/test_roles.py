@@ -1,12 +1,26 @@
 import pytest
 
 from tests.unit_tests.utils import BaseTest
-from flask_camp import RestApi
+from flask_camp import RestApi, allow
 from flask_camp.exceptions import ConfigurationError
 
 
+class BotModule:
+    rule = "/bot"
+
+    @staticmethod
+    @allow("bot")
+    def get():
+        """Here is a custom post, only for bots"""
+        return {"hello": "world"}
+
+
 class Test_Roles(BaseTest):
+    rest_api_kwargs = {"user_roles": "bot,contributor"}
+
     def test_attribution(self, admin, user):
+        self.api.add_modules(self.app, BotModule())
+
         self.login_user(user)
         self.get("/bot", expected_status=403)
 
@@ -23,6 +37,8 @@ class Test_Roles(BaseTest):
         message = "'imaginary_role' doesn't exists. Possible roles are ['admin', 'bot', 'contributor', 'moderator']."
         assert r["description"] == message
 
+
+class Test_Configuration(BaseTest):
     def test_configuration(self):
 
         api = RestApi(user_roles="bot")

@@ -1,10 +1,30 @@
 from freezegun import freeze_time
+from flask_login import current_user
+
+from flask_camp import allow
 
 from tests.unit_tests.utils import BaseTest
 
 
+class RateLimitedClass:
+    rule = "/rate_limited"
+
+    @allow("anonymous")
+    def get(self):
+        """I'm rate limited"""
+        return {"hello": "world"}
+
+
 class Test_RateLimit(BaseTest):
+    rest_api_kwargs = {
+        "rate_limit_cost_function": lambda: 0 if current_user.is_admin else 1,
+        "rate_limits_file": "tests/ratelimit_config.json",
+    }
+
     def test_rate_limited_class(self):
+
+        self.api.add_modules(self.app, RateLimitedClass())
+
         results = []
         with freeze_time():
             for _ in range(6):

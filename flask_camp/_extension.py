@@ -220,7 +220,11 @@ class RestApi:
         """Init database with an admin user"""
 
         database.create_all()
+        self.add_system_user()
 
+        return {"status": "ok"}
+
+    def add_system_user(self):
         if UserModel.get(id=1) is None:
             user = UserModel(name="admin", roles=["admin"])
             user.set_password("password")
@@ -228,8 +232,6 @@ class RestApi:
             user.validate_email(user._email_token)
             database.session.add(user)
             database.session.commit()
-
-        return {"status": "ok"}
 
     @property
     def user_roles(self):

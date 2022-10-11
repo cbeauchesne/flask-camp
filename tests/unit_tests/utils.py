@@ -1,23 +1,44 @@
-from flask_camp.client import ClientInterface
+from flask import Flask
 
-from tests.unit_tests.app import app as tested_app, api as tested_api
+from flask_camp import RestApi
+from flask_camp.client import ClientInterface
+# from flask_camp.models import UserTag, Document, DocumentVersion, Log, User
 
 
 class BaseTest(ClientInterface):
     client = None
+    rest_api_kwargs = {}
+
+    @classmethod
+    def setup_class(cls):
+        cls.app = Flask(__name__, static_folder=None)
+        cls.app.config.update(
+            {"TESTING": True, "SECRET_KEY": "not very secret", "SQLALCHEMY_TRACK_MODIFICATIONS": False}
+        )
+
+        cls.api = RestApi(app=cls.app, **cls.rest_api_kwargs)
 
     def setup_method(self):
-        with tested_app.app_context():
-            tested_api.create_all()
+        with self.app.app_context():
+            self.api.create_all()
 
-        with tested_app.test_client() as client:
+        with self.app.test_client() as client:
             self.client = client
 
     def teardown_method(self):
-        with tested_app.app_context():
-            tested_api.database.drop_all()
+        with self.app.app_context():
+            # Document.query.update({Document.last_version_id : None})
+            # UserTag.query.delete()
+            # Log.query.delete()
+            # DocumentVersion.query.delete()
+            # Document.query.delete()
+            # User.query.delete()
 
-        tested_api.memory_cache.flushall()
+            # self.api.database.session.commit()
+
+            self.api.database.drop_all()
+
+        self.api.memory_cache.flushall()
 
     @staticmethod
     def _convert_kwargs(kwargs):

@@ -56,7 +56,7 @@ generated-members = [
 ]
 
 [tool.pylint.tests]
-disable = "invalid-name,protected-access,too-many-public-methods"
+disable = "invalid-name,protected-access,too-many-public-methods,too-few-public-methods"
 
 [tool.pytest.ini_options]
 log_format = "%(asctime)s.%(msecs)03d %(levelname)s %(message)s"

@@ -1,13 +1,16 @@
 import logging
 import sys
 
+from flask import Flask
 import pytest
 
+from flask_camp import RestApi
 from flask_camp.models import User
-from flask_camp._services._database import database as app_database
-from flask_camp._services._memory_cache import memory_cache as app_memory_cache
 
-from tests.unit_tests.app import app as tested_app, api as tested_api
+
+tested_app = Flask(__name__, static_folder=None)
+tested_app.config.update({"TESTING": True, "SECRET_KEY": "not very secret", "SQLALCHEMY_TRACK_MODIFICATIONS": False})
+tested_api = RestApi(app=tested_app)
 
 
 logging.basicConfig(format="%(asctime)s [%(levelname)8s] %(message)s")
@@ -23,25 +26,10 @@ def pytest_configure(config):
         # do not perform this on collect, editors that automatically collect tests on file change
         # may break current test session
         with tested_app.app_context():
-            app_database.drop_all()
+            tested_api.database.drop_all()
+            tested_api.create_all()
 
-        app_memory_cache.flushall()
-
-
-# @pytest.fixture(autouse=True)
-# def setup_app():
-
-#     with tested_app.app_context():
-#         tested_api.create_all()
-
-#     with tested_app.test_client() as client:
-#         BaseTest.client = client
-#         yield
-
-#     with tested_app.app_context():
-#         app_database.drop_all()
-
-#     app_memory_cache.flushall()
+        tested_api.memory_cache.flushall()
 
 
 def _db_add_user(name="name", email=None, password="password", validate_email=True, roles=None):
@@ -58,8 +46,8 @@ def _db_add_user(name="name", email=None, password="password", validate_email=Tr
         if validate_email:
             instance.validate_email(instance._email_token)
 
-        app_database.session.add(instance)
-        app_database.session.commit()
+        tested_api.database.session.add(instance)
+        tested_api.database.session.commit()
 
         result = User(
             id=instance.id,
@@ -105,36 +93,3 @@ def unvalidated_user():
 @pytest.fixture()
 def user_2():
     yield _db_add_user("user_2")
-
-
-@pytest.fixture()
-def database():
-    yield app_database
-
-
-@pytest.fixture()
-def mail():
-    yield tested_api.mail
-
-
-@pytest.fixture()
-def memory_cache():
-    yield app_memory_cache
-
-
-@pytest.fixture()
-def cant_send_mail():
-    def raise_exception(*args, **kwargs):
-        raise Exception("That was not expcted!")
-
-    original_send = tested_api.mail.send
-    tested_api.mail.send = raise_exception
-
-    yield
-
-    tested_api.mail.send = original_send
-
-
-@pytest.fixture()
-def app():
-    yield tested_app

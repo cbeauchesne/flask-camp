@@ -1,13 +1,12 @@
 import re
-import pytest
 from tests.unit_tests.utils import BaseTest
 
 
 class Test_UserCreation(BaseTest):
-    def test_typical_scenario(self, mail):
+    def test_typical_scenario(self):
         name, email, password = "my_user", "a@b.c", "week password"
 
-        with mail.record_messages() as outbox:
+        with self.api.mail.record_messages() as outbox:
             r = self.create_user(name, email, password, expected_status=200)
             assert len(outbox) == 1
             assert outbox[0].subject == "Welcome to example.com"
@@ -114,12 +113,12 @@ class Test_UserCreation(BaseTest):
         self.login_user(user)
         self.create_user(name="other", email="a@b.c", password="p", expected_status=400)
 
-    def test_admin_can_resend_email(self, admin, mail):
+    def test_admin_can_resend_email(self, admin):
         user = self.create_user().json["user"]
 
         self.login_user(admin)
 
-        with mail.record_messages() as outbox:
+        with self.api.mail.record_messages() as outbox:
             self.resend_email_validation(user)
             assert len(outbox) == 1
             assert outbox[0].subject == "Welcome to example.com"
@@ -148,14 +147,26 @@ class Test_UserCreation(BaseTest):
         self.get("/validate_email", params={"name": "not_the_name"}, expected_status=404)
         self.get("/validate_email", expected_status=400)
 
-    @pytest.mark.usefixtures("cant_send_mail")
-    def test_mail_error(self, mail):
-        with mail.record_messages() as outbox:
-            self.create_user(expected_status=200)
-            assert len(outbox) == 0
+
+class Test_Errors(BaseTest):
+    def test_mail_error(self):
+        def raise_exception(*args, **kwargs):
+            raise Exception("That was not expcted!")
+
+        original_send = self.api.mail.send
+        self.api.mail.send = raise_exception
+
+        with self.api.mail.record_messages() as outbox:
+            try:
+                self.create_user(expected_status=200)
+                assert len(outbox) == 0
+            finally:
+                self.api.mail.send = original_send
 
 
 class Test_UserModification(BaseTest):
+    rest_api_kwargs = {"user_roles": "bot,contributor"}
+
     def test_change_password(self, user):
         self.login_user(user)
 
@@ -165,10 +176,10 @@ class Test_UserModification(BaseTest):
         self.login_user(user, "p1", expected_status=401)
         self.login_user(user, "p2", expected_status=200)
 
-    def test_change_email(self, mail, user):
+    def test_change_email(self, user):
         self.login_user(user)
 
-        with mail.record_messages() as outbox:
+        with self.api.mail.record_messages() as outbox:
             r = self.modify_user(user, email="other@email.com", password="password")
             assert len(outbox) == 1
             token = re.sub(r"^(.*email_token=)", "", outbox[0].body)
@@ -254,12 +265,12 @@ class Test_UserUniqueness(BaseTest):
         self.modify_user(user_2, password="password", email="mail@competition.fr", expected_status=200)
         self.logout_user()
 
-    def test_do_not_validate_same_email(self, mail):
-        with mail.record_messages() as outbox:
+    def test_do_not_validate_same_email(self):
+        with self.api.mail.record_messages() as outbox:
             user_1 = self.create_user("user1", "a@b.c", "p").json["user"]
             token_1 = re.sub(r"^(.*email_token=)", "", outbox[0].body)
 
-        with mail.record_messages() as outbox:
+        with self.api.mail.record_messages() as outbox:
             user_2 = self.create_user("user2", "a@b.c", "p").json["user"]
             token_2 = re.sub(r"^(.*email_token=)", "", outbox[0].body)
 

@@ -6,12 +6,29 @@ from flask_camp.exceptions import ConfigurationError
 from tests.unit_tests.utils import BaseTest
 
 
+def cooker(document, get_document):
+    data = document.get("data")
+
+    if isinstance(data, dict) and data.get("namespace") in ("cook-me",):
+        document["cooked"] = {}
+
+        # Let's build an app with document. One rule: all documents have (or not) a parent
+        # if a document has a parent, it must be present in document["cooked"]["parent"]
+        parent_id = document["data"].get("parent_id")
+        if parent_id is not None:
+            document["cooked"]["parent"] = get_document(parent_id)
+        else:
+            document["cooked"]["parent"] = None
+
+
 class Test_Cooker(BaseTest):
+    rest_api_kwargs = {"cooker": cooker}
+
     def test_error(self):
         with pytest.raises(ConfigurationError):
             RestApi(cooker={})
 
-    def test_basic(self, user, memory_cache):
+    def test_basic(self, user):
         self.login_user(user)
 
         doc = self.create_document(data={"namespace": "cook-me", "value": "42"}).json["document"]
@@ -36,8 +53,8 @@ class Test_Cooker(BaseTest):
         docs = self.get_documents(tag_name="star").json["documents"]
         assert "cooked" in docs[0]
 
-        assert "cooked" not in memory_cache.get_document(doc["id"])
-        assert "cooked" in memory_cache.get_cooked_document(doc["id"])
+        assert "cooked" not in self.api.memory_cache.get_document(doc["id"])
+        assert "cooked" in self.api.memory_cache.get_cooked_document(doc["id"])
 
     def test_association(self, moderator, admin):
         # Reminder: the tested app havea cooker: documents have (or not) a parent
