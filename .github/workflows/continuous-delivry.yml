@@ -1,9 +1,8 @@
 name: Continuous delivery
 
 on:
-  push:
-    release:
-      types: [released]
+  release:
+    types: [released]
 
 jobs:
   build-and-publish:
