@@ -36,9 +36,9 @@ jobs:
 
       - name: Check that version number from source is equal to release version number
         run: |
-          echo "Tag name is ${GITHUB_REF##*/}"
+          echo "Tag name is ${{ github.event.release.tag_name }}"
           python -c "import pkg_resources; print('flask-camp version is ' + pkg_resources.get_distribution('flask-camp').version)"
-          python -c "import pkg_resources; exit(1 if pkg_resources.get_distribution('flask-camp').version != '${GITHUB_REF##*/}' else 0)"
+          python -c "import pkg_resources; exit(1 if pkg_resources.get_distribution('flask-camp').version != '${{ github.event.release.tag_name }}' else 0)"
 
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
