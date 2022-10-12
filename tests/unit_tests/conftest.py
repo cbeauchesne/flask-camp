@@ -26,7 +26,19 @@ def pytest_configure(config):
         # do not perform this on collect, editors that automatically collect tests on file change
         # may break current test session
         with tested_app.app_context():
-            tested_api.database.drop_all()
+
+            # why not using tested_api.database.drop_all()?
+            # because in some case, a table is not known by the ORM
+            # for instance, run test A that define a custom table, stop it during execution (the table is not removed)
+            # then run only test B. Table defined in test A is not known
+
+            sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';"
+            rows = tested_api.database.session.execute(sql)
+            names = [name for name, in rows]
+            if len(names) != 0:
+                tested_api.database.session.execute(f"DROP TABLE {','.join(names)} CASCADE;")
+                tested_api.database.session.commit()
+
             tested_api.create_all()
 
         tested_api.memory_cache.flushall()
