@@ -75,6 +75,7 @@ services:
       timeout: 5s
       retries: 5
 
+  # TODO remove this
   # es:
   #   image: elasticsearch:8.4.2
   #   environment:

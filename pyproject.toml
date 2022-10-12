@@ -29,6 +29,7 @@ classifiers = [
 ]
 
 dependencies = [
+    "docopt>=0.6.2",
     "Flask>=2.2.2",
     "Flask-Limiter>=2.6.2",
     "Flask-Login>=0.6.2",
@@ -39,6 +40,9 @@ dependencies = [
     "redis>=4.3.4",
     "SQLAlchemy>=1.4.40",
 ]
+
+[project.scripts]
+flask_camp = "flask_camp.__main__:main"
 
 [tool.setuptools]
 packages = ["flask_camp"]

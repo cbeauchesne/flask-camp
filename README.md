@@ -16,9 +16,11 @@ app = Flask(__name__)
 api = RestApi(app)
 ```
 
-Then run the app : 
+## Run your app
+
+You'll need a running [redis](https://redis.io/) on port 6379 and a [postgresql](https://www.postgresql.org/) on port 5432. If you don't have it, just run `flask_camp dev_env` before running your app (requires [docker](https://www.docker.com/)).
+
 ```bash
-TODO dev env
 flask --debug run
 ```
 
