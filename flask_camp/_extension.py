@@ -311,7 +311,7 @@ class RestApi:
                     method = method.upper()
 
                     if not hasattr(function, "allowed_roles") or not hasattr(function, "allow_blocked"):
-                        raise ConfigurationError("Please use @flask_camp.allow decorator on {function}")
+                        raise ConfigurationError(f"Please use @flask_camp.allow decorator on {function}")
 
                     for role in function.allowed_roles:
                         if role not in possible_user_roles:

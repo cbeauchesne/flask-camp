@@ -21,7 +21,7 @@ class Test_RateLimit(BaseTest):
         "rate_limits_file": "tests/ratelimit_config.json",
     }
 
-    def test_rate_limited_class(self):
+    def test_rate_limited_class_instance(self):
 
         self.api.add_modules(self.app, RateLimitedClass())
 
