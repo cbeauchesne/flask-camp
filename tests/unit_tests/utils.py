@@ -19,7 +19,7 @@ class BaseTest(ClientInterface):
 
     def setup_method(self):
         with self.app.app_context():
-            self.api.create_all()
+            self.api.database.create_all()
 
         with self.app.test_client() as client:
             self.client = client

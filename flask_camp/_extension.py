@@ -110,7 +110,8 @@ class RestApi:
         self._configuration_checks()
 
         if app.debug:  # pragma: no cover
-            self.create_all()
+            with app.app_context():
+                self.database.create_all()
 
     def _configuration_checks(self):
         # post configuration checks
@@ -144,9 +145,7 @@ class RestApi:
     def _init_config(self, app):
         if app.config.get("MAIL_DEFAULT_SENDER", None) is None:
             if not app.testing and not app.debug:
-                warnings.warn(
-                    "FLASK_MAIL_DEFAULT_SENDER environment variable is not set, defaulting to do-not-reply@example.com"
-                )
+                warnings.warn("MAIL_DEFAULT_SENDER is not set, defaulting to do-not-reply@example.com")
             app.config["MAIL_DEFAULT_SENDER"] = "do-not-reply@example.com"
 
     def _init_database(self, app):
@@ -214,23 +213,6 @@ class RestApi:
 
         # reserved for admins
         self.add_modules(app, roles_view)
-
-    ############################################################
-    def create_all(self):
-        """Init database with an admin user"""
-
-        database.create_all()
-
-        return {"status": "ok"}
-
-    def add_system_user(self):
-        if UserModel.get(id=1) is None:
-            user = UserModel(name="system", roles=["admin"])
-            user.set_password("password")
-            user.set_email("system@example.com")
-            user.validate_email(user._email_token)
-            database.session.add(user)
-            database.session.commit()
 
     @property
     def user_roles(self):

@@ -18,4 +18,4 @@ app.wsgi_app = ProfilerMiddleware(
 api = flask_camp.RestApi(app=app)
 
 with app.app_context():
-    api.create_all()
+    api.database.create_all()

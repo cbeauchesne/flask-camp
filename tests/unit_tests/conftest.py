@@ -39,7 +39,7 @@ def pytest_configure(config):
                 tested_api.database.session.execute(f"DROP TABLE {','.join(names)} CASCADE;")
                 tested_api.database.session.commit()
 
-            tested_api.create_all()
+            tested_api.database.create_all()
 
         tested_api.memory_cache.flushall()
 

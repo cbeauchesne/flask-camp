@@ -16,4 +16,4 @@ api = RestApi(app=app)
 
 if __name__ == "__main__":
     with app.app_context():
-        api.create_all()
+        api.database.create_all()
