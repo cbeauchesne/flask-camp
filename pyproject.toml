@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 # https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
 [project]
 name = "Flask-Camp"
-version = "0.0.4"
+version = "0.0.5"
 authors = [
   { name="Charles de Beauchesne", email="charles.de.beauchesne@gmail.com" },
 ]
@@ -42,7 +42,7 @@ dependencies = [
 ]
 
 [project.scripts]
-flask_camp = "flask_camp.__main__:main"
+flask_camp = "flask_camp.__main__:main_entry_point"
 
 [tool.setuptools]
 packages = ["flask_camp"]

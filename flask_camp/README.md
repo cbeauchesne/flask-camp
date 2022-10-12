@@ -71,7 +71,6 @@ Build a wiki API with all common features, regardless of the content of document
 
 ## TODO
 
-user 1 is system user, not admin user
 redis conf
 more test on delete
 more test on logs
