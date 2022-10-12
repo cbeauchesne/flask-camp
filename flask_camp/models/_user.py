@@ -127,7 +127,7 @@ class User(BaseModel):
             "name": self.name,
             "roles": self.roles,
             "blocked": self.blocked,
-            "ui_preferences": json.loads(self.ui_preferences),
+            "ui_preferences": json.loads(self.ui_preferences) if self.ui_preferences is not None else {},
         }
 
         if include_personal_data:

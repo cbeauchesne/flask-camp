@@ -42,9 +42,14 @@ def put():
     user.set_password(data["password"])
     user.set_email(data["email"])
 
-    current_api.before_user_creation(user)
-
     current_api.database.session.add(user)
+
+    try:
+        current_api.database.session.flush()
+    except IntegrityError as e:
+        raise BadRequest("A user still exists with this name") from e
+
+    current_api.before_user_creation(user)
 
     try:
         current_api.database.session.commit()

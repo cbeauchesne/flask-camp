@@ -220,7 +220,6 @@ class RestApi:
         """Init database with an admin user"""
 
         database.create_all()
-        self.add_system_user()
 
         return {"status": "ok"}
 

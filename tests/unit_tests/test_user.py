@@ -292,15 +292,13 @@ class Test_Users(BaseTest):
         self.login_user(moderator)
         r = self.get_users().json
 
-        assert r["count"] == 4
+        assert r["count"] == 3
         assert r["users"][0]["id"] == user.id
         assert r["users"][0]["name"] == user.name
         assert r["users"][1]["id"] == moderator.id
         assert r["users"][1]["name"] == moderator.name
         assert r["users"][2]["id"] == admin.id
         assert r["users"][2]["name"] == admin.name
-        assert r["users"][3]["id"] == 1
-        assert r["users"][3]["name"] == "system"
 
     def test_errors(self, moderator):
         self.get_users(expected_status=403)
