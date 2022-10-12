@@ -37,10 +37,9 @@ def _create_api():
     return app, api
 
 
-def main():
-    args = docopt(__doc__)
+def main(args):
 
-    if args["dev_env"]:
+    if args["dev_env"]:  # pragma: no cover
         docker_file = os.path.join(os.path.dirname(__file__), "docker-compose.yml")
         subprocess.run(
             ["docker", "compose", "-f", docker_file, "up", "--remove-orphans", "--wait", "-d", "redis", "pg"],
@@ -65,3 +64,11 @@ def main():
             api.database.session.commit()
 
             print(f"{user} is created")
+
+
+def main_entry_point():  # pragma: no cover
+    main(docopt(__doc__))
+
+
+if __name__ == "__main__":  # pragma: no cover
+    main_entry_point()
