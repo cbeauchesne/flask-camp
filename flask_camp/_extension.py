@@ -58,6 +58,7 @@ class RestApi:
         before_document_save=None,
         before_document_delete=None,
         update_search_query=None,
+        url_prefix="",
     ):
         self.database = database
         self.limiter = Limiter(key_func=get_remote_address)
@@ -88,6 +89,8 @@ class RestApi:
             self._schema_validator = None
 
         self._document_schemas = document_schemas
+        self._url_prefix = url_prefix
+
         self.allow = allow
 
         if app is not None:
@@ -126,6 +129,8 @@ class RestApi:
         for role in ("anonymous", "authenticated"):
             if role in self._user_roles:
                 raise ConfigurationError(f"{role} can't be a user role")
+
+        self._check_url_prefix(self._url_prefix)
 
     @staticmethod
     def _parse_user_roles(user_roles):
@@ -279,8 +284,12 @@ class RestApi:
         if self._schema_validator is not None:
             self._schema_validator.validate(data, *self._document_schemas)
 
-    def add_modules(self, app, *modules):
+    def add_modules(self, app, *modules, url_prefix=None):
         possible_user_roles = self.user_roles | {"anonymous", "authenticated"}
+
+        url_prefix = url_prefix if url_prefix is not None else self._url_prefix
+
+        self._check_url_prefix(url_prefix)
 
         for module in modules:
             if not hasattr(module, "rule"):
@@ -300,21 +309,23 @@ class RestApi:
 
                     function = check_rights(function)
 
-                    if module.rule in self._rate_limits and method in self._rate_limits[module.rule]:
-                        limit = self._rate_limits[module.rule][method]
+                    rule = f"{url_prefix}{module.rule}"
+
+                    if rule in self._rate_limits and method in self._rate_limits[rule]:
+                        limit = self._rate_limits[rule][method]
                         if limit is not None:
                             function = self.limiter.limit(limit, cost=self._rate_limit_cost_function)(function)
-                            app.logger.info("Use %s rate limit for %s %s", limit, method, module.rule)
+                            app.logger.info("Use %s rate limit for %s %s", limit, method, rule)
                         else:
                             function = self.limiter.exempt(function)
 
                     if isinstance(module, ModuleType):
-                        endpoint = f"{method}_{module.__name__}_{module.rule}"
+                        endpoint = f"{method}_{module.__name__}_{rule}"
                     else:
-                        endpoint = f"{method}_{module.__class__.__name__}_{module.rule}"
+                        endpoint = f"{method}_{module.__class__.__name__}_{rule}"
 
                     app.add_url_rule(
-                        module.rule,
+                        rule,
                         view_func=function,
                         methods=[method],
                         endpoint=endpoint,
@@ -337,3 +348,12 @@ class RestApi:
             version_id=version_id,
         )
         self.database.session.add(log)
+
+    @staticmethod
+    def _check_url_prefix(url_prefix):
+
+        if len(url_prefix) != 0 and not url_prefix.startswith("/"):
+            raise ConfigurationError("url_prefix should starts with a `/`")
+
+        if url_prefix.endswith("/"):
+            raise ConfigurationError("url_prefix should not ends with a `/`")
