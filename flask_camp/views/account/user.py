@@ -61,7 +61,7 @@ def post(user_id):
         user.send_email_change_mail()
 
     if "ui_preferences" in data:
-        user.ui_preferences = json.dumps(data["ui_preferences"])
+        user.ui_preferences = data["ui_preferences"]
 
     current_api.database.session.commit()
 

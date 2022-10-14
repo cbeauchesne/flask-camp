@@ -48,5 +48,9 @@ class _MemoryCache:
     def flushall(self):
         self._client.flushall()
 
+    @property
+    def client(self):
+        return self._client
+
 
 memory_cache = _MemoryCache()

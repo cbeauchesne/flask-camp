@@ -6,6 +6,7 @@ from flask import current_app
 from flask_login import current_user
 from sqlalchemy import Column, String, Boolean, DateTime
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import reconstructor
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -47,11 +48,29 @@ class User(BaseModel):
     _login_token = Column("login_token", String(64))
     _login_token_expiration_date = Column("login_token_expiration_date", DateTime)
 
-    ui_preferences = Column(String, default="{}", nullable=False)
+    _ui_preferences = Column("ui_preferences", String, default="{}", nullable=False)
 
     roles = Column(ARRAY(String(16)), index=True, default=[])
 
     blocked = Column(Boolean, default=False, nullable=False)
+
+    def __init__(self, ui_preferences=None, **kwargs):
+        ui_preferences = {} if ui_preferences is None else ui_preferences
+        super().__init__(_ui_preferences=json.dumps(ui_preferences), **kwargs)
+        self._init_from_database()
+
+    @reconstructor
+    def _init_from_database(self):
+        self._raw_ui_preferences = json.loads(self._ui_preferences)
+
+    @property
+    def ui_preferences(self):
+        return self._raw_ui_preferences
+
+    @ui_preferences.setter
+    def ui_preferences(self, value):
+        self._raw_ui_preferences = value
+        self._ui_preferences = json.dumps(value)
 
     def __repr__(self):
         return f"<User {self.name}>"
@@ -127,7 +146,7 @@ class User(BaseModel):
             "name": self.name,
             "roles": self.roles,
             "blocked": self.blocked,
-            "ui_preferences": json.loads(self.ui_preferences) if self.ui_preferences is not None else {},
+            "ui_preferences": self.ui_preferences,
         }
 
         if include_personal_data:
