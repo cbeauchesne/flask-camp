@@ -38,7 +38,7 @@ def put():
 
     data = request.get_json()
 
-    user = UserModel(name=data["name"])
+    user = UserModel(name=data["name"].lower())
     user.set_password(data["password"])
     user.set_email(data["email"])
 

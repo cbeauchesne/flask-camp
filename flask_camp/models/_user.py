@@ -32,7 +32,7 @@ class AnonymousUser:  # pylint: disable=too-few-public-methods
     #     return None
 
 
-class User(BaseModel):
+class User(BaseModel):  # pylint: disable=too-many-instance-attributes
     __tablename__ = "user_account"  # as user is a reserved word in postgres, we name it user_account
 
     name = Column(String(64), index=True, unique=True, nullable=False)

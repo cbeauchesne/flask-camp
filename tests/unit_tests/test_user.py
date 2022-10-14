@@ -97,7 +97,7 @@ class Test_UserCreation(BaseTest):
         self.create_user("", email, password, expected_status=400)
         self.create_user("tailing_space ", email, password, expected_status=400)
         self.create_user(" starting_space", email, password, expected_status=400)
-        self.create_user("abc", email, password, expected_status=400)  # too short
+        self.create_user("ab", email, password, expected_status=400)  # too short
         self.create_user("@xxxx", email, password, expected_status=400)  # can't contains an @
         self.create_user("aaa@aaa", email, password, expected_status=400)  # same
         self.create_user("x" * 1000, email, password, expected_status=400)  # too long
@@ -248,6 +248,9 @@ class Test_UserModification(BaseTest):
 class Test_UserUniqueness(BaseTest):
     def test_username(self, user):
         r = self.create_user(user.name, "other@email.c", "password", expected_status=400)
+        assert r.json["description"] == "A user still exists with this name"
+
+        r = self.create_user(user.name.upper(), "other@email.c", "password", expected_status=400)
         assert r.json["description"] == "A user still exists with this name"
 
     def test_email_at_creation(self, user):
