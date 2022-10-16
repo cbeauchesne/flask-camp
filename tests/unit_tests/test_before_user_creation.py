@@ -1,6 +1,6 @@
 import pytest
 
-from sqlalchemy import Column, ForeignKey, select
+from sqlalchemy import Column, ForeignKey, select, Integer
 from sqlalchemy.orm import relationship
 from werkzeug.exceptions import Forbidden
 
@@ -13,6 +13,8 @@ from tests.unit_tests.utils import BaseTest
 
 
 class ProfilePageLink(BaseModel):
+    id = Column(Integer, primary_key=True, index=True)
+
     document_id = Column(ForeignKey(Document.id, ondelete="CASCADE"), index=True, nullable=False, unique=True)
     document = relationship(Document, cascade="all,delete")
 

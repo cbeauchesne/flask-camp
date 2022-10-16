@@ -16,7 +16,7 @@ class Test_Document(BaseTest):
 
         self.login_user(user)
 
-        fake_doc = {"id": 1, "version_id": 1, "data": None}
+        fake_doc = {"id": 42, "version_id": 1, "data": None}
 
         self.get_document(fake_doc, expected_status=404)
         self.modify_document(fake_doc, expected_status=404)

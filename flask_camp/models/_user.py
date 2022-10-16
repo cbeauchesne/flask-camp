@@ -4,7 +4,7 @@ import secrets
 
 from flask import current_app
 from flask_login import current_user
-from sqlalchemy import Column, String, Boolean, DateTime
+from sqlalchemy import Column, String, Boolean, DateTime, Integer
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import reconstructor
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
@@ -35,6 +35,8 @@ class AnonymousUser:  # pylint: disable=too-few-public-methods
 class User(BaseModel):  # pylint: disable=too-many-instance-attributes
     __tablename__ = "user_account"  # as user is a reserved word in postgres, we name it user_account
 
+    id = Column(Integer, primary_key=True, index=True)
+
     name = Column(String(64), index=True, unique=True, nullable=False)
     password_hash = Column(String(128), nullable=False)
     _email = Column("email", String(120), index=True, unique=True)
@@ -62,6 +64,19 @@ class User(BaseModel):  # pylint: disable=too-many-instance-attributes
     @reconstructor
     def _init_from_database(self):
         self._raw_ui_preferences = json.loads(self._ui_preferences)
+
+    @classmethod
+    def create(cls, name, email, password, roles=None):
+
+        user = cls(name=name.strip().lower(), roles=roles if roles else [])
+        user.set_password(password)
+        user.set_email(email)
+
+        current_api.database.session.add(user)
+        current_api.database.session.flush()
+        current_api.before_user_creation(user)
+
+        return user
 
     @property
     def ui_preferences(self):

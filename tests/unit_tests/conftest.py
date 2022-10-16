@@ -47,18 +47,16 @@ def pytest_configure(config):
 def _db_add_user(name="name", email=None, password="password", validate_email=True, roles=None):
 
     with tested_app.app_context():
-        instance = User(
+        instance = User.create(
             name=name,
+            password=password,
+            email=email if email else f"{name}@site.org",
             roles=roles if isinstance(roles, (list, tuple)) else roles.split(",") if isinstance(roles, str) else [],
         )
-        instance.set_password(password)
-
-        instance.set_email(email if email else f"{name}@site.org")
 
         if validate_email:
             instance.validate_email(instance._email_token)
 
-        tested_api.database.session.add(instance)
         tested_api.database.session.commit()
 
         result = User(

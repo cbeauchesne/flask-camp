@@ -56,11 +56,8 @@ def main(args):
         app, api = _create_api()
 
         with app.app_context():
-            user = User(name=args["<name>"], roles=["admin"])
-            user.set_password(args["<password>"])
-            user.set_email(args["<email>"])
+            user = User.create(name=args["<name>"], roles=["admin"], password=args["<password>"], email=args["<email>"])
             user.validate_email(user._email_token)
-            api.database.session.add(user)
             api.database.session.commit()
 
             print(f"{user} is created")

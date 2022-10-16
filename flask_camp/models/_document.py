@@ -119,6 +119,8 @@ class Document(BaseModel):
 class DocumentVersion(BaseModel):
     __tablename__ = "version"
 
+    id = Column(Integer, primary_key=True, index=True)
+
     document_id = Column(Integer, ForeignKey("document.id"), index=True)
     # document = relationship("Document", foreign_keys=[document_id], back_populates="versions")
 

@@ -10,6 +10,8 @@ from flask_camp.models._user import User
 class UserTag(BaseModel):
     __tablename__ = "user_tag"
 
+    id = Column(Integer, primary_key=True, index=True)
+
     user_id = Column(Integer, ForeignKey(User.id), index=True, nullable=False)
     user = relationship(User, foreign_keys=[user_id])
 

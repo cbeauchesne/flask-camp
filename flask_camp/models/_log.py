@@ -11,6 +11,8 @@ from flask_camp.models._user import User
 class Log(BaseModel):
     __tablename__ = "log"
 
+    id = Column(Integer, primary_key=True, index=True)
+
     timestamp = Column(DateTime, nullable=False)
 
     user_id = Column(Integer, ForeignKey(User.id), index=True)

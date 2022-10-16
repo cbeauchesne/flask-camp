@@ -38,15 +38,8 @@ def put():
 
     data = request.get_json()
 
-    user = UserModel(name=data["name"].lower())
-    user.set_password(data["password"])
-    user.set_email(data["email"])
-
-    current_api.database.session.add(user)
-
     try:
-        current_api.database.session.flush()
-        current_api.before_user_creation(user)
+        user = UserModel.create(name=data["name"], password=data["password"], email=data["email"])
         current_api.database.session.commit()
     except IntegrityError as e:
         raise BadRequest("A user still exists with this name") from e
