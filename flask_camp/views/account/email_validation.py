@@ -41,6 +41,8 @@ def post():
 
     user.validate_email(data["token"])
 
+    current_api.on_email_validation(user)
+
     try:
         current_api.database.session.commit()
     except IntegrityError as e:

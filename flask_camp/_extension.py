@@ -58,6 +58,7 @@ class RestApi:
         before_document_save=None,
         before_document_delete=None,
         update_search_query=None,
+        on_email_validation=None,
         url_prefix="",
     ):
         self.database = database
@@ -73,6 +74,7 @@ class RestApi:
         self.before_document_save = self._hook_function(before_document_save)
         self.before_document_delete = self._hook_function(before_document_delete)
         self.update_search_query = update_search_query if update_search_query is not None else lambda query: query
+        self.on_email_validation = self._hook_function(on_email_validation)
 
         if rate_limits_file:
             with open(rate_limits_file, mode="r", encoding="utf-8") as f:
