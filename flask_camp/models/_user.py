@@ -7,6 +7,7 @@ from flask_login import current_user
 from sqlalchemy import Column, String, Boolean, DateTime, Integer
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import reconstructor
+from sqlalchemy.sql import func
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -55,6 +56,8 @@ class User(BaseModel):  # pylint: disable=too-many-instance-attributes
     roles = Column(ARRAY(String(16)), index=True, default=[])
 
     blocked = Column(Boolean, default=False, nullable=False)
+
+    creation_date = Column(DateTime(timezone=True), server_default=func.now())
 
     def __init__(self, ui_preferences=None, **kwargs):
         ui_preferences = {} if ui_preferences is None else ui_preferences
@@ -161,6 +164,7 @@ class User(BaseModel):  # pylint: disable=too-many-instance-attributes
             "name": self.name,
             "roles": self.roles,
             "blocked": self.blocked,
+            "creation_date": self.creation_date.isoformat() if self.creation_date else None,
             "ui_preferences": self.ui_preferences,
         }
 

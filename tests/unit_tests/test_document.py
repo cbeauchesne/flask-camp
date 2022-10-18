@@ -1,4 +1,6 @@
 import json
+import re
+
 from tests.unit_tests.utils import BaseTest
 
 
@@ -10,6 +12,7 @@ class Test_Document(BaseTest):
         assert isinstance(document["timestamp"], str)
         assert isinstance(document["version_id"], int)
         assert document["user"]["id"] == user.id
+        assert re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00", document["timestamp"])
 
     def test_errors(self, user):
         self.create_document(expected_status=403)  # not logged

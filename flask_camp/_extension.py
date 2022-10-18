@@ -166,10 +166,6 @@ class RestApi:
 
         self.database.init_app(app)
 
-        @app.teardown_appcontext
-        def shutdown_session(exception=None):  # pylint: disable=unused-argument
-            self.database.session.remove()
-
     def _init_login_manager(self, app):
         login_manager = LoginManager(app)
         login_manager.anonymous_user = AnonymousUser

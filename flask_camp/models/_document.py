@@ -1,10 +1,10 @@
 import json
-from datetime import datetime
 
 from flask_login import current_user
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, select
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship, reconstructor
+from sqlalchemy.sql import func
 from werkzeug.exceptions import BadRequest
 
 from flask_camp._utils import current_api
@@ -23,7 +23,7 @@ def _as_dict(document, version, include_hidden_data_for_staff=False):
         "protected": document.protected,
         "comment": version.comment,
         "hidden": version.hidden,
-        "timestamp": version.timestamp.isoformat(),
+        "timestamp": version.timestamp.isoformat() if version.timestamp else None,
         "user": version.user.as_dict(),
         "last_version_id": document.last_version_id,
         "version_id": version.id,
@@ -127,7 +127,7 @@ class DocumentVersion(BaseModel):
     user_id = Column(Integer, ForeignKey(User.id), index=True)
     user = relationship(User)
 
-    timestamp = Column(DateTime)
+    timestamp = Column(DateTime(timezone=True), server_default=func.now())
     comment = Column(String)
 
     hidden = Column(Boolean, default=False, nullable=False)
@@ -143,7 +143,6 @@ class DocumentVersion(BaseModel):
     )
 
     def __init__(self, data, **kwargs):
-        kwargs["timestamp"] = datetime.now()
         super().__init__(_data=json.dumps(data), **kwargs)
         self._init_from_database()
 
