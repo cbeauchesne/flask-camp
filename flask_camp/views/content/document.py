@@ -110,7 +110,7 @@ def delete(document_id):
     if not current_api.user_can_delete and not current_user.is_admin:
         raise Forbidden()
 
-    current_api.before_document_delete(current_user, document_as_dict)
+    current_api.before_document_delete(current_user, document_as_dict)  # TODO not very coherent ...
 
     document = Document.get(id=document_id)
     current_api.database.session.delete(document)

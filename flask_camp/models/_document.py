@@ -45,12 +45,13 @@ class Document(BaseModel):
     protected = Column(Boolean, nullable=False, default=False)
 
     user_tags = relationship(UserTag, back_populates="document", lazy="select", cascade="all,delete")
+
     versions = relationship(
         lambda: DocumentVersion,
         primaryjoin=lambda: Document.id == DocumentVersion.document_id,
         backref="document",
         lazy="select",
-        cascade="all,delete",
+        cascade="all,delete,delete-orphan",
     )
 
     last_version_id = Column(Integer, ForeignKey("version.id", use_alter=True))
@@ -58,6 +59,7 @@ class Document(BaseModel):
         lambda: DocumentVersion,
         primaryjoin=lambda: Document.last_version_id == DocumentVersion.id,
         uselist=False,
+        single_parent=True,
         post_update=True,
     )
 
@@ -122,7 +124,6 @@ class DocumentVersion(BaseModel):
     id = Column(Integer, primary_key=True, index=True)
 
     document_id = Column(Integer, ForeignKey("document.id"), index=True)
-    # document = relationship("Document", foreign_keys=[document_id], back_populates="versions")
 
     user_id = Column(Integer, ForeignKey(User.id), index=True)
     user = relationship(User)
