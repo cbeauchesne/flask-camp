@@ -75,10 +75,6 @@ class User(BaseModel):  # pylint: disable=too-many-instance-attributes
         user.set_password(password)
         user.set_email(email)
 
-        current_api.database.session.add(user)
-        current_api.database.session.flush()
-        current_api.before_user_creation(user)
-
         return user
 
     @property

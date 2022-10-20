@@ -46,51 +46,56 @@ def pytest_configure(config):
 
 def _db_add_user(name="name", email=None, password="password", validate_email=True, roles=None):
 
-    with tested_app.app_context():
-        instance = User.create(
-            name=name,
-            password=password,
-            email=email if email else f"{name}@site.org",
-            roles=roles if isinstance(roles, (list, tuple)) else roles.split(",") if isinstance(roles, str) else [],
-        )
+    instance = User.create(
+        name=name,
+        password=password,
+        email=email if email else f"{name}@site.org",
+        roles=roles if isinstance(roles, (list, tuple)) else roles.split(",") if isinstance(roles, str) else [],
+    )
 
-        if validate_email:
-            instance.validate_email(instance._email_token)
+    if validate_email:
+        instance.validate_email(instance._email_token)
 
-        tested_api.database.session.commit()
+    tested_api.database.session.add(instance)
+    tested_api.database.session.commit()
 
-        result = User(
-            id=instance.id,
-            name=instance.name,
-            _email=instance._email,
-            _email_to_validate=instance._email_to_validate,
-            _email_token=instance._email_token,
-            roles=instance.roles,
-        )
+    result = User(
+        id=instance.id,
+        name=instance.name,
+        _email=instance._email,
+        _email_to_validate=instance._email_to_validate,
+        _email_token=instance._email_token,
+        roles=instance.roles,
+    )
 
     return result
 
 
 @pytest.fixture()
 def admin():
-    yield _db_add_user(name="admin", roles="admin")
+    with tested_app.app_context():
+        yield _db_add_user(name="admin", roles="admin")
 
 
 @pytest.fixture()
 def moderator():
-    yield _db_add_user(name="moderator", roles="moderator")
+    with tested_app.app_context():
+        yield _db_add_user(name="moderator", roles="moderator")
 
 
 @pytest.fixture()
 def user():
-    yield _db_add_user()
+    with tested_app.app_context():
+        yield _db_add_user()
 
 
 @pytest.fixture()
 def unvalidated_user():
-    yield _db_add_user(validate_email=False)
+    with tested_app.app_context():
+        yield _db_add_user(validate_email=False)
 
 
 @pytest.fixture()
 def user_2():
-    yield _db_add_user("user_2")
+    with tested_app.app_context():
+        yield _db_add_user("user_2")

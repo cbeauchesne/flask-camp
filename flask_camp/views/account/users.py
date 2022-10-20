@@ -6,7 +6,7 @@ from werkzeug.exceptions import BadRequest
 from flask_camp._schemas import schema
 from flask_camp._utils import current_api
 from flask_camp._services._security import allow
-from flask_camp.models._user import User as UserModel
+from flask_camp.models._user import User
 
 rule = "/users"
 
@@ -21,9 +21,9 @@ def get():
     if not 0 <= limit <= 100:
         raise BadRequest("Limit can't be lower than 0 or higher than 100")
 
-    query = UserModel.query
+    query = User.query
 
-    users = query.order_by(UserModel.id.desc()).limit(limit).offset(offset)
+    users = query.order_by(User.id.desc()).limit(limit).offset(offset)
 
     return {"status": "ok", "users": [user.as_dict() for user in users], "count": query.count()}
 
@@ -39,7 +39,10 @@ def put():
     data = request.get_json()
 
     try:
-        user = UserModel.create(name=data["name"], password=data["password"], email=data["email"])
+        user = User.create(name=data["name"], password=data["password"], email=data["email"])
+        current_api.database.session.add(user)
+        current_api.database.session.flush()
+        current_api.before_user_creation(user)
         current_api.database.session.commit()
     except IntegrityError as e:
         raise BadRequest("A user still exists with this name") from e
