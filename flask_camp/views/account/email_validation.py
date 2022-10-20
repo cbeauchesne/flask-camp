@@ -14,7 +14,7 @@ rule = "/validate_email"
 
 @allow("admin")
 def get():
-    """Resend validation mail to a user. Only admin can do this request"""
+    """Resend validation mail to an user. Only admin can do this request"""
     name = request.args.get("name", "")
 
     if not name:
@@ -39,9 +39,14 @@ def post():
     if user is None:
         raise NotFound()
 
+    is_activation = not user.is_active
+
     user.validate_email(data["token"])
 
-    current_api.on_email_validation(user)
+    if is_activation:
+        current_api.on_user_validation(user)
+    else:
+        current_api.on_user_update(user)
 
     try:
         current_api.database.session.commit()

@@ -63,6 +63,7 @@ def post(user_id):
     if "ui_preferences" in data:
         user.ui_preferences = data["ui_preferences"]
 
+    current_api.on_user_update(user)
     current_api.database.session.commit()
 
     # personal data : user is current user, so always true

@@ -3,12 +3,12 @@ import re
 from tests.unit_tests.utils import BaseTest
 
 
-def on_email_validation(user):
+def on_user_validation(user):
     user.ui_preferences = "custom"
 
 
 class Test_UserCreation(BaseTest):
-    rest_api_kwargs = {"on_email_validation": on_email_validation}
+    rest_api_kwargs = {"on_user_validation": on_user_validation}
 
     def test_main(self):
         name, email, password = "my_user", "a@b.c", "week password"
