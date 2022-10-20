@@ -76,3 +76,9 @@ class Test_BeforeUserCreation(BaseTest):
 
         profile = self.get(f"/profile/{user['name']}").json["document"]
         assert profile["data"]["user_id"] == user["id"]
+
+    def test_cli(self):
+        # as before_user_creation requires request context, test that CLI does NOT call it
+
+        self.cli_main({"add_admin": True, "<name>": "admin", "<email>": "admin@email.com", "<password>": "blah"})
+        self.login_user("admin", password="blah", expected_status=200)
