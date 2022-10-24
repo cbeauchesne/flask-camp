@@ -190,6 +190,9 @@ class RestApi:
     def _init_error_handler(self, app):
         @app.errorhandler(HTTPException)
         def rest_error_handler(e):
+
+            self.database.session.rollback()
+
             result = {"status": "error", "name": e.name, "description": e.description}
             if hasattr(e, "data"):
                 result["data"] = e.data
@@ -299,6 +302,7 @@ class RestApi:
         if self._schema_validator is not None and self._user_schema is not None:
             self._schema_validator.validate(data, self._user_schema)
 
+    # TODO rename add_endpoints
     def add_modules(self, app, *modules, url_prefix=None):
         possible_user_roles = self.user_roles | {"anonymous", "authenticated"}
 
