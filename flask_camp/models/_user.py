@@ -69,11 +69,12 @@ class User(BaseModel):  # pylint: disable=too-many-instance-attributes
         self._raw_ui_preferences = json.loads(self._ui_preferences)
 
     @classmethod
-    def create(cls, name, email, password, roles=None):
+    def create(cls, name, email, password, ui_preferences=None, roles=None):
 
         user = cls(name=name.strip().lower(), roles=roles if roles else [])
         user.set_password(password)
         user.set_email(email)
+        user.ui_preferences = ui_preferences
 
         return user
 

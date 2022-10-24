@@ -2,6 +2,7 @@
 __pycache__/
 data/
 dist/
+build/
 htmlcov/
 logs/
 venv/

@@ -23,8 +23,8 @@ def _as_dict(document, version, include_hidden_data_for_staff=False):
         "protected": document.protected,
         "comment": version.comment,
         "hidden": version.hidden,
-        "timestamp": version.timestamp.isoformat() if version.timestamp else None,
-        "user": version.user.as_dict(),
+        "timestamp": None if version.timestamp is None else version.timestamp.isoformat(),
+        "user": None if version.user is None else version.user.as_dict(),
         "last_version_id": document.last_version_id,
         "version_id": version.id,
     }

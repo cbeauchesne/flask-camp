@@ -41,7 +41,12 @@ def put():
     current_api.validate_user_schema(data)
 
     try:
-        user = User.create(name=data["name"], password=data["password"], email=data["email"])
+        user = User.create(
+            name=data["name"],
+            password=data["password"],
+            email=data["email"],
+            ui_preferences=data.get("ui_preferences"),
+        )
         current_api.database.session.add(user)
         current_api.database.session.flush()
         current_api.on_user_creation(user)

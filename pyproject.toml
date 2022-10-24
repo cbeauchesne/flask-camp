@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 # https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
 [project]
 name = "Flask-Camp"
-version = "0.0.13"
+version = "0.0.14"
 authors = [
   { name="Charles de Beauchesne", email="charles.de.beauchesne@gmail.com" },
 ]

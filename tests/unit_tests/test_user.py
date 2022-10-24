@@ -40,12 +40,16 @@ class Test_UserCreation(BaseTest):
         assert len(r.json["user"]) == 7, r.json["user"]
         assert r.json["user"]["id"] == user["id"]
         assert r.json["user"]["blocked"] is False
-        assert r.json["user"]["ui_preferences"] == {}
+        assert r.json["user"]["ui_preferences"] is None
         assert r.json["user"]["name"] == name
         assert r.json["user"]["email"] == email
         assert r.json["user"]["roles"] == []
 
         self.logout_user()
+
+    def test_ui_preferences_on_create(self):
+        user = self.create_user(ui_preferences={"hello": "world"}).json["user"]
+        assert user["ui_preferences"] == {"hello": "world"}
 
     def test_errors_on_token_validation(self, unvalidated_user):
 
