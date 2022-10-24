@@ -101,9 +101,9 @@ class BaseTest(ClientInterface):
                 assert r.json["status"] == "error", r.json
                 assert "description" in r.json, r.json
 
-    def create_user(self, name="user", email=None, password="password", **kwargs):
+    def create_user(self, name="user", email=None, password="password", ui_preferences=None, **kwargs):
         email = f"{name}@example.com" if email is None else email
-        return super().create_user(name, email, password, **kwargs)
+        return super().create_user(name, email, password, ui_preferences=ui_preferences, **kwargs)
 
     def login_user(self, user, password=None, token=None, **kwargs):
         if password is None and token is None:

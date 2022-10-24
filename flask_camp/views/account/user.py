@@ -44,6 +44,8 @@ def post(user_id):
 
     data = request.get_json()
 
+    current_api.validate_user_schema(data)
+
     user = UserModel.get(id=user_id)
 
     password = data.get("password", None)

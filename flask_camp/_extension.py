@@ -50,6 +50,7 @@ class RestApi:
         cooker=None,
         schemas_directory=None,
         document_schemas=None,
+        user_schema=None,
         user_roles="",
         rate_limit_cost_function=None,
         rate_limits_file=None,
@@ -93,7 +94,8 @@ class RestApi:
         else:
             self._schema_validator = None
 
-        self._document_schemas = document_schemas
+        self._document_schemas = [] if document_schemas is None else document_schemas
+        self._user_schema = user_schema
         self._url_prefix = url_prefix
 
         self.allow = allow
@@ -126,10 +128,16 @@ class RestApi:
         if self._cooker is not None and not callable(self._cooker):
             raise ConfigurationError(f"cooker is not callable: {self._cooker}")
 
-        if self._schema_validator and self._document_schemas:
+        if self._schema_validator:
+            self._schema_validator.assert_schema_exists(self._user_schema)
             for filename in self._document_schemas:
-                if not self._schema_validator.exists(filename):
-                    raise FileNotFoundError(f"Schema {filename} does not exists")
+                self._schema_validator.assert_schema_exists(filename)
+        else:
+            if len(self._document_schemas) != 0:
+                raise ConfigurationError("You provide document_schemas wihtout schemas_directory")
+
+            if self._user_schema is not None:
+                raise ConfigurationError("You provide user_schema wihtout schemas_directory")
 
         for role in ("anonymous", "authenticated"):
             if role in self._user_roles:
@@ -281,9 +289,13 @@ class RestApi:
 
         return result
 
-    def validate_user_schemas(self, data):
+    def validate_document_schemas(self, data):
         if self._schema_validator is not None:
             self._schema_validator.validate(data, *self._document_schemas)
+
+    def validate_user_schema(self, data):
+        if self._schema_validator is not None and self._user_schema is not None:
+            self._schema_validator.validate(data, self._user_schema)
 
     def add_modules(self, app, *modules, url_prefix=None):
         possible_user_roles = self.user_roles | {"anonymous", "authenticated"}

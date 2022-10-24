@@ -67,7 +67,7 @@ def post(document_id):
     comment = body["comment"]
     data = body["document"]["data"]
 
-    current_api.validate_user_schemas(body["document"])
+    current_api.validate_document_schemas(body["document"])
 
     version_id = body["document"]["version_id"]
 

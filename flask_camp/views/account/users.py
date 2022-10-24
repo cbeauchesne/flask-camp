@@ -38,6 +38,8 @@ def put():
 
     data = request.get_json()
 
+    current_api.validate_user_schema(data)
+
     try:
         user = User.create(name=data["name"], password=data["password"], email=data["email"])
         current_api.database.session.add(user)

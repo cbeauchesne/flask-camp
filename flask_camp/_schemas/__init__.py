@@ -1,5 +1,4 @@
 from functools import wraps
-import logging
 import json
 import os
 
@@ -12,16 +11,14 @@ class SchemaValidator:
     def __init__(self, base_dir):
         store = {}
         self._validators = {}
+        self._base_dir = f"{base_dir}/" if base_dir[-1] != "/" else base_dir
 
-        if base_dir[-1] != "/":
-            base_dir = f"{base_dir}/"
-
-        if not os.path.isdir(base_dir):
-            raise FileNotFoundError(f"{base_dir} is not a directory")
+        if not os.path.isdir(self._base_dir):
+            raise FileNotFoundError(f"{self._base_dir} is not a directory")
 
         BASE_URI = "https://schemas/"
 
-        for root, _, files in os.walk(base_dir):
+        for root, _, files in os.walk(self._base_dir):
             for file in files:
                 if file.endswith(".json"):
                     filename = os.path.join(root, file)
@@ -31,8 +28,8 @@ class SchemaValidator:
 
                     Draft7Validator.check_schema(data)
 
-                    data["$id"] = filename[len(base_dir) :]
-                    store[f"{BASE_URI}{filename[len(base_dir):]}"] = data
+                    data["$id"] = filename[len(self._base_dir) :]
+                    store[f"{BASE_URI}{filename[len(self._base_dir):]}"] = data
 
         for filename, data in store.items():
             resolver = RefResolver(base_uri=BASE_URI, referrer=data, store=store)
@@ -71,6 +68,11 @@ class SchemaValidator:
 
     def exists(self, filename):
         return filename in self._validators
+
+    def assert_schema_exists(self, filename):
+        if filename is not None and not self.exists(filename):
+            path = os.path.join(self._base_dir, filename)
+            raise FileNotFoundError(f"File {path} does not exists")
 
 
 # expose a decorator for internal schema validation

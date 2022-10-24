@@ -24,8 +24,10 @@ class ClientInterface:
 
     ###########################################################################################
 
-    def create_user(self, name, email, password, **kwargs):
-        json = {"name": name, "email": email, "password": password} | kwargs.pop("json", {})
+    def create_user(self, name, email, password, ui_preferences=None, **kwargs):
+        json = {"name": name, "email": email, "password": password, "ui_preferences": ui_preferences}
+        json = json | kwargs.pop("json", {})
+
         return self.put("/users", json=json, **kwargs)
 
     def validate_email(self, user, token, **kwargs):
