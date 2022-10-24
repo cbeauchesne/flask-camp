@@ -1,13 +1,14 @@
 from tests.unit_tests.utils import BaseTest
 
 
-def _assert_log(log, action, user, document_id=None, version_id=None, target_user_id=None):
+def _assert_log(log, action, user, document_id=None, version_id=None, target_user_id=None, comment=None):
 
     assert log["action"] == action
     assert log["user"]["id"] == user.id
     assert log["document_id"] == document_id
     assert log["version_id"] == version_id
     assert log["target_user_id"] == target_user_id
+    assert log["comment"] == comment
 
 
 class Test_Logs(BaseTest):
@@ -45,47 +46,49 @@ class Test_Logs(BaseTest):
     def test_typical_scenario(self, user, moderator, admin):
 
         self.login_user(moderator)
-        self.block_user(user)
-        self.unblock_user(user)
+        self.block_user(user, comment="vandal!")
+        self.unblock_user(user, comment="mistake")
 
         doc = self.create_document().json["document"]
         doc_v2 = self.modify_document(doc, data="v2").json["document"]
 
-        self.protect_document(doc)
-        self.unprotect_document(doc)
+        self.protect_document(doc, comment="needs protection")
+        self.unprotect_document(doc, comment="ok!")
 
         self.logout_user()
         self.login_user(admin)
 
-        self.add_user_role(user, "moderator", "comment")
-        self.remove_user_role(user, "moderator", "comment")
-        self.add_user_role(user, "admin", "comment")
-        self.add_user_role(user, "bot", "comment")
-        self.remove_user_role(user, "admin", "comment")
-        self.remove_user_role(user, "bot", "comment")
+        self.add_user_role(user, "moderator", comment="he's worthy")
+        self.remove_user_role(user, "moderator", comment="nope")
+        self.add_user_role(user, "admin", comment="maybe god")
+        self.add_user_role(user, "bot", comment="or bot")
+        self.remove_user_role(user, "admin", comment="not even close")
+        self.remove_user_role(user, "bot", comment="he's an human")
 
-        self.delete_version(doc_v2)
-        self.delete_document(doc)
+        self.delete_version(doc_v2, comment="crap!")
+        self.delete_document(doc, comment="Total crap")
 
-        r = self.get_logs()
-        assert r.json["count"] == 12, r.json
+        result = self.get_logs().json
+        assert result["count"] == 12, result
 
-        logs = r.json["logs"]
+        logs = result["logs"]
 
-        _assert_log(logs[-1], "block", moderator, target_user_id=user.id)
-        _assert_log(logs[-2], "unblock", moderator, target_user_id=user.id)
+        _assert_log(logs[-1], "block", moderator, target_user_id=user.id, comment="vandal!")
+        _assert_log(logs[-2], "unblock", moderator, target_user_id=user.id, comment="mistake")
 
-        _assert_log(logs[-3], "protect", moderator, document_id=doc["id"])
-        _assert_log(logs[-4], "unprotect", moderator, document_id=doc["id"])
+        _assert_log(logs[-3], "protect", moderator, document_id=doc["id"], comment="needs protection")
+        _assert_log(logs[-4], "unprotect", moderator, document_id=doc["id"], comment="ok!")
 
-        _assert_log(logs[-5], "add_role moderator", admin, target_user_id=user.id)
-        _assert_log(logs[-6], "remove_role moderator", admin, target_user_id=user.id)
+        _assert_log(logs[-5], "add_role moderator", admin, target_user_id=user.id, comment="he's worthy")
+        _assert_log(logs[-6], "remove_role moderator", admin, target_user_id=user.id, comment="nope")
 
-        _assert_log(logs[-7], "add_role admin", admin, target_user_id=user.id)
-        _assert_log(logs[-8], "add_role bot", admin, target_user_id=user.id)
+        _assert_log(logs[-7], "add_role admin", admin, target_user_id=user.id, comment="maybe god")
+        _assert_log(logs[-8], "add_role bot", admin, target_user_id=user.id, comment="or bot")
 
-        _assert_log(logs[-9], "remove_role admin", admin, target_user_id=user.id)
-        _assert_log(logs[-10], "remove_role bot", admin, target_user_id=user.id)
+        _assert_log(logs[-9], "remove_role admin", admin, target_user_id=user.id, comment="not even close")
+        _assert_log(logs[-10], "remove_role bot", admin, target_user_id=user.id, comment="he's an human")
 
-        _assert_log(logs[-11], "delete_version", admin, document_id=doc["id"], version_id=doc_v2["version_id"])
-        _assert_log(logs[-12], "delete_document", admin, document_id=doc["id"])
+        _assert_log(
+            logs[-11], "delete_version", admin, document_id=doc["id"], version_id=doc_v2["version_id"], comment="crap!"
+        )
+        _assert_log(logs[-12], "delete_document", admin, document_id=doc["id"], comment="Total crap")

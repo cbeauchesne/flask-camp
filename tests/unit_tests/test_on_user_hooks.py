@@ -11,6 +11,7 @@ class Test_OnUserUpdate(BaseTest):
         "on_user_creation": hooks.on_user_creation,
         "on_user_validation": hooks.on_user_validation,
         "on_user_update": hooks.on_user_update,
+        "on_user_block": hooks.on_user_block,
     }
 
     def test_main(self):
@@ -57,3 +58,13 @@ class Test_OnUserUpdate(BaseTest):
         assert not hooks.on_user_creation.called
         assert not hooks.on_user_validation.called
         assert hooks.on_user_update.called
+
+    def test_user_block(self, moderator, user):
+        self.login_user(moderator)
+
+        self.block_user(user)
+        assert hooks.on_user_block.called
+
+        hooks.reset_mock()
+        self.unblock_user(user)
+        assert hooks.on_user_block.called

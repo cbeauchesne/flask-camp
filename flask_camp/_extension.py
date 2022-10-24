@@ -61,6 +61,7 @@ class RestApi:
         on_user_creation=None,
         on_user_validation=None,
         on_user_update=None,
+        on_user_block=None,
         url_prefix="",
     ):
         self.database = database
@@ -75,6 +76,7 @@ class RestApi:
         self.on_user_creation = self._hook_function(on_user_creation)
         self.on_user_validation = self._hook_function(on_user_validation)
         self.on_user_update = self._hook_function(on_user_update)
+        self.on_user_block = self._hook_function(on_user_block)
 
         self.before_document_save = self._hook_function(before_document_save)
         self.before_document_delete = self._hook_function(before_document_delete)

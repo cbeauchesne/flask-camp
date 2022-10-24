@@ -20,6 +20,15 @@ class Test_UserBlock(BaseTest):
         self.block_user(42, expected_status=404)
         self.unblock_user(42, expected_status=404)
 
+    def test_twice(self, moderator, user):
+        self.login_user(moderator)
+
+        self.block_user(user)
+        self.block_user(user, expected_status=200)  # block him twice, it should produce an bad request error
+
+        self.unblock_user(user)
+        self.unblock_user(user, expected_status=200)  # unblock him twice, it should produce a bad request error
+
     def test_typical_scenario(self, moderator, user):
         # log moderator, create a doc
         self.login_user(moderator)
@@ -31,7 +40,6 @@ class Test_UserBlock(BaseTest):
         assert r.json["user"]["blocked"] is False
 
         self.block_user(user)
-        self.block_user(user, expected_status=400)  # block him twice, it should produce an bad request error
 
         r = self.get_user(user)  # it's status is now blocked
         assert r.json["user"]["blocked"] is True
@@ -57,7 +65,6 @@ class Test_UserBlock(BaseTest):
         self.login_user(moderator)
 
         self.unblock_user(user)
-        self.unblock_user(user, expected_status=400)  # unblock him twice, it should produce a bad request error
 
         r = self.get_user(user)
         assert not r.json["user"]["blocked"]

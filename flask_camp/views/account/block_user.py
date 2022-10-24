@@ -22,11 +22,13 @@ def post(user_id):
     blocked = request.get_json()["blocked"]
 
     if blocked == user.blocked:
-        raise BadRequest("User is still blocked/unblocked")
+        return {"status": "ok"}
 
     user.blocked = blocked
 
     current_api.add_log(action="block" if blocked else "unblock", target_user=user)
+
+    current_api.on_user_block(user)
     current_api.database.session.commit()
 
     return {"status": "ok"}
