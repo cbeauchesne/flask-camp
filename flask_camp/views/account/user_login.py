@@ -18,14 +18,18 @@ def post():
     """Authentificate an user"""
     data = request.get_json()
 
-    name = data["name"]
+    name_or_email = data["name_or_email"].strip().lower()
+
+    if "@" in name_or_email:
+        user = User.get(_email=name_or_email)
+    else:
+        user = User.get(name=name_or_email)
+
     password = data.get("password", None)
     token = data.get("token", None)
 
-    user = User.get(name=name)
-
     if user is None or not user.check_auth(password=password, token=token):
-        raise Unauthorized(f"User [{name}] does not exists, or password is wrong")
+        raise Unauthorized("User does not exists, or password is wrong")
 
     if not user.email_is_validated:
         raise Unauthorized("User's email is not validated")

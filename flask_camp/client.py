@@ -44,7 +44,7 @@ class ClientInterface:
     def login_user(self, user, password=None, token=None, **kwargs):
         name = user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
 
-        payload = {"name": name}
+        payload = {"name_or_email": name}
         if token is not None:
             payload["token"] = token
         else:

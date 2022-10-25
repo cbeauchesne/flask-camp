@@ -24,7 +24,10 @@ class SchemaValidator:
                     filename = os.path.join(root, file)
 
                     with open(filename, encoding="utf8") as file:
-                        data = json.load(file)
+                        try:
+                            data = json.load(file)
+                        except json.decoder.JSONDecodeError as e:
+                            raise ValueError(f"JSON syntax error in {filename}") from e
 
                     Draft7Validator.check_schema(data)
 

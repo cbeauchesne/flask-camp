@@ -73,7 +73,7 @@ class User(BaseModel):  # pylint: disable=too-many-instance-attributes
 
         user = cls(name=name.strip().lower(), roles=roles if roles else [])
         user.set_password(password)
-        user.set_email(email)
+        user.set_email(email.strip().lower())
         user.ui_preferences = ui_preferences
 
         return user

@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from flask_camp import RestApi
+from flask_camp import RestApi, SchemaValidator
 from flask_camp.exceptions import ConfigurationError
 from tests.unit_tests.utils import BaseTest
 
@@ -32,6 +32,10 @@ def test_error():
     with pytest.raises(ConfigurationError) as e:
         RestApi(user_schema=["outing.json"])
     assert e.match("You provide user_schema wihtout schemas_directory")
+
+    with pytest.raises(ValueError) as e:
+        SchemaValidator("tests/unit_tests/schemas_with_error")
+    assert e.match("JSON syntax error in tests/unit_tests/schemas_with_error/outing.json")
 
 
 class Test_Schemas(BaseTest):

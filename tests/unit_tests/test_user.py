@@ -78,15 +78,6 @@ class Test_UserCreation(BaseTest):
 
         r = self.login_user(unvalidated_user, expected_status=200)
 
-    def test_login_errors(self, user):
-        r = self.login_user("not_the_name", expected_status=401)
-        assert r.json["description"] == "User [not_the_name] does not exists, or password is wrong"
-
-        r = self.login_user(user, "not the password", expected_status=401)
-        assert r.json["description"] == f"User [{user.name}] does not exists, or password is wrong"
-
-        self.post("/login", json={"name": user.name}, expected_status=400)
-
     def test_logout_errors(self):
         self.delete("/login", expected_status=403)
 
