@@ -61,8 +61,6 @@ def put():
         data=body["document"]["data"],
     )
 
-    current_api.database.session.flush()
-
     current_api.on_document_save(document=document, old_version=None, new_version=document.last_version)
 
     current_api.database.session.commit()

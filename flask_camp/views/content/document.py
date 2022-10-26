@@ -73,10 +73,10 @@ def post(document_id):
 
     version_id = body["document"]["version_id"]
 
-    last_version = document.as_dict()
+    last_version_as_dict = document.as_dict()
 
-    if last_version["version_id"] != version_id:
-        raise EditConflict(last_version=last_version, your_version=body["document"])
+    if last_version_as_dict["version_id"] != version_id:
+        raise EditConflict(last_version=last_version_as_dict, your_version=body["document"])
 
     version = DocumentVersion(
         document=document,
