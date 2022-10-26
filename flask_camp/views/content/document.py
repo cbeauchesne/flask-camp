@@ -62,6 +62,8 @@ def post(document_id):
     if document.is_redirection:
         raise BadRequest("The document is a redirection")
 
+    old_version = document.last_version
+
     body = request.get_json()
 
     comment = body["comment"]
@@ -92,7 +94,7 @@ def post(document_id):
 
     current_api.database.session.flush()
 
-    current_api.before_document_save(document)
+    current_api.on_document_save(document=document, old_version=old_version, new_version=version)
 
     current_api.database.session.commit()
 

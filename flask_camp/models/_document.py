@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 
 from flask_login import current_user
@@ -117,6 +119,10 @@ class Document(BaseModel):
     def is_redirection(self):
         return self.redirect_to is not None
 
+    @classmethod
+    def get(cls, with_for_update=False, **kwargs) -> Document:
+        return super(Document, cls).get(with_for_update=with_for_update, **kwargs)
+
 
 class DocumentVersion(BaseModel):
     __tablename__ = "version"
@@ -162,3 +168,7 @@ class DocumentVersion(BaseModel):
     # def data(self, value):
     #     self._raw_data = value
     #     self._data = json.dumps(value)
+
+    @classmethod
+    def get(cls, with_for_update=False, **kwargs) -> DocumentVersion:
+        return super(DocumentVersion, cls).get(with_for_update=with_for_update, **kwargs)

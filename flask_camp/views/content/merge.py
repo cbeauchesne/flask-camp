@@ -28,14 +28,18 @@ def post():
     if document_destination.is_redirection or document_to_merge.is_redirection:
         raise BadRequest()
 
+    destination_old_version = document_destination.last_version
+    merged_old_version = document_to_merge.last_version
+
     document_to_merge.redirect_to = document_destination.id
     DocumentVersion.query.filter_by(document_id=document_to_merge.id).update({"document_id": document_destination.id})
     document_to_merge.last_version_id = None
     document_to_merge.last_version = None
     document_destination.update_last_version_id()
 
-    current_api.before_document_save(document_to_merge)
-    current_api.before_document_save(document_destination)
+    current_api.on_document_save(document=document_destination, old_version=destination_old_version, new_version=document_destination.last_version)
+    current_api.on_document_save(document=document_to_merge, old_version=merged_old_version, new_version=None)
+
     current_api.add_log(
         "merge", comment=data["comment"], document=document_destination, merged_document=document_to_merge
     )

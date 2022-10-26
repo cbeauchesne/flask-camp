@@ -13,7 +13,7 @@ class DocumentSearch(BaseModel):
     document_type = Column(String(16), index=True)
 
 
-def before_document_save(document):
+def on_document_save(document, old_version, new_version):
     if document.last_version is None:  # document as been merged
         delete(DocumentSearch).where(DocumentSearch.id == document.id)
         return
@@ -40,7 +40,7 @@ def update_search_query(query):
 
 class Test_CustomSearch(BaseTest):
     rest_api_kwargs = {
-        "before_document_save": before_document_save,
+        "on_document_save": on_document_save,
         "update_search_query": update_search_query,
     }
 

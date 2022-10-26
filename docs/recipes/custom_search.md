@@ -1,7 +1,7 @@
 Out of the box, the REST API provide search with limit/offset paraemters, and user tags. You will probably need to extend this feature. Here is the recipe to achieve that.
 
 1. Define a database table that will store your search fields
-2. Add a `before_document_save` that will fill this table on each document save
+2. Add a `on_document_save` that will fill this table on each document save
 3. Add a `update_search_query` that will complete the SQL query for the `/documents` endpoint
 
 
@@ -23,20 +23,18 @@ class DocumentSearch(BaseModel):
     document_type = Column(String(16), index=True)
 
 
-def before_document_save(document):
-    if document.last_version is None:  # document as been merged
+def on_document_save(document, old_version, new_version):
+    if new_version is None:  # document as been merged
         delete(DocumentSearch).where(DocumentSearch.id == document.id)
         return
-
-    version = document.last_version
 
     search_item = DocumentSearch.get(id=document.id)
     if search_item is None:  # means the document is not yet created
         search_item = DocumentSearch(id=document.id)
         current_api.database.session.add(search_item)
 
-    if isinstance(version.data, dict):
-        search_item.document_type = version.data.get("type")
+    if isinstance(new_version.data, dict):
+        search_item.document_type = new_version.data.get("type")
 
 
 def update_search_query(query):
@@ -49,5 +47,5 @@ def update_search_query(query):
 
 
 app = Flask(__name__)
-api = RestApi(app=app, before_document_save=before_document_save, update_search_query=update_search_query)
+api = RestApi(app=app, on_document_save=on_document_save, update_search_query=update_search_query)
 ```

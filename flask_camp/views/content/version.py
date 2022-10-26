@@ -30,7 +30,7 @@ def post(version_id):
     if version is None:
         raise NotFound()
 
-    old_last_version_id = version.document.last_version_id
+    old_last_version = version.document.last_version
     hidden = request.get_json()["hidden"]
     version.hidden = hidden
     current_api.database.session.flush()
@@ -38,10 +38,10 @@ def post(version_id):
     document = Document.get(id=version.document_id, with_for_update=True)
     document.update_last_version_id()
 
-    needs_update = old_last_version_id != version.document.last_version_id
+    needs_update = old_last_version.id != version.document.last_version_id
 
     if needs_update:
-        current_api.before_document_save(document)
+        current_api.on_document_save(document=document, old_version=old_last_version, new_version=document.last_version)
 
     current_api.add_log("hide_version" if hidden else "unhide_version", version=version, document=version.document)
     current_api.database.session.commit()
@@ -64,14 +64,14 @@ def delete(version_id):
     if DocumentVersion.query.filter_by(document_id=version.document_id).count() <= 1:
         raise BadRequest("Can't delete last version of a document")
 
-    old_last_version_id = version.document.last_version_id
+    old_last_version = version.document.last_version
     document = Document.get(id=version.document_id, with_for_update=True)
 
     document.update_last_version_id(forbidden_id=version.id)
-    needs_update = old_last_version_id != version.document.last_version_id
+    needs_update = old_last_version.id != version.document.last_version_id
 
     if needs_update:
-        current_api.before_document_save(document)
+        current_api.on_document_save(document=document, old_version=old_last_version, new_version=document.last_version)
 
     current_api.database.session.delete(version)
     current_api.add_log("delete_version", version=version, document=version.document)

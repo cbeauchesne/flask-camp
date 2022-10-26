@@ -42,7 +42,7 @@ def get():
         return current_api.database.session.execute(query)
 
     count = make_query(select(func.count(Document.id)))
-    document_ids = make_query(select(Document.id).limit(limit).offset(offset).order_by(Document.id.asc()))
+    document_ids = make_query(select(Document.id).limit(limit).offset(offset).order_by(Document.id.desc()))
 
     documents = [get_cooked_document(row[0]) for row in document_ids]
     return {"status": "ok", "documents": documents, "count": list(count)[0][0]}
@@ -63,7 +63,7 @@ def put():
 
     current_api.database.session.flush()
 
-    current_api.before_document_save(document)
+    current_api.on_document_save(document=document, old_version=None, new_version=document.last_version)
 
     current_api.database.session.commit()
 

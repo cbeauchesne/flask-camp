@@ -49,12 +49,12 @@ class Test_Documents(BaseTest):
         assert len(r["documents"]) == 30
 
         r = self.get_documents().json
-        assert r["documents"][0]["data"]["value"] == "doc 0"
-        assert r["documents"][29]["data"]["value"] == "doc 29"
+        assert r["documents"][0]["data"]["value"] == "doc 109"
+        assert r["documents"][29]["data"]["value"] == "doc 80"
 
         r = self.get_documents(offset=30).json
-        assert r["documents"][0]["data"]["value"] == "doc 30"
-        assert r["documents"][29]["data"]["value"] == "doc 59"
+        assert r["documents"][0]["data"]["value"] == "doc 79"
+        assert r["documents"][29]["data"]["value"] == "doc 50"
 
         r = self.get_versions().json
         assert r["count"] == 110

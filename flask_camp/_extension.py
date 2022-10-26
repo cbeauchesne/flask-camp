@@ -55,7 +55,7 @@ class RestApi:
         rate_limit_cost_function=None,
         rate_limits_file=None,
         user_can_delete=False,
-        before_document_save=None,
+        on_document_save=None,
         before_document_delete=None,
         update_search_query=None,
         on_user_creation=None,
@@ -78,7 +78,7 @@ class RestApi:
         self.on_user_update = self._hook_function(on_user_update)
         self.on_user_block = self._hook_function(on_user_block)
 
-        self.before_document_save = self._hook_function(before_document_save)
+        self.on_document_save = self._hook_function(on_document_save)
         self.before_document_delete = self._hook_function(before_document_delete)
         self.update_search_query = update_search_query if update_search_query is not None else lambda query: query
 
