@@ -186,8 +186,8 @@ def main():
         session.create_document(data="init", comment="init")
 
     sessions[0].login_user("admin")
-    sessions[0].add_user_role(2, role="moderator", comment="I trust him")
-    sessions[0].add_user_role(3, role="moderator", comment="I trust him")
+    sessions[0].modify_user(2, roles=["moderator"], comment="I trust him")
+    sessions[0].modify_user(3, role=["moderator"], comment="I trust him")
 
     threads = [threading.Thread(target=session.run) for session in sessions]
 

@@ -25,17 +25,26 @@ class Test_Roles(BaseTest):
         self.get("/bot", expected_status=403)
 
         self.login_user(admin)
-        self.add_user_role(user, "bot", "it's a good bot")
+        self.modify_user(user, roles=["bot"], comment="it's a good bot")
 
         self.login_user(user)
         self.get("/bot", expected_status=200)
 
     def test_errors(self, admin, user):
         self.login_user(admin)
-        r = self.add_user_role(user, "imaginary_role", "comment", expected_status=400).json
+        r = self.modify_user(user, roles=["imaginary_role"], comment="comment", expected_status=400).json
 
         message = "'imaginary_role' doesn't exists. Possible roles are ['admin', 'bot', 'contributor', 'moderator']."
         assert r["description"] == message
+
+    def test_idempotent(self, admin):
+        self.login_user(admin)
+
+        self.modify_user(admin, roles=["admin", "bot"], comment="it's a good bot")
+        self.modify_user(admin, roles=["admin", "bot"], comment="it's a good bot")
+
+        r = self.get_logs().json
+        assert r["count"] == 1
 
 
 class Test_Configuration(BaseTest):

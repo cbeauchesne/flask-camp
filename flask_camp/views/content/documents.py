@@ -50,7 +50,7 @@ def get():
 
 @allow("authenticated")
 @schema("create_document.json")
-def put():
+def post():
     """create an document"""
     body = request.get_json()
 

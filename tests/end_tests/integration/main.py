@@ -8,7 +8,7 @@ if __name__ == "__main__":
     moderator = ClientSession(domain="http://localhost:5000")
     moderator.setup_user("moderator")
 
-    admin.add_user_role(moderator.logged_user["id"], role="moderator", comment="I trust him")
+    admin.modify_user(moderator.logged_user["id"], roles=["moderator"], comment="I trust him")
 
     user = ClientSession(domain="http://localhost:5000")
     user.setup_user("user")

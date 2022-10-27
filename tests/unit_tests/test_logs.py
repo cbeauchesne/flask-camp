@@ -58,12 +58,12 @@ class Test_Logs(BaseTest):
         self.logout_user()
         self.login_user(admin)
 
-        self.add_user_role(user, "moderator", comment="he's worthy")
-        self.remove_user_role(user, "moderator", comment="nope")
-        self.add_user_role(user, "admin", comment="maybe god")
-        self.add_user_role(user, "bot", comment="or bot")
-        self.remove_user_role(user, "admin", comment="not even close")
-        self.remove_user_role(user, "bot", comment="he's an human")
+        self.modify_user(user, roles=["moderator"], comment="he's worthy")
+        self.modify_user(user, roles=[], comment="nope")
+        self.modify_user(user, roles=["admin"], comment="maybe god")
+        self.modify_user(user, roles=["admin", "bot"], comment="or bot")
+        self.modify_user(user, roles=["bot"], comment="not even close")
+        self.modify_user(user, roles=[], comment="he's an human")
 
         self.delete_version(doc_v2, comment="crap!")
         self.delete_document(doc, comment="Total crap")

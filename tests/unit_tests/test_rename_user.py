@@ -8,8 +8,8 @@ class Test_RenameUser(BaseTest):
 
         self.login_user(user)
 
-        self.block_user(user, expected_status=403)
-        self.unblock_user(user, expected_status=403)
+        self.rename_user(user, "toto", expected_status=403)
+        self.rename_user(user_2, "toto", expected_status=403)
 
     def test_main(self, user, moderator):
         self.login_user(moderator)

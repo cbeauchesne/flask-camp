@@ -23,7 +23,7 @@ def get(version_id):
 
 @allow("moderator")
 @schema("modify_version.json")
-def post(version_id):
+def put(version_id):
     """Modify a version of a document. The only possible modification is hide/unhide a version"""
     version = DocumentVersion.get(id=version_id, with_for_update=True)
 
@@ -31,7 +31,7 @@ def post(version_id):
         raise NotFound()
 
     old_last_version = version.document.last_version
-    hidden = request.get_json()["hidden"]
+    hidden = request.get_json()["version"]["hidden"]
     version.hidden = hidden
     current_api.database.session.flush()
 

@@ -68,10 +68,14 @@ class User(BaseModel):  # pylint: disable=too-many-instance-attributes
     def _init_from_database(self):
         self._raw_ui_preferences = json.loads(self._ui_preferences)
 
+    @staticmethod
+    def sanitize_name(name):
+        return name.strip().lower()
+
     @classmethod
     def create(cls, name, email, password, ui_preferences=None, roles=None):
 
-        user = cls(name=name.strip().lower(), roles=roles if roles else [])
+        user = cls(name=cls.sanitize_name(name), roles=roles if roles else [])
         user.set_password(password)
         user.set_email(email.strip().lower())
         user.ui_preferences = ui_preferences

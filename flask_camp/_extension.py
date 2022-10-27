@@ -20,13 +20,9 @@ from .models._document import Document
 from .models._log import Log
 from .models._user import User as UserModel, AnonymousUser
 
-
-from .views.account import block_user as block_user_view
 from .views.account import current_user as current_user_view
 from .views.account import email_validation as email_validation_view
-from .views.account import rename_user as rename_user_view
 from .views.account import reset_password as reset_password_view
-from .views.account import roles as roles_view
 from .views.account import user as user_view
 from .views.account import user_login as user_login_view
 from .views.account import users as users_view
@@ -227,11 +223,7 @@ class RestApi:
 
         # reserved for moderators
         self.add_modules(app, protect_document_view)
-        self.add_modules(app, block_user_view, rename_user_view)
         self.add_modules(app, merge_view)
-
-        # reserved for admins
-        self.add_modules(app, roles_view)
 
     @property
     def user_roles(self):

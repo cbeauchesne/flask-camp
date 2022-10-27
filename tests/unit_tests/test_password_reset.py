@@ -1,9 +1,9 @@
 # ## Password reset
 
-# 1. as an anonymous user, the UI send a `POST /reset_password` with the mail
+# 1. as an anonymous user, the UI send a `PUT /reset_password` with the mail
 # 2. if the mail does not exists, or is not validated, the process stops (though, a normal response is sent)
 # 3. A one-usage token is generated and sent to the user via a mail as a UI link like `/login?name=xx&token=yy`
-# 4. The UI is responsible to do a `POST /login` with the username/token present in the request query
+# 4. The UI is responsible to do a `PUT /login` with the username/token present in the request query
 # 5. User is logged, and the token is removed.
 # 6. UI is reponsible to show a password reset page
 from datetime import timedelta, datetime

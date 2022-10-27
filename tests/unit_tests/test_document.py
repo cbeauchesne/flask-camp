@@ -24,10 +24,10 @@ class Test_Document(BaseTest):
         self.get_document(fake_doc, expected_status=404)
         self.modify_document(fake_doc, expected_status=404)
 
-        r = self.put("/documents", json={"comment": "xxx", "document": {"namespace": "x"}}, expected_status=400)
+        r = self.post("/documents", json={"comment": "xxx", "document": {"namespace": "x"}}, expected_status=400)
         assert r.json["description"] == "'data' is a required property on instance ['document']"
 
-        r = self.put("/documents", json={"document": {"namespace": "x", "data": "x"}}, expected_status=400)
+        r = self.post("/documents", json={"document": {"namespace": "x", "data": "x"}}, expected_status=400)
         assert r.json["description"] == "'comment' is a required property on instance "
 
     def test_creation(self, user):

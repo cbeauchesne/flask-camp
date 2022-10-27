@@ -30,7 +30,7 @@ def get():
 
 @allow("anonymous", "authenticated")
 @schema("create_user.json")
-def put():
+def post():
     """create an user"""
 
     if current_user.is_authenticated:

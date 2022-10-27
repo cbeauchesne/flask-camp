@@ -13,7 +13,7 @@ rule = "/reset_password"
 
 @allow("anonymous", "authenticated")
 @schema("reset_password.json")
-def post():
+def put():
     """Send an email with a login token to this user"""
     email = request.get_json()["email"]
 

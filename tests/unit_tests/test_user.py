@@ -32,8 +32,8 @@ class Test_UserCreation(BaseTest):
         r = self.get_user(user)
         assert "email" not in r.json["user"]  # email is a private value
 
-        r = self.get_user_roles(user)
-        assert r.json["roles"] == []
+        r = self.get_user(user)
+        assert r.json["user"]["roles"] == []
 
         r = self.login_user(name, password, expected_status=200)
 
@@ -56,10 +56,10 @@ class Test_UserCreation(BaseTest):
         r = self.login_user(unvalidated_user, expected_status=401)
         assert r.json["description"] == "User's email is not validated"
 
-        r = self.post("/validate_email", json={"name": unvalidated_user.name}, expected_status=400)
+        r = self.put("/validate_email", json={"name": unvalidated_user.name}, expected_status=400)
         assert r.json["description"] == "'token' is a required property on instance "
 
-        self.post(
+        self.put(
             "/validate_email",
             json={"name": "not_the_name", "token": unvalidated_user._email_token},
             expected_status=404,
@@ -102,7 +102,7 @@ class Test_UserCreation(BaseTest):
     def test_email_error(self):
         name, password = "valid_name", "password"
 
-        self.put("/users", json={"name": name, "email": None, "password": password}, expected_status=400)
+        self.post("/users", json={"name": name, "email": None, "password": password}, expected_status=400)
         self.create_user(name, email="", password=password, expected_status=400)
         self.create_user(name, email="a.fr", password=password, expected_status=400)
 
@@ -194,20 +194,25 @@ class Test_UserModification(BaseTest):
     def test_allowed_changes(self, user):
         self.login_user(user)
 
-        new_values = {
-            "name": "other_name",
-            "ui_preferences": "UI",
-        }
+        new_values = {"comment": "test", "user": {"name": "other_name"}}
 
-        self.post(f"/user/{user.id}", json=new_values)
+        self.put(f"/user/{user.id}", json=new_values, expected_status=403)
+
+        new_values = {"comment": "test", "user": {"ui_preferences": "UI", "name": user.name}}
+
+        self.put(f"/user/{user.id}", json=new_values)
 
         r = self.get_current_user()
 
         assert r.json["user"]["name"] == user.name
         assert r.json["user"]["roles"] == user.roles
-        assert r.json["user"]["ui_preferences"] == new_values["ui_preferences"]
+        assert r.json["user"]["ui_preferences"] == new_values["user"]["ui_preferences"]
 
-    def test_errors(self, admin, user, user_2):
+    def test_not_found(self, moderator):
+        self.login_user(moderator)
+        self.modify_user(42, expected_status=404)
+
+    def test_errors(self, user, user_2):
         self.modify_user(user, ui_preferences="", expected_status=403)
 
         self.login_user(user)
@@ -221,23 +226,12 @@ class Test_UserModification(BaseTest):
         r = self.modify_user(user_2, new_password="p2", password="password", expected_status=403)
         assert r.json["description"] == "You can't modify this user"
 
-        self.post(f"/user/{user.id}", json={"id": 12}, expected_status=400)
-
-        self.login_user(admin)
-        self.get_user_roles(42, expected_status=404)
-        self.add_user_role(42, "admin", "test", expected_status=404)
-        self.remove_user_role(42, "admin", "test", expected_status=404)
-
-        self.add_user_role(user, "bot", "test", expected_status=200)
-        self.add_user_role(user, "bot", "test", expected_status=400)
-
-        self.remove_user_role(user, "bot", "test", expected_status=200)
-        self.remove_user_role(user, "bot", "test", expected_status=400)
+        self.put(f"/user/{user.id}", json={"id": 12}, expected_status=400)
 
     def test_email_error(self, user):
         self.login_user(user)
 
-        self.post(f"/user/{user.id}", json={"email": None, "password": "p"}, expected_status=400)
+        self.put(f"/user/{user.id}", json={"email": None, "password": "p"}, expected_status=400)
         self.modify_user(user, email="", password="password", expected_status=400)
         self.modify_user(user, email="a.fr", password="password", expected_status=400)
 

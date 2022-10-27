@@ -29,10 +29,10 @@ class Test_Errors(BaseTest):
     def test_no_body(self, user):
         self.login_user(user)
 
-        r = self.put("/documents", data="null", expected_status=400)
+        r = self.post("/documents", data="null", expected_status=400)
         assert r.json is not None
 
-        r = self.put("/documents", data="null", headers={"Content-Type": "application/json"}, expected_status=400)
+        r = self.post("/documents", data="null", headers={"Content-Type": "application/json"}, expected_status=400)
         assert r.json is not None
         assert r.json["description"] == "None is not of type 'object' on instance ", r.json
 

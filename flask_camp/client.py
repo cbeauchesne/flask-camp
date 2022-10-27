@@ -28,18 +28,18 @@ class ClientInterface:
         json = {"name": name, "email": email, "password": password, "ui_preferences": ui_preferences}
         json = json | kwargs.pop("json", {})
 
-        return self.put("/users", json=json, **kwargs)
+        return self.post("/users", json=json, **kwargs)
 
     def validate_email(self, user, token, **kwargs):
         name = user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
-        return self.post("/validate_email", json={"name": name, "token": token}, **kwargs)
+        return self.put("/validate_email", json={"name": name, "token": token}, **kwargs)
 
     def resend_email_validation(self, user, **kwargs):
         name = user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
         return self.get("/validate_email", params={"name": name}, **kwargs)
 
     def reset_password(self, email, **kwargs):
-        return self.post("/reset_password", json={"email": email}, **kwargs)
+        return self.put("/reset_password", json={"email": email}, **kwargs)
 
     def login_user(self, user, password=None, token=None, **kwargs):
         name = user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
@@ -50,7 +50,7 @@ class ClientInterface:
         else:
             payload["password"] = password
 
-        return self.post("/login", json=payload | kwargs.pop("json", {}), **kwargs)
+        return self.put("/login", json=payload | kwargs.pop("json", {}), **kwargs)
 
     def get_current_user(self, **kwargs):
         return self.get("/current_user", **kwargs)
@@ -73,66 +73,51 @@ class ClientInterface:
     def modify_user(
         self,
         user,
+        name=None,
         password=None,
         token=None,
         new_password=None,
         email=None,
+        roles=None,
+        blocked=None,
         ui_preferences=None,
+        comment="default comment",
         **kwargs,
     ):
         user_id = self._get_user_id(user)
-        json = {}
+        json = {"user": {}, "comment": comment} | kwargs.pop("json", {})
+
+        if name is not None:
+            json["user"]["name"] = name
 
         if password is not None:
-            json["password"] = password
+            json["user"]["password"] = password
 
         if token is not None:
-            json["token"] = token
+            json["user"]["token"] = token
 
         if new_password is not None:
-            json["new_password"] = new_password
+            json["user"]["new_password"] = new_password
 
         if email is not None:
-            json["email"] = email
+            json["user"]["email"] = email
+
+        if roles is not None:
+            json["user"]["roles"] = roles
+
+        if blocked is not None:
+            json["user"]["blocked"] = blocked
 
         if ui_preferences is not None:
-            json["ui_preferences"] = ui_preferences
+            json["user"]["ui_preferences"] = ui_preferences
 
-        return self.post(f"/user/{user_id}", json=json | kwargs.pop("json", {}), **kwargs)
+        return self.put(f"/user/{user_id}", json=json, **kwargs)
 
     def rename_user(self, user, name, comment, **kwargs):
-        user_id = self._get_user_id(user)
-
-        return self.post(
-            f"/rename_user/{user_id}",
-            json={"name": name, "comment": comment} | kwargs.pop("json", {}),
-            **kwargs,
-        )
-
-    def add_user_role(self, user, role, comment, **kwargs):
-        user_id = self._get_user_id(user)
-
-        return self.post(
-            f"/roles/{user_id}",
-            json={"role": role, "comment": comment} | kwargs.pop("json", {}),
-            **kwargs,
-        )
-
-    def remove_user_role(self, user, role, comment, **kwargs):
-        user_id = self._get_user_id(user)
-
-        return self.delete(
-            f"/roles/{user_id}",
-            json={"role": role, "comment": comment} | kwargs.pop("json", {}),
-            **kwargs,
-        )
-
-    def get_user_roles(self, user, **kwargs):
-        user_id = self._get_user_id(user)
-        return self.get(f"/roles/{user_id}", **kwargs)
+        return self.modify_user(user, name=name, comment=comment, **kwargs)
 
     def create_document(self, data, comment, **kwargs):
-        return self.put(
+        return self.post(
             "/documents",
             json={"comment": comment, "document": {"data": data}} | kwargs.pop("json", {}),
             **kwargs,
@@ -207,17 +192,17 @@ class ClientInterface:
 
     def hide_version(self, version, comment, **kwargs):
         version_id = version if isinstance(version, int) else version["version_id"]
-        return self.post(
+        return self.put(
             f"/version/{version_id}",
-            json={"comment": comment, "hidden": True} | kwargs.pop("json", {}),
+            json={"comment": comment, "version": {"hidden": True}} | kwargs.pop("json", {}),
             **kwargs,
         )
 
     def unhide_version(self, version, comment, **kwargs):
         version_id = version if isinstance(version, int) else version["version_id"]
-        return self.post(
+        return self.put(
             f"/version/{version_id}",
-            json={"comment": comment, "hidden": False} | kwargs.pop("json", {}),
+            json={"comment": comment, "version": {"hidden": False}} | kwargs.pop("json", {}),
             **kwargs,
         )
 
@@ -239,20 +224,10 @@ class ClientInterface:
         )
 
     def block_user(self, user, comment, **kwargs):
-        user_id = self._get_user_id(user)
-        return self.post(
-            f"/block_user/{user_id}",
-            json={"comment": comment, "blocked": True} | kwargs.pop("json", {}),
-            **kwargs,
-        )
+        return self.modify_user(user, blocked=True, comment=comment, **kwargs)
 
     def unblock_user(self, user, comment, **kwargs):
-        user_id = self._get_user_id(user)
-        return self.post(
-            f"/block_user/{user_id}",
-            json={"comment": comment, "blocked": False} | kwargs.pop("json", {}),
-            **kwargs,
-        )
+        return self.modify_user(user, blocked=False, comment=comment, **kwargs)
 
     def delete_version(self, version, comment, **kwargs):
         version_id = version if isinstance(version, int) else version["version_id"]
@@ -308,7 +283,7 @@ class ClientInterface:
             "comment": comment,
         } | kwargs.pop("params", {})
 
-        return self.post("/merge", json=json, **kwargs)
+        return self.put("/merge", json=json, **kwargs)
 
     def get_logs(self, limit=None, **kwargs):
         params = {}

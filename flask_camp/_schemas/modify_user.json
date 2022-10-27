@@ -2,15 +2,26 @@
   "description": "POST request to modify an user",
   "type": "object",
   "properties": {
-    "name": { "$ref": "entities/user_name.json" },
-    "password": { "type": "string" },
-    "new_password": { "type": "string" },
-    "token": { "$ref": "entities/token.json" },
-    "email": {
-      "type": "string",
-      "format": "email"
+    "user": {
+      "properties": {
+        "name": { "$ref": "entities/user_name.json" },
+        "password": { "type": "string" },
+        "new_password": { "type": "string" },
+        "token": { "$ref": "entities/token.json" },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "ui_preferences": {},
+        "roles": {
+          "type": "array",
+          "item": { "$ref": "entities/role.json" }
+        },
+        "blocked": { "type": "boolean" }
+      },
+      "additionalProperties": false
     },
-    "ui_preferences": {}
+    "comment": { "$ref": "entities/comment.json" }
   },
-  "additionalProperties": false
+  "required": ["user", "comment"]
 }

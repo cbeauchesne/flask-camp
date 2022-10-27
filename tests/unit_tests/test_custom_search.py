@@ -13,20 +13,18 @@ class DocumentSearch(BaseModel):
     document_type = Column(String(16), index=True)
 
 
-def on_document_save(document, old_version, new_version):
-    if document.last_version is None:  # document as been merged
+def on_document_save(document, old_version, new_version):  # pylint: disable=unused-argument
+    if new_version is None:  # document as been merged
         delete(DocumentSearch).where(DocumentSearch.id == document.id)
         return
-
-    version = document.last_version
 
     result = DocumentSearch.get(id=document.id)
     if result is None:
         result = DocumentSearch(id=document.id)
         current_api.database.session.add(result)
 
-    if isinstance(version.data, dict):
-        result.document_type = version.data.get("type")
+    if isinstance(new_version.data, dict):
+        result.document_type = new_version.data.get("type")
 
 
 def update_search_query(query):
@@ -46,7 +44,7 @@ class Test_CustomSearch(BaseTest):
 
     def test_main(self, admin):
         self.login_user(admin)
-        self.add_user_role(admin, "moderator", "I'am god")
+        self.modify_user(admin, roles=["moderator", "admin"], comment="I'am god")
 
         doc_1 = self.create_document(data={"type": "x"}).json["document"]
         doc_2 = self.create_document(data={"type": ""}).json["document"]

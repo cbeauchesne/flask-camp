@@ -11,7 +11,7 @@ rule = "/merge"
 
 @allow("moderator")
 @schema("merge_documents.json")
-def post():
+def put():
     """Merge two documents. Merged document will become a redirection, and will be no longer modifiable
     Other document will get all hostory from merged"""
 

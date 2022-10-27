@@ -12,7 +12,6 @@ class Test_UserBlock(BaseTest):
         self.login_user(user)
 
         self.block_user(user, expected_status=403)
-        self.unblock_user(user, expected_status=403)
 
     def test_not_found(self, moderator):
         self.login_user(moderator)

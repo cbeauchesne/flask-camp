@@ -14,7 +14,7 @@ rule = "/login"
 
 @allow("anonymous", "authenticated")
 @schema("login_user.json")
-def post():
+def put():
     """Authentificate an user"""
     data = request.get_json()
 
