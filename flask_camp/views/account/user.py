@@ -63,8 +63,8 @@ def put(user_id):
     if "blocked" in data["user"]:
         _update_blocked(user, data["user"]["blocked"])
 
-    if "ui_preferences" in data["user"]:
-        user.ui_preferences = data["user"]["ui_preferences"]
+    if "data" in data["user"]:
+        user.data = data["user"]["data"]
 
     password = data["user"].get("password", None)
     token = data["user"].get("token", None)

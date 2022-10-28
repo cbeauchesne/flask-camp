@@ -1,6 +1,6 @@
 {
   "properties": {
-    "ui_preferences": {
+    "data": {
       "type": "object",
       "properties": {
         "lang": { "enum": ["fr", "de"] }
@@ -8,5 +8,5 @@
       "required": ["lang"]
     }
   },
-  "required": ["ui_preferences"]
+  "required": ["data"]
 }

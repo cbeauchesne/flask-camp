@@ -36,7 +36,7 @@ def post():
     if current_user.is_authenticated:
         raise BadRequest()
 
-    data = request.get_json()
+    data = request.get_json()["user"]
 
     current_api.validate_user_schema(data)
 
@@ -45,7 +45,7 @@ def post():
             name=data["name"],
             password=data["password"],
             email=data["email"],
-            ui_preferences=data.get("ui_preferences"),
+            data=data.get("data"),
         )
         current_api.database.session.add(user)
         current_api.database.session.flush()

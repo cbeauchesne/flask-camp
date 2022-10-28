@@ -4,7 +4,7 @@ from tests.unit_tests.utils import BaseTest
 
 
 def on_user_validation(user):
-    user.ui_preferences = "custom"
+    user.data = "custom"
 
 
 class Test_UserCreation(BaseTest):
@@ -19,4 +19,4 @@ class Test_UserCreation(BaseTest):
 
         self.validate_email(user=user, token=token)
         user = self.get_user(user).json["user"]
-        assert user["ui_preferences"] == "custom"
+        assert user["data"] == "custom"

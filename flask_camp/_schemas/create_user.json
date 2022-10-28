@@ -2,12 +2,17 @@
   "description": "PUT request to create an user",
   "type": "object",
   "properties": {
-    "name": { "$ref": "entities/user_name.json" },
-    "email": {
-      "type": "string",
-      "format": "email"
-    },
-    "password": { "type": "string" }
+    "user": {
+      "properties": {
+        "name": { "$ref": "entities/user_name.json" },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "password": { "type": "string" }
+      },
+      "required": ["name", "email", "password"]
+    }
   },
-  "required": ["name", "email", "password"]
+  "required": ["user"]
 }

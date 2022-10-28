@@ -24,9 +24,12 @@ class ClientInterface:
 
     ###########################################################################################
 
-    def create_user(self, name, email, password, ui_preferences=None, **kwargs):
-        json = {"name": name, "email": email, "password": password, "ui_preferences": ui_preferences}
-        json = json | kwargs.pop("json", {})
+    def create_user(self, name, email, password, data=None, **kwargs):
+        json = {"user": {}} | kwargs.pop("json", {})
+        json["user"]["name"] = name
+        json["user"]["email"] = email
+        json["user"]["password"] = password
+        json["user"]["data"] = data
 
         return self.post("/users", json=json, **kwargs)
 
@@ -80,7 +83,7 @@ class ClientInterface:
         email=None,
         roles=None,
         blocked=None,
-        ui_preferences=None,
+        data=None,
         comment="default comment",
         **kwargs,
     ):
@@ -108,8 +111,8 @@ class ClientInterface:
         if blocked is not None:
             json["user"]["blocked"] = blocked
 
-        if ui_preferences is not None:
-            json["user"]["ui_preferences"] = ui_preferences
+        if data is not None:
+            json["user"]["data"] = data
 
         return self.put(f"/user/{user_id}", json=json, **kwargs)
 

@@ -12,7 +12,7 @@
           "type": "string",
           "format": "email"
         },
-        "ui_preferences": {},
+        "data": {},
         "roles": {
           "type": "array",
           "item": { "$ref": "entities/role.json" }

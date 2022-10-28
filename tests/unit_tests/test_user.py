@@ -19,7 +19,7 @@ class Test_UserCreation(BaseTest):
 
         assert len(user) == 6, user
         assert "id" in user
-        assert "ui_preferences" in user
+        assert "data" in user
         assert "creation_date" in user
         assert user["blocked"] is False
         assert user["name"] == name
@@ -40,16 +40,16 @@ class Test_UserCreation(BaseTest):
         assert len(r.json["user"]) == 7, r.json["user"]
         assert r.json["user"]["id"] == user["id"]
         assert r.json["user"]["blocked"] is False
-        assert r.json["user"]["ui_preferences"] is None
+        assert r.json["user"]["data"] is None
         assert r.json["user"]["name"] == name
         assert r.json["user"]["email"] == email
         assert r.json["user"]["roles"] == []
 
         self.logout_user()
 
-    def test_ui_preferences_on_create(self):
-        user = self.create_user(ui_preferences={"hello": "world"}).json["user"]
-        assert user["ui_preferences"] == {"hello": "world"}
+    def test_data_on_create(self):
+        user = self.create_user(data={"hello": "world"}).json["user"]
+        assert user["data"] == {"hello": "world"}
 
     def test_errors_on_token_validation(self, unvalidated_user):
 
@@ -206,7 +206,7 @@ class Test_UserModification(BaseTest):
 
         self.put(f"/user/{user.id}", json=new_values, expected_status=200)
 
-        new_values = {"comment": "test", "user": {"ui_preferences": "UI", "name": user.name}}
+        new_values = {"comment": "test", "user": {"data": "UI", "name": user.name}}
 
         self.put(f"/user/{user.id}", json=new_values)
 
@@ -214,14 +214,14 @@ class Test_UserModification(BaseTest):
 
         assert r.json["user"]["name"] == user.name
         assert r.json["user"]["roles"] == user.roles
-        assert r.json["user"]["ui_preferences"] == new_values["user"]["ui_preferences"]
+        assert r.json["user"]["data"] == new_values["user"]["data"]
 
     def test_not_found(self, moderator):
         self.login_user(moderator)
         self.modify_user(42, expected_status=404)
 
     def test_errors(self, user, user_2):
-        self.modify_user(user, ui_preferences="", expected_status=403)
+        self.modify_user(user, data="", expected_status=403)
 
         self.login_user(user)
 

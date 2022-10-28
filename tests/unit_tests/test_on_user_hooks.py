@@ -39,7 +39,7 @@ class Test_OnUserUpdate(BaseTest):
         assert hooks.on_user_update.called
 
         hooks.reset_mock()
-        self.modify_user(user, ui_preferences="12")
+        self.modify_user(user, data="12")
         assert not hooks.on_user_creation.called
         assert not hooks.on_user_validation.called
         assert hooks.on_user_update.called

@@ -79,15 +79,15 @@ class Test_Schemas(BaseTest):
         invalid_data = (None, 12, {}, {"lang": 12}, {"lang": "sp"})
 
         for item in invalid_data:
-            self.create_user(ui_preferences=item, expected_status=400)
+            self.create_user(data=item, expected_status=400)
 
         with self.api.mail.record_messages() as outbox:
-            user = self.create_user(ui_preferences={"lang": "fr"}, expected_status=200).json["user"]
+            user = self.create_user(data={"lang": "fr"}, expected_status=200).json["user"]
             self.validate_email(user, token=re.sub(r"^(.*email_token=)", "", outbox[0].body))
 
         self.login_user(user)
 
         for item in invalid_data:
-            self.modify_user(user, ui_preferences=item, expected_status=400)
+            self.modify_user(user, data=item, expected_status=400)
 
-        self.modify_user(user=user, ui_preferences={"lang": "de"}, expected_status=200)
+        self.modify_user(user=user, data={"lang": "de"}, expected_status=200)

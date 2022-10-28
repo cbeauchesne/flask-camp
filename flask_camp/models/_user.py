@@ -51,7 +51,7 @@ class User(BaseModel):  # pylint: disable=too-many-instance-attributes
     _login_token = Column("login_token", String(64))
     _login_token_expiration_date = Column("login_token_expiration_date", DateTime)
 
-    _ui_preferences = Column("ui_preferences", String, default="{}", nullable=False)
+    _data = Column("data", String, default="{}", nullable=False)
 
     roles = Column(ARRAY(String(16)), index=True, default=[])
 
@@ -59,37 +59,37 @@ class User(BaseModel):  # pylint: disable=too-many-instance-attributes
 
     creation_date = Column(DateTime(timezone=True), server_default=func.now())
 
-    def __init__(self, ui_preferences=None, **kwargs):
-        ui_preferences = {} if ui_preferences is None else ui_preferences
-        super().__init__(_ui_preferences=json.dumps(ui_preferences), **kwargs)
+    def __init__(self, data=None, **kwargs):
+        data = {} if data is None else data
+        super().__init__(_data=json.dumps(data), **kwargs)
         self._init_from_database()
 
     @reconstructor
     def _init_from_database(self):
-        self._raw_ui_preferences = json.loads(self._ui_preferences)
+        self._raw_data = json.loads(self._data)
 
     @staticmethod
     def sanitize_name(name):
         return name.strip().lower()
 
     @classmethod
-    def create(cls, name, email, password, ui_preferences=None, roles=None):
+    def create(cls, name, email, password, data=None, roles=None):
 
         user = cls(name=cls.sanitize_name(name), roles=roles if roles else [])
         user.set_password(password)
         user.set_email(email.strip().lower())
-        user.ui_preferences = ui_preferences
+        user.data = data
 
         return user
 
     @property
-    def ui_preferences(self):
-        return self._raw_ui_preferences
+    def data(self):
+        return self._raw_data
 
-    @ui_preferences.setter
-    def ui_preferences(self, value):
-        self._raw_ui_preferences = value
-        self._ui_preferences = json.dumps(value)
+    @data.setter
+    def data(self, value):
+        self._raw_data = value
+        self._data = json.dumps(value)
 
     def __repr__(self):
         return f"<User {self.name}>"
@@ -166,7 +166,7 @@ class User(BaseModel):  # pylint: disable=too-many-instance-attributes
             "roles": self.roles,
             "blocked": self.blocked,
             "creation_date": self.creation_date.isoformat() if self.creation_date else None,
-            "ui_preferences": self.ui_preferences,
+            "data": self.data,
         }
 
         if include_personal_data:
