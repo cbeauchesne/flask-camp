@@ -1,5 +1,6 @@
 from flask import request
 from flask_login import current_user
+from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import Forbidden, NotFound, BadRequest
 
 from flask_camp._schemas import schema
@@ -37,49 +38,57 @@ def get(user_id):
 @schema("modify_user.json")
 def put(user_id):
     """Modify an user"""
-    if user_id != current_user.id and not current_user.is_moderator and not current_user.is_admin:
-        raise Forbidden("You can't modify this user")
+    data = request.get_json()
 
-    data = request.get_json()["user"]
+    if user_id != current_user.id:
+        if not current_user.is_moderator and not current_user.is_admin:
+            raise Forbidden("You can't modify this user")
 
-    current_api.validate_user_schema(data)
+        if "comment" not in data:
+            raise BadRequest("comment is missing")
+
+    current_api.validate_user_schema(data["user"])
 
     user = UserModel.get(id=user_id)
 
     if user is None:
         raise NotFound()
 
-    password = data.get("password", None)
-    token = data.get("token", None)
+    if "name" in data["user"]:
+        _update_name(user, data["user"]["name"])
 
-    if "name" in data:
-        _update_name(user, data["name"])
+    if "roles" in data["user"]:
+        _update_roles(user, data["user"]["roles"])
 
-    if "roles" in data:
-        _update_roles(user, data["roles"])
+    if "blocked" in data["user"]:
+        _update_blocked(user, data["user"]["blocked"])
 
-    if "blocked" in data:
-        _update_blocked(user, data["blocked"])
+    if "ui_preferences" in data["user"]:
+        user.ui_preferences = data["user"]["ui_preferences"]
 
-    if "new_password" in data or "email" in data:
+    password = data["user"].get("password", None)
+    token = data["user"].get("token", None)
+    new_password = data["user"].get("new_password", None)
+    email = data["user"].get("email", None)
+
+    if new_password is not None or email is not None:
         if not user.check_auth(password=password, token=token):
             raise Forbidden()
 
-    if "new_password" in data:
-        user.set_password(data["new_password"])
+        if new_password is not None:
+            user.set_password(new_password)
 
-    if "email" in data:
-        user.set_email(data["email"])
-        user.send_email_change_mail()
+        if email is not None:
+            user.set_email(email)
+            user.send_email_change_mail()
 
-    if "ui_preferences" in data:
-        user.ui_preferences = data["ui_preferences"]
-
+    # TODO : on_user_update: old and new version
     current_api.on_user_update(user)
 
-    # TODO : integrity error and test
-    # TODO : on_user_update: old and new version
-    current_api.database.session.commit()
+    try:
+        current_api.database.session.commit()
+    except IntegrityError as e:
+        raise BadRequest("Name or email already exists") from e
 
     return {"status": "ok", "user": user.as_dict(include_personal_data=current_user.id == user.id)}
 
@@ -104,12 +113,10 @@ def _update_name(user, name):
     if name == user.name:
         return
 
-    if not current_user.is_moderator:
-        raise Forbidden("Only moderator can change names")
+    if user.id != current_user.id:
+        current_api.add_log(action="rename", target_user=user)
 
     user.name = name
-
-    current_api.add_log(action="Rename user", target_user=user)
 
 
 def _update_roles(user, roles):

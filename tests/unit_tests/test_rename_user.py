@@ -8,7 +8,7 @@ class Test_RenameUser(BaseTest):
 
         self.login_user(user)
 
-        self.rename_user(user, "toto", expected_status=403)
+        self.rename_user(user, "toto", expected_status=200)
         self.rename_user(user_2, "toto", expected_status=403)
 
     def test_main(self, user, moderator):

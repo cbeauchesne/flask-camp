@@ -173,6 +173,14 @@ class Test_UserModification(BaseTest):
         self.login_user(user, "p1", expected_status=401)
         self.login_user(user, "p2", expected_status=200)
 
+    def test_change_name(self, user, user_2):
+        self.login_user(user)
+
+        self.modify_user(user, name="coucou")
+        assert self.get_user(user).json["user"]["name"] == "coucou"
+
+        self.modify_user(user, name=user_2.name, expected_status=400)
+
     def test_change_email(self, user):
         self.login_user(user)
 
@@ -196,7 +204,7 @@ class Test_UserModification(BaseTest):
 
         new_values = {"comment": "test", "user": {"name": "other_name"}}
 
-        self.put(f"/user/{user.id}", json=new_values, expected_status=403)
+        self.put(f"/user/{user.id}", json=new_values, expected_status=200)
 
         new_values = {"comment": "test", "user": {"ui_preferences": "UI", "name": user.name}}
 
@@ -227,6 +235,16 @@ class Test_UserModification(BaseTest):
         assert r.json["description"] == "You can't modify this user"
 
         self.put(f"/user/{user.id}", json={"id": 12}, expected_status=400)
+
+    def test_missing_comment(self, admin, user):
+        self.login_user(admin)
+
+        self.put(f"/user/{user.id}", json={"user": {"name": "new_name"}}, expected_status=400)
+
+    def test_same_name(self, user):
+        self.login_user(user)
+
+        self.put(f"/user/{user.id}", json={"user": {"name": user.name}}, expected_status=200)
 
     def test_email_error(self, user):
         self.login_user(user)

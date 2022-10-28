@@ -23,5 +23,5 @@
     },
     "comment": { "$ref": "entities/comment.json" }
   },
-  "required": ["user", "comment"]
+  "required": ["user"]
 }
