@@ -47,9 +47,9 @@ def get(document_id):
 
 
 @allow("authenticated")
-@schema("modify_document.json")
+@schema("add_new_version.json")
 def post(document_id):
-    """add a new version to a document"""
+    """Add a new version to a document"""
 
     document = Document.get(id=document_id, with_for_update=True)
 
@@ -101,6 +101,31 @@ def post(document_id):
     document.clear_memory_cache()
 
     return {"status": "ok", "document": cook(version.as_dict())}
+
+
+@allow("moderator")
+@schema("modify_document.json")
+def put(document_id):
+    """Modify a document. Actually, only protect/unprotect it is possible"""
+    document = Document.get(id=document_id, with_for_update=True)
+
+    if document is None:
+        raise NotFound()
+
+    if document.is_redirection:
+        raise BadRequest()
+
+    protected = request.get_json()["document"]["protected"]
+
+    if protected != document.protected:
+        document.protected = protected
+
+        current_api.add_log("protect" if protected else "unprotect", document=document)
+        current_api.database.session.commit()
+
+        document.clear_memory_cache()
+
+    return {"status": "ok"}
 
 
 @allow("authenticated")

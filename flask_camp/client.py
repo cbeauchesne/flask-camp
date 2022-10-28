@@ -208,18 +208,18 @@ class ClientInterface:
 
     def protect_document(self, document, comment, **kwargs):
         document_id = document if isinstance(document, int) else document["id"]
-        return self.post(
-            f"/protect_document/{document_id}",
-            json={"comment": comment, "protected": True},
+        return self.put(
+            f"/document/{document_id}",
+            json={"comment": comment, "document": {"protected": True}},
             **kwargs,
         )
 
     def unprotect_document(self, document, comment, **kwargs):
         document_id = document if isinstance(document, int) else document["id"]
 
-        return self.post(
-            f"/protect_document/{document_id}",
-            json={"comment": comment, "protected": False} | kwargs.pop("json", {}),
+        return self.put(
+            f"/document/{document_id}",
+            json={"comment": comment, "document": {"protected": False}} | kwargs.pop("json", {}),
             **kwargs,
         )
 

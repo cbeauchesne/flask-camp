@@ -9,7 +9,7 @@ rule = "/logs"
 
 @allow("anonymous", "authenticated")
 def get():
-    """return all logs"""
+    """Return a list of logs"""
     limit = request.args.get("limit", default=30, type=int)
     offset = request.args.get("offset", default=0, type=int)
 

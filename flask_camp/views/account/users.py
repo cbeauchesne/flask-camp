@@ -31,7 +31,7 @@ def get():
 @allow("anonymous", "authenticated")
 @schema("create_user.json")
 def post():
-    """create an user"""
+    """Create an user"""
 
     if current_user.is_authenticated:
         raise BadRequest()

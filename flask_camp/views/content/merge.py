@@ -13,7 +13,7 @@ rule = "/merge"
 @schema("merge_documents.json")
 def put():
     """Merge two documents. Merged document will become a redirection, and will be no longer modifiable
-    Other document will get all hostory from merged"""
+    Other document will get all history from merged"""
 
     data = request.get_json()
     document_to_merge = Document.get(id=data["document_to_merge"], with_for_update=True)

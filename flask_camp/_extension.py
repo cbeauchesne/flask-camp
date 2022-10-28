@@ -31,7 +31,6 @@ from .views.content import documents as documents_view
 from .views.content import version as version_view
 from .views.content import versions as versions_view
 from .views.content import merge as merge_view
-from .views.content import protect_document as protect_document_view
 from .views.content import user_tags as user_tags_view
 from .views import healthcheck as healthcheck_view
 from .views import home as home_view
@@ -213,17 +212,14 @@ class RestApi:
         # related to user account
         self.add_modules(app, user_login_view, email_validation_view, reset_password_view)
 
-        # related to document
+        # related to documents
         self.add_modules(app, documents_view, document_view)
         self.add_modules(app, versions_view, version_view)
-        self.add_modules(app, user_tags_view)
-
-        # logs
-        self.add_modules(app, logs_view)
-
-        # reserved for moderators
-        self.add_modules(app, protect_document_view)
         self.add_modules(app, merge_view)
+
+        # others
+        self.add_modules(app, user_tags_view)
+        self.add_modules(app, logs_view)
 
     @property
     def user_roles(self):

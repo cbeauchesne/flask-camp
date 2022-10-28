@@ -5,16 +5,25 @@ class Test_Protection(BaseTest):
     def test_errors(self, moderator):
         self.login_user(moderator)
 
-        document = self.create_document().json["document"]
-
         self.protect_document(42, expected_status=404)
         self.unprotect_document(42, expected_status=404)
 
+    def test_twice(self, moderator):
+        self.login_user(moderator)
+
+        document = self.create_document().json["document"]
+
         self.protect_document(document)
-        self.protect_document(document, expected_status=400)
+        assert self.get_document(document).json["document"]["protected"] is True
+        self.protect_document(document, expected_status=200)
+        assert self.get_document(document).json["document"]["protected"] is True
 
         self.unprotect_document(document)
-        self.unprotect_document(document, expected_status=400)
+        assert self.get_document(document).json["document"]["protected"] is False
+        self.unprotect_document(document, expected_status=200)
+        assert self.get_document(document).json["document"]["protected"] is False
+
+        assert self.get_logs().json["count"] == 2
 
     def test_typical_scenario(self, user, moderator):
         self.login_user(user)

@@ -15,7 +15,7 @@ rule = "/login"
 @allow("anonymous", "authenticated")
 @schema("login_user.json")
 def put():
-    """Authentificate an user"""
+    """Login an user"""
     data = request.get_json()
 
     name_or_email = data["name_or_email"].strip().lower()

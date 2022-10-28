@@ -32,7 +32,7 @@ def get():
 @allow("anonymous", "authenticated")
 @schema("validate_email.json")
 def put():
-    """Validate an email"""
+    """Validate an user's email"""
     data = request.get_json()
     user = UserModel.get(name=data["name"])
 

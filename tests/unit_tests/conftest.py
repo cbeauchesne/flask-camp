@@ -6,6 +6,7 @@ import pytest
 
 from flask_camp import RestApi
 from flask_camp.models import User
+from flask_camp.views import home
 
 
 tested_app = Flask(__name__, static_folder=None)
@@ -22,10 +23,27 @@ def pytest_configure(config):
         logging.getLogger("sqlalchemy").setLevel(logging.INFO)
 
     if not config.option.collectonly:
-        # clean previous uncleaned state
-        # do not perform this on collect, editors that automatically collect tests on file change
-        # may break current test session
+
         with tested_app.app_context():
+            # Generate some docs. Should be a pre-commit hook ? 
+            data = home.get()
+
+            order = {
+                "GET": 0,
+                "POST": 1,
+                "PUT": 2,
+                "DELETE": 3,
+            }
+
+            with open("docs/endpoints.md", mode="w", encoding="utf-8") as f:
+                for endpoint, methods in data.items():
+                    for method in sorted(methods, key=order.get):
+                        infos = methods[method]
+                        f.write(f"* `{method.upper()} {endpoint}`: {infos['description']}\n")
+
+            # clean previous uncleaned state
+            # do not perform this on collect, editors that automatically collect tests on file change
+            # may break current test session
 
             # why not using tested_api.database.drop_all()?
             # because in some case, a table is not known by the ORM

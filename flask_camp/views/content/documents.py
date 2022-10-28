@@ -51,7 +51,7 @@ def get():
 @allow("authenticated")
 @schema("create_document.json")
 def post():
-    """create an document"""
+    """Create an document"""
     body = request.get_json()
 
     current_api.validate_document_schemas(body["document"])
