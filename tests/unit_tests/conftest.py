@@ -25,7 +25,7 @@ def pytest_configure(config):
     if not config.option.collectonly:
 
         with tested_app.app_context():
-            # Generate some docs. Should be a pre-commit hook ? 
+            # Generate some docs. Should be a pre-commit hook ?
             data = home.get()
 
             order = {
@@ -36,7 +36,8 @@ def pytest_configure(config):
             }
 
             with open("docs/endpoints.md", mode="w", encoding="utf-8") as f:
-                for endpoint, methods in data.items():
+                for endpoint in sorted(data):
+                    methods = data[endpoint]
                     for method in sorted(methods, key=order.get):
                         infos = methods[method]
                         f.write(f"* `{method.upper()} {endpoint}`: {infos['description']}\n")

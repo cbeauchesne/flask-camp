@@ -56,11 +56,11 @@ class Test_UserCreation(BaseTest):
         r = self.login_user(unvalidated_user, expected_status=401)
         assert r.json["description"] == "User's email is not validated"
 
-        r = self.put("/validate_email", json={"name": unvalidated_user.name}, expected_status=400)
+        r = self.put("/user/validate_email", json={"name": unvalidated_user.name}, expected_status=400)
         assert r.json["description"] == "'token' is a required property on instance "
 
         self.put(
-            "/validate_email",
+            "/user/validate_email",
             json={"name": "not_the_name", "token": unvalidated_user._email_token},
             expected_status=404,
         )
@@ -79,7 +79,7 @@ class Test_UserCreation(BaseTest):
         r = self.login_user(unvalidated_user, expected_status=200)
 
     def test_logout_errors(self):
-        self.delete("/login", expected_status=403)
+        self.delete("/user/login", expected_status=403)
 
     def test_notfound_errors(self, user):
         self.login_user(user)
@@ -141,8 +141,8 @@ class Test_UserCreation(BaseTest):
         self.login_user(admin)
         self.resend_email_validation(new_user, expected_status=200)
 
-        self.get("/validate_email", params={"name": "not_the_name"}, expected_status=404)
-        self.get("/validate_email", expected_status=400)
+        self.get("/user/validate_email", params={"name": "not_the_name"}, expected_status=404)
+        self.get("/user/validate_email", expected_status=400)
 
 
 class Test_Errors(BaseTest):

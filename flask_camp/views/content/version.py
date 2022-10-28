@@ -6,7 +6,7 @@ from flask_camp._utils import cook, current_api
 from flask_camp.models._document import DocumentVersion, Document
 from flask_camp._services._security import allow
 
-rule = "/version/<int:version_id>"
+rule = "/document/version<int:version_id>"
 
 
 @allow("anonymous", "authenticated", allow_blocked=True)

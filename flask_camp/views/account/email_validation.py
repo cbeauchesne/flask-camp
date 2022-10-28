@@ -9,7 +9,7 @@ from flask_camp._utils import current_api
 from flask_camp._services._security import allow
 from flask_camp.models._user import User as UserModel
 
-rule = "/validate_email"
+rule = "/user/validate_email"
 
 
 @allow("admin")

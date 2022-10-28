@@ -74,5 +74,5 @@ class Test_DeleteVersion(BaseTest):
     def test_bad_format(self, admin):
         self.login_user(admin)
 
-        self.delete("/version/200", json={"commentt": "toto"}, expected_status=400)
-        self.delete("/version/200", expected_status=400)
+        self.delete("/document/version200", json={"commentt": "toto"}, expected_status=400)
+        self.delete("/document/version200", expected_status=400)

@@ -14,12 +14,12 @@ Here is the exhaustive list of `POST`/`PUT` class, with their purpose:
 * `POST /documents`  -> add new document
 * `POST /document/<i>` -> add a new version to the document i
 * `PUT  /document/<i>` -> modify document i. Only protection is possible
-* `PUT  /version/<i>` -> modify version i. Only hide is possible
-* `PUT  /merge` -> it modify TODO consider PATCH
+* `PUT  /document/version<i>` -> modify version i. Only hide is possible
+* `PUT  /documents/merge` -> it modify TODO consider PATCH
 * `POST /users` -> add a new user
 * `PUT  /user/i` -> update user i. It's a partial update, only properties sent are updated,  TODO consider PATCH
-* `PUT  /validate_email`
-* `PUT  /reset_password`
-* `PUT  /login`
+* `PUT  /user/validate_email`
+* `PUT  /user/reset_password`
+* `PUT  /user/login`
 
 *Note*: logs are not considered, any call using any method can create a log row.

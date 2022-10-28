@@ -2,7 +2,7 @@ from flask_login import current_user
 
 from flask_camp._services._security import allow
 
-rule = "/current_user"
+rule = "/user/current"
 
 
 @allow("authenticated", allow_blocked=True)

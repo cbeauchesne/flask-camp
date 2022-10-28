@@ -32,14 +32,14 @@ class ClientInterface:
 
     def validate_email(self, user, token, **kwargs):
         name = user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
-        return self.put("/validate_email", json={"name": name, "token": token}, **kwargs)
+        return self.put("/user/validate_email", json={"name": name, "token": token}, **kwargs)
 
     def resend_email_validation(self, user, **kwargs):
         name = user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
-        return self.get("/validate_email", params={"name": name}, **kwargs)
+        return self.get("/user/validate_email", params={"name": name}, **kwargs)
 
     def reset_password(self, email, **kwargs):
-        return self.put("/reset_password", json={"email": email}, **kwargs)
+        return self.put("/user/reset_password", json={"email": email}, **kwargs)
 
     def login_user(self, user, password=None, token=None, **kwargs):
         name = user if isinstance(user, str) else user["name"] if isinstance(user, dict) else user.name
@@ -50,13 +50,13 @@ class ClientInterface:
         else:
             payload["password"] = password
 
-        return self.put("/login", json=payload | kwargs.pop("json", {}), **kwargs)
+        return self.put("/user/login", json=payload | kwargs.pop("json", {}), **kwargs)
 
     def get_current_user(self, **kwargs):
-        return self.get("/current_user", **kwargs)
+        return self.get("/user/current", **kwargs)
 
     def logout_user(self, **kwargs):
-        return self.delete("/login", **kwargs)
+        return self.delete("/user/login", **kwargs)
 
     def get_user(self, user, **kwargs):
         user_id = self._get_user_id(user)
@@ -157,7 +157,7 @@ class ClientInterface:
 
     def get_version(self, version, **kwargs):
         version_id = version if isinstance(version, int) else version["version_id"]
-        return self.get(f"/version/{version_id}", **kwargs)
+        return self.get(f"/document/version{version_id}", **kwargs)
 
     def get_versions(self, document=None, limit=None, user=None, tag_name=None, tag_user=None, **kwargs):
         params = {}
@@ -177,7 +177,7 @@ class ClientInterface:
         if limit is not None:
             params["limit"] = limit
 
-        return self.get("/versions", params=params | kwargs.pop("params", {}), **kwargs)
+        return self.get("/documents/versions", params=params | kwargs.pop("params", {}), **kwargs)
 
     def modify_document(self, document, comment, data, **kwargs):
         document_id = self._get_document_id(document)
@@ -193,7 +193,7 @@ class ClientInterface:
     def hide_version(self, version, comment, **kwargs):
         version_id = version if isinstance(version, int) else version["version_id"]
         return self.put(
-            f"/version/{version_id}",
+            f"/document/version{version_id}",
             json={"comment": comment, "version": {"hidden": True}} | kwargs.pop("json", {}),
             **kwargs,
         )
@@ -201,7 +201,7 @@ class ClientInterface:
     def unhide_version(self, version, comment, **kwargs):
         version_id = version if isinstance(version, int) else version["version_id"]
         return self.put(
-            f"/version/{version_id}",
+            f"/document/version{version_id}",
             json={"comment": comment, "version": {"hidden": False}} | kwargs.pop("json", {}),
             **kwargs,
         )
@@ -231,7 +231,9 @@ class ClientInterface:
 
     def delete_version(self, version, comment, **kwargs):
         version_id = version if isinstance(version, int) else version["version_id"]
-        return self.delete(f"/version/{version_id}", json={"comment": comment} | kwargs.pop("json", {}), **kwargs)
+        return self.delete(
+            f"/document/version{version_id}", json={"comment": comment} | kwargs.pop("json", {}), **kwargs
+        )
 
     def delete_document(self, document, comment, **kwargs):
         document_id = document if isinstance(document, int) else document["id"]
@@ -283,7 +285,7 @@ class ClientInterface:
             "comment": comment,
         } | kwargs.pop("params", {})
 
-        return self.put("/merge", json=json, **kwargs)
+        return self.put("/documents/merge", json=json, **kwargs)
 
     def get_logs(self, limit=None, **kwargs):
         params = {}

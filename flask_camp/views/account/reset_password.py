@@ -8,7 +8,7 @@ from flask_camp._services._security import allow
 from flask_camp.models._user import User as UserModel
 
 
-rule = "/reset_password"
+rule = "/user/reset_password"
 
 
 @allow("anonymous", "authenticated")

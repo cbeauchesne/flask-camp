@@ -9,7 +9,7 @@ from flask_camp._services._security import allow
 from flask_camp.models._user import User
 
 
-rule = "/login"
+rule = "/user/login"
 
 
 @allow("anonymous", "authenticated")

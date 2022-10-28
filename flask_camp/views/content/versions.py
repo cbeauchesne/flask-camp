@@ -7,7 +7,7 @@ from flask_camp.models._document import DocumentVersion
 from flask_camp.models._user import User
 from flask_camp._utils import cook
 
-rule = "/versions"
+rule = "/documents/versions"
 
 
 @allow("anonymous", "authenticated", allow_blocked=True)
