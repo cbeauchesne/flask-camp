@@ -6,7 +6,7 @@ from flask_login import current_user
 from werkzeug.exceptions import NotFound, Forbidden, Conflict, BadRequest
 
 from flask_camp._schemas import schema
-from flask_camp._utils import get_cooked_document, get_document, cook, current_api
+from flask_camp._utils import get_cooked_document, cook, current_api
 from flask_camp.models._document import Document, DocumentVersion
 from flask_camp._services._security import allow
 
@@ -69,10 +69,12 @@ def post(document_id):
     comment = body["comment"]
     data = body["document"]["data"]
 
+    if document.id != body["document"]["id"]:
+        raise BadRequest("Id in body does not match id in URI")
+
     current_api.validate_document_schemas(body["document"])
 
     version_id = body["document"]["version_id"]
-
     last_version_as_dict = document.as_dict()
 
     if last_version_as_dict["version_id"] != version_id:

@@ -1,3 +1,4 @@
+from copy import deepcopy
 import json
 import re
 
@@ -57,6 +58,17 @@ class Test_Document(BaseTest):
         assert r.json["status"] == "ok"
         assert r.json["count"] == 1
         assert r.json["documents"][0]["version_id"] == v2["version_id"]
+
+    def test_modification_error(self, user):
+        self.login_user(user)
+
+        doc = self.create_document(expected_status=200).json["document"]
+        payload = deepcopy(doc)
+        payload["id"] = 999
+
+        r = self.post(f"/document/{doc['id']}", json={"comment": "test", "document": payload}, expected_status=400).json
+
+        assert r["description"] == "Id in body does not match id in URI"
 
     def test_testing_helper(self, user):
         self.login_user(user)
