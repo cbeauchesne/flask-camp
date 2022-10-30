@@ -58,23 +58,33 @@ class Test_Document(BaseTest):
         assert r.json["count"] == 1
         assert r.json["documents"][0]["version_id"] == v2["version_id"]
 
-    def test_deletion_error(self, admin):
-        self.delete_document(1, expected_status=403)
-
-        self.login_user(admin)
-
-        self.delete_document(1, expected_status=404)
-
-    def test_deletion(self, admin):
-        self.login_user(admin)
-
-        doc = self.create_document().json["document"]
-        self.delete_document(doc, expected_status=200)
-        self.get_document(doc, expected_status=404)
-        self.get_version(doc, expected_status=404)
-
     def test_testing_helper(self, user):
         self.login_user(user)
         doc = self.create_document().json["document"]
 
         self.modify_document(doc, params={"rc_sleep": 0.01})
+
+
+class Test_Delete(BaseTest):
+    def test_main(self, admin):
+        self.login_user(admin)
+        doc = self.create_document().json["document"]
+        self.delete_document(doc, expected_status=200)
+        self.get_document(doc, expected_status=404)
+        self.get_version(doc, expected_status=404)
+
+    def test_deletion_error(self, user, user_2, moderator, admin):
+        self.delete_document(1, expected_status=403)
+
+        self.login_user(user)
+        document = self.create_document().json["document"]
+        self.delete_document(document, expected_status=403)
+
+        self.login_user(user_2)
+        self.delete_document(document, expected_status=403)
+
+        self.login_user(moderator)
+        self.delete_document(document, expected_status=403)
+
+        self.login_user(admin)
+        self.delete_document(99999, expected_status=404)

@@ -128,21 +128,21 @@ def put(document_id):
     return {"status": "ok"}
 
 
-@allow("authenticated")
+@allow("admin")
 @schema("action_with_comment.json")
 def delete(document_id):
     """Delete a document"""
-    document_as_dict = get_document(document_id)
-
-    if not current_api.user_can_delete and not current_user.is_admin:
-        raise Forbidden()
-
-    current_api.before_document_delete(current_user, document_as_dict)  # TODO not very coherent ...
 
     document = Document.get(id=document_id)
+
+    if not document:
+        raise NotFound()
+
+    current_api.on_document_delete(document)
+
     current_api.database.session.delete(document)
 
-    current_api.add_log("delete_document", document=document, comment=request.get_json()["comment"])
+    current_api.add_log("delete_document", document=document)
     current_api.database.session.commit()
 
     document.clear_memory_cache()
