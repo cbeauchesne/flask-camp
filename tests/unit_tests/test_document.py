@@ -67,8 +67,13 @@ class Test_Document(BaseTest):
         payload["id"] = 999
 
         r = self.post(f"/document/{doc['id']}", json={"comment": "test", "document": payload}, expected_status=400).json
-
         assert r["description"] == "Id in body does not match id in URI"
+
+        payload = deepcopy(doc)
+        payload["id"] = None
+
+        r = self.post(f"/document/{doc['id']}", json={"comment": "test", "document": payload}, expected_status=400).json
+        assert r["description"] == "None is not of type 'integer' on instance ['document']['id']"
 
     def test_testing_helper(self, user):
         self.login_user(user)
