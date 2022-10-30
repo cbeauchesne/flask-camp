@@ -8,10 +8,7 @@
           "$ref": "entities/document.json"
         },
         {
-          "properties": {
-            "version_id": { "type": "number" }
-          },
-          "required": ["version_id"]
+          "required": ["version_id", "id"]
         }
       ]
     },

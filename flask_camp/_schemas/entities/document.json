@@ -2,6 +2,8 @@
   "description": "Document structure",
   "type": "object",
   "properties": {
+    "id": { "type": "integer" },
+    "version_id": { "type": "number" },
     "data": {}
   },
   "required": ["data"]
