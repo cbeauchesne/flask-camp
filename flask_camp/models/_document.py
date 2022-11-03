@@ -164,10 +164,10 @@ class DocumentVersion(BaseModel):
     def data(self):
         return self._raw_data
 
-    # @data.setter
-    # def data(self, value):
-    #     self._raw_data = value
-    #     self._data = json.dumps(value)
+    @data.setter
+    def data(self, value):
+        self._raw_data = value
+        self._data = json.dumps(value)
 
     @classmethod
     def get(cls, with_for_update=False, **kwargs) -> DocumentVersion:
