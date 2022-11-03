@@ -4,7 +4,7 @@ import os
 
 from flask import request, current_app
 from jsonschema import Draft7Validator, RefResolver
-from werkzeug.exceptions import BadRequest
+from werkzeug.exceptions import BadRequest, UnsupportedMediaType
 
 
 class SchemaValidator:
@@ -60,6 +60,9 @@ class SchemaValidator:
         def decorator(real_method):
             @wraps(real_method)
             def wrapper(*args, **kwargs):
+                if not request.is_json:
+                    raise UnsupportedMediaType()
+
                 current_app.logger.debug("Validate %s with %s", request.url_rule, filename)
                 self.validate(request.get_json(), filename)
 

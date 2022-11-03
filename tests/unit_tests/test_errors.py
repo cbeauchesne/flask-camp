@@ -26,21 +26,26 @@ class Test_Vuln(BaseTest):
 
 
 class Test_Errors(BaseTest):
-    def test_no_body(self, user):
+    def test_not_json(self, user):
         self.login_user(user)
+        self.post("/documents", data="xxx", headers={"Content-Type": "application/json"}, expected_status=400)
 
-        r = self.post("/documents", data="null", expected_status=400)
-        assert r.json is not None
-
-        r = self.post("/documents", data="null", headers={"Content-Type": "application/json"}, expected_status=400)
-        assert r.json is not None
-        assert r.json["description"] == "None is not of type 'object' on instance ", r.json
-
-    def test_main(self):
+    def test_not_found(self):
         r = self.get("/do_not_exists", expected_status=404)
         assert r.json is not None
         assert r.json["status"] == "error"
 
+    def test_not_good_method(self):
         r = self.delete("/healthcheck", expected_status=405)
         assert r.json is not None
         assert r.json["status"] == "error"
+
+    def test_not_good_content_type(self, user):
+        self.login_user(user)
+        self.post("/documents", data="xxx", expected_status=415)
+
+    def test_no_body(self, user):
+        self.login_user(user)
+
+        r = self.post("/documents", expected_status=415)
+        assert r.json is not None

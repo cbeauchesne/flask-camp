@@ -75,4 +75,4 @@ class Test_DeleteVersion(BaseTest):
         self.login_user(admin)
 
         self.delete("/document/version200", json={"commentt": "toto"}, expected_status=400)
-        self.delete("/document/version200", expected_status=400)
+        self.delete("/document/version200", expected_status=415)
