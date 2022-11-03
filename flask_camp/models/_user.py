@@ -92,7 +92,7 @@ class User(BaseModel):  # pylint: disable=too-many-instance-attributes
         self._data = json.dumps(value)
 
     def __repr__(self):
-        return f"<User {self.name}>"
+        return f"User(id={repr(self.id)}, name={repr(self.name)})"
 
     def _get_private_property(self, property_name):
         # last security fence, it should never happen
@@ -166,10 +166,10 @@ class User(BaseModel):  # pylint: disable=too-many-instance-attributes
             "roles": self.roles,
             "blocked": self.blocked,
             "creation_date": self.creation_date.isoformat() if self.creation_date else None,
-            "data": self.data,
         }
 
         if include_personal_data:
+            result["data"] = self.data
             result["email"] = self.email
 
         return result

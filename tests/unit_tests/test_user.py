@@ -17,14 +17,9 @@ class Test_UserCreation(BaseTest):
 
         user = r.json["user"]
 
-        assert len(user) == 6, user
-        assert "id" in user
-        assert "data" in user
-        assert "creation_date" in user
         assert user["blocked"] is False
         assert user["name"] == name
         assert user["roles"] == []
-        assert re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00", user["creation_date"])
 
         self.validate_email(user=user, token=token, expected_status=200)
 
@@ -37,7 +32,6 @@ class Test_UserCreation(BaseTest):
 
         r = self.login_user(name, password, expected_status=200)
 
-        assert len(r.json["user"]) == 7, r.json["user"]
         assert r.json["user"]["id"] == user["id"]
         assert r.json["user"]["blocked"] is False
         assert r.json["user"]["data"] is None
@@ -49,7 +43,8 @@ class Test_UserCreation(BaseTest):
 
     def test_data_on_create(self):
         user = self.create_user(data={"hello": "world"}).json["user"]
-        assert user["data"] == {"hello": "world"}
+        assert "data" not in user
+        assert "email" not in user
 
     def test_errors_on_token_validation(self, unvalidated_user):
 

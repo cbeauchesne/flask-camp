@@ -85,6 +85,7 @@ def _db_add_user(name="name", email=None, password="password", validate_email=Tr
         _email_to_validate=instance._email_to_validate,
         _email_token=instance._email_token,
         roles=instance.roles,
+        blocked=instance.blocked,
     )
 
     return result

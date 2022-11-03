@@ -51,11 +51,11 @@ class RestApi:
         rate_limits_file=None,
         on_document_save=None,
         on_document_delete=None,
-        update_search_query=None,
         on_user_creation=None,
         on_user_validation=None,
         on_user_update=None,
         on_user_block=None,
+        update_search_query=None,
         url_prefix="",
     ):
         self.database = database

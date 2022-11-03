@@ -1,4 +1,6 @@
 from collections import defaultdict
+import json
+import re
 
 from flask import Flask
 
@@ -101,15 +103,63 @@ class BaseTest(ClientInterface):
                 assert r.json["status"] == "error", r.json
                 assert "description" in r.json, r.json
 
+    def assert_document_schema(self, document):
+
+        print("Document is:")
+        print(json.dumps(document, indent=4))
+
+        expected_count = 10 if "cooked" in document else 9
+        assert len(document) == expected_count, list(document.keys())
+        assert "data" in document
+        assert isinstance(document["id"], int)
+        assert isinstance(document["comment"], str)
+        assert isinstance(document["version_id"], int)
+        assert isinstance(document["timestamp"], str)
+        assert isinstance(document["hidden"], bool)
+        assert isinstance(document["protected"], bool)
+        assert isinstance(document["version_id"], int)
+        assert isinstance(document["user"], dict)
+
+        assert re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00", document["timestamp"])
+
+        self.assert_user_schema(document["user"], include_personal_data=False)
+
+    def assert_user_schema(self, user, include_personal_data):
+        print("User is:")
+        print(json.dumps(user, indent=4))
+
+        expected_count = 7 if include_personal_data else 5
+        assert len(user) == expected_count, list(user.keys())
+        assert isinstance(user["id"], int)
+        assert isinstance(user["name"], str)
+        assert isinstance(user["creation_date"], str)
+        assert isinstance(user["blocked"], bool)
+        assert isinstance(user["roles"], list)
+        assert re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00", user["creation_date"])
+
+        if include_personal_data:
+            assert isinstance(user["email"], str)
+            assert "data" in user
+
+    ######
+
     def create_user(self, name="user", email=None, password="password", data=None, **kwargs):
         email = f"{name}@example.com" if email is None else email
-        return super().create_user(name, email, password, data=data, **kwargs)
+        r = super().create_user(name, email, password, data=data, **kwargs)
+        if r.status_code == 200:
+            self.assert_user_schema(r.json["user"], include_personal_data=False)
+
+        return r
 
     def login_user(self, user, password=None, token=None, **kwargs):
         if password is None and token is None:
             password = "password"
 
-        return super().login_user(user, password=password, token=token, **kwargs)
+        r = super().login_user(user, password=password, token=token, **kwargs)
+        if r.status_code == 200:
+            self.assert_user_schema(r.json["user"], include_personal_data=True)
+
+        return r
 
     def block_user(self, user, comment="Default comment", **kwargs):
         return super().block_user(user, comment, **kwargs)
@@ -118,11 +168,20 @@ class BaseTest(ClientInterface):
         return super().unblock_user(user, comment, **kwargs)
 
     def create_document(self, data=None, comment="Default comment", **kwargs):
-        return super().create_document(data={} if data is None else data, comment=comment, **kwargs)
+        result = super().create_document(data={} if data is None else data, comment=comment, **kwargs)
+        if result.status_code == 200:
+            self.assert_document_schema(result.json["document"])
+
+        return result
 
     def modify_document(self, document, comment="Default comment", data=None, **kwargs):
         data = data if data is not None else document["data"]
-        return super().modify_document(document, comment, data, **kwargs)
+        result = super().modify_document(document, comment, data, **kwargs)
+
+        if result.status_code == 200:
+            self.assert_document_schema(result.json["document"])
+
+        return result
 
     def get_document(
         self,
@@ -141,6 +200,16 @@ class BaseTest(ClientInterface):
 
             if version_should_be:
                 assert r.json["document"]["version_id"] == version_should_be["version_id"], r.json["document"]
+
+            self.assert_document_schema(r.json["document"])
+
+        return r
+
+    def get_documents(self, limit=None, offset=None, tag_name=None, tag_user=None, tag_value=None, **kwargs):
+        r = super().get_documents(limit, offset, tag_name, tag_user, tag_value, **kwargs)
+        if r.status_code == 200:
+            for document in r.json["documents"]:
+                self.assert_document_schema(document)
 
         return r
 

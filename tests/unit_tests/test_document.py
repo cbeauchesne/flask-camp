@@ -1,19 +1,21 @@
 from copy import deepcopy
 import json
-import re
+
+from flask_camp.models import User
 
 from tests.unit_tests.utils import BaseTest
 
 
 class Test_Document(BaseTest):
-    def assert_document(self, document, user, data, comment="creation"):
+    def assert_document(self, document, user: User, data, comment="creation"):
+        self.assert_document_schema(document)
+
         assert document["comment"] == comment
         assert json.dumps(document["data"]) == json.dumps(data)
-        assert isinstance(document["id"], int)
-        assert isinstance(document["timestamp"], str)
-        assert isinstance(document["version_id"], int)
+
         assert document["user"]["id"] == user.id
-        assert re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00", document["timestamp"])
+        assert document["user"]["name"] == user.name
+        assert document["user"]["blocked"] == user.blocked
 
     def test_errors(self, user):
         self.create_document(expected_status=403)  # not logged

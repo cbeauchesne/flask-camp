@@ -18,5 +18,5 @@ class Test_UserCreation(BaseTest):
             token = re.sub(r"^(.*email_token=)", "", outbox[0].body)
 
         self.validate_email(user=user, token=token)
-        user = self.get_user(user).json["user"]
+        user = self.login_user(user, password=password).json["user"]
         assert user["data"] == "custom"
