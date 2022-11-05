@@ -49,7 +49,9 @@ def _compute_source(filename):
             else:
                 cpu_percent.append(0)
 
-            previous_cpu, previous_cpu_system = cpu_stats["cpu_usage"]["total_usage"], cpu_stats.get("system_cpu_usage", 0)
+            previous_cpu, previous_cpu_system = cpu_stats["cpu_usage"]["total_usage"], cpu_stats.get(
+                "system_cpu_usage", 0
+            )
 
         data[f"{name}_cpu"] = cpu_percent
 

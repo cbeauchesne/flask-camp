@@ -7,7 +7,7 @@ from flask_camp._services._security import allow
 rule = "/logs"
 
 
-@allow("anonymous", "authenticated")
+@allow("anonymous", "authenticated", allow_blocked=True)  # TODO tests
 def get():
     """Return a list of logs"""
     limit = request.args.get("limit", default=30, type=int)

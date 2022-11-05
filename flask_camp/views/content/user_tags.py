@@ -14,7 +14,7 @@ def _build_filters(**kwargs):
     return {key: value for key, value in kwargs.items() if value is not None}
 
 
-@allow("anonymous", "authenticated")
+@allow("anonymous", "authenticated", allow_blocked=True)
 def get():
     """Get user tag list"""
     limit = request.args.get("limit", default=100, type=int)
