@@ -33,7 +33,7 @@ def _compute_source(filename):
     )
 
     for name in container_names:
-        data[f"{name}_mem"] = [item[name]["memory_stats"]["usage"] for item in raw_data]
+        data[f"{name}_mem"] = [item[name]["memory_stats"].get("usage", 0) for item in raw_data]
 
         # https://stackoverflow.com/questions/30271942/get-docker-container-cpu-usage-as-percentage
         previous_cpu, previous_cpu_system = 0, 0
@@ -42,14 +42,14 @@ def _compute_source(filename):
             cpu_stats = item[name]["cpu_stats"]
 
             cpu_delta = cpu_stats["cpu_usage"]["total_usage"] - previous_cpu
-            system_delta = cpu_stats["system_cpu_usage"] - previous_cpu_system
+            system_delta = cpu_stats.get("system_cpu_usage", 0) - previous_cpu_system
 
             if system_delta > 0.0 and cpu_delta > 0.0:
                 cpu_percent.append((cpu_delta / system_delta) * cpu_stats["online_cpus"])
             else:
                 cpu_percent.append(0)
 
-            previous_cpu, previous_cpu_system = cpu_stats["cpu_usage"]["total_usage"], cpu_stats["system_cpu_usage"]
+            previous_cpu, previous_cpu_system = cpu_stats["cpu_usage"]["total_usage"], cpu_stats.get("system_cpu_usage", 0)
 
         data[f"{name}_cpu"] = cpu_percent
 
@@ -67,7 +67,7 @@ def _build_container_graph(source, containers, x_range=None):
     mem_values = []
     for i, container in enumerate(containers):
 
-        mem_source = f"/flask-camp-{container}_mem"
+        mem_source = f"/flask_camp-{container}_mem"
         mem_values += source.data[mem_source]
 
         graph.line(

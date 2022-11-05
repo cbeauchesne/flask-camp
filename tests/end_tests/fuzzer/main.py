@@ -9,6 +9,7 @@ import time
 import docker
 
 from tests.end_tests.utils import ClientSession
+from flask_camp.__main__ import main as cli_main
 
 
 class FuzzerSession(ClientSession):
@@ -39,7 +40,7 @@ class FuzzerSession(ClientSession):
         self.known_documents = self.get_documents().json()["documents"]
 
     def fuzz_create_document(self):
-        self.create_document(data=str(random.randbytes(8)), expected_status=[200, 403])
+        self.create_document(data=str(random.randbytes(8)), comment="...", expected_status=[200, 403])
 
     def fuzz_modify_document(self):
         if not self.known_documents:
@@ -181,13 +182,24 @@ def main():
 
     sessions = [FuzzerSession(session_count) for _ in range(session_count)]
 
+    cli_main(
+        {
+            "dev_env": False,
+            "add_admin": True,
+            "init_db": False,
+            "<name>": "admin",
+            "<password>": "password",
+            "<email>": "admin@example.com",
+        }
+    )
+
     for i, session in enumerate(sessions):
         session.setup_user(f"user_{i}")
         session.create_document(data="init", comment="init")
 
     sessions[0].login_user("admin")
     sessions[0].modify_user(2, roles=["moderator"], comment="I trust him")
-    sessions[0].modify_user(3, role=["moderator"], comment="I trust him")
+    sessions[0].modify_user(3, roles=["moderator"], comment="I trust him")
 
     threads = [threading.Thread(target=session.run) for session in sessions]
 
