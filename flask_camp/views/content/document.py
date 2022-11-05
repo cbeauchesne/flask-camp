@@ -1,12 +1,11 @@
-import json
 import time
 
-from flask import request, Response
+from flask import request
 from flask_login import current_user
 from werkzeug.exceptions import NotFound, Forbidden, Conflict, BadRequest
 
 from flask_camp._schemas import schema
-from flask_camp._utils import get_cooked_document, cook, current_api
+from flask_camp._utils import get_cooked_document, cook, current_api, JsonResponse
 from flask_camp.models._document import Document, DocumentVersion
 from flask_camp._services._security import allow
 
@@ -28,22 +27,15 @@ def get(document_id):
     document_as_dict = get_cooked_document(document_id)  # it handles not found
 
     if document_as_dict.get("redirect_to"):
-        return Response(
+        response = JsonResponse(
             headers={"Location": f"/document/{document_as_dict['redirect_to']}"},
-            content_type="application/json",
-            response=json.dumps({"status": "ok", "document": document_as_dict}),
+            response={"status": "ok", "document": document_as_dict},
             status=301,
         )
+    else:
+        response = JsonResponse(response={"status": "ok", "document": document_as_dict}, add_etag=True)
 
-    response = Response(
-        response=json.dumps({"status": "ok", "document": document_as_dict}),
-        content_type="application/json",
-    )
-
-    response.add_etag()
-    response.make_conditional(request)
-
-    return response
+    return response.build_flask_reponse()
 
 
 @allow("authenticated")

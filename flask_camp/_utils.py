@@ -1,4 +1,8 @@
-from flask import current_app
+import json
+import typing as t
+from http import HTTPStatus
+
+from flask import current_app, request, Response
 from werkzeug.exceptions import NotFound
 from werkzeug.local import LocalProxy
 
@@ -26,3 +30,39 @@ class GetDocument:  # pylint: disable=too-few-public-methods
             # it's a possible outcome, if the document has been deleted
             # In that situation, returns None
             return None
+
+
+class JsonResponse:
+    """Wapper around Flask response object. Usefull to manipulate response as object before really dump it"""
+
+    def __init__(
+        self,
+        response,
+        status: t.Optional[t.Union[int, str, HTTPStatus]] = None,
+        headers: t.Optional[
+            t.Union[
+                t.Mapping[str, t.Union[str, int, t.Iterable[t.Union[str, int]]]],
+                t.Iterable[t.Tuple[str, t.Union[str, int]]],
+            ]
+        ] = None,
+        add_etag: bool = False,
+    ) -> None:
+        self.response = response
+        self.status = 200 if status is None else status
+        self.headers = {} if headers is None else headers
+        self.content_type = "application/json"
+        self.add_etag = add_etag
+
+    def build_flask_reponse(self):
+        result = Response(
+            response=json.dumps(self.response),
+            status=self.status,
+            headers=self.headers,
+            content_type=self.content_type,
+        )
+
+        if self.add_etag:
+            result.add_etag()
+            result.make_conditional(request)
+
+        return result
