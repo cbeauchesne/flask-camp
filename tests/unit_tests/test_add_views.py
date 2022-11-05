@@ -14,7 +14,7 @@ class Test_ClassInstance(BaseTest):
             def get(self):
                 return "ok"
 
-        self.api.add_modules(self.app, CustomModule())
+        self.api.add_views(self.app, CustomModule())
 
         rules = {url_rule.rule for url_rule in self.app.url_map.iter_rules()}
 
@@ -33,7 +33,7 @@ class Test_Class(BaseTest):
             def get():
                 return "ok"
 
-        self.api.add_modules(self.app, CustomModule)
+        self.api.add_views(self.app, CustomModule)
 
         rules = {url_rule.rule for url_rule in self.app.url_map.iter_rules()}
 
@@ -51,7 +51,7 @@ class Test_Errors(BaseTest):
                 pass
 
         with pytest.raises(ConfigurationError):
-            self.api.add_modules(self.app, CustomModule)
+            self.api.add_views(self.app, CustomModule)
 
     def test_missing_rule(self):
         class CustomModule:
@@ -60,7 +60,7 @@ class Test_Errors(BaseTest):
                 pass
 
         with pytest.raises(ConfigurationError):
-            self.api.add_modules(self.app, CustomModule)
+            self.api.add_views(self.app, CustomModule)
 
     def test_roles_doesnt_exists(self):
         class CustomModule:
@@ -71,7 +71,7 @@ class Test_Errors(BaseTest):
                 pass
 
         with pytest.raises(ConfigurationError):
-            self.api.add_modules(self.app, CustomModule)
+            self.api.add_views(self.app, CustomModule)
 
     def test_twice(self):
         class CustomModule:
@@ -82,4 +82,4 @@ class Test_Errors(BaseTest):
                 pass
 
         with pytest.raises(AssertionError):
-            self.api.add_modules(self.app, CustomModule, CustomModule)
+            self.api.add_views(self.app, CustomModule, CustomModule)

@@ -48,5 +48,5 @@ class ProfileView:
 app = Flask(__name__)
 api = RestApi(app=app, on_user_validation=on_user_validation)
 
-api.add_modules(app, ProfileView())
+api.add_views(app, ProfileView())
 ```

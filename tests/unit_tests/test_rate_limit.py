@@ -23,7 +23,7 @@ class Test_RateLimit(BaseTest):
 
     def test_rate_limited_class_instance(self):
 
-        self.api.add_modules(self.app, RateLimitedClass())
+        self.api.add_views(self.app, RateLimitedClass())
 
         results = []
         with freeze_time():

@@ -19,7 +19,7 @@ class Test_Roles(BaseTest):
     rest_api_kwargs = {"user_roles": "bot,contributor"}
 
     def test_attribution(self, admin, user):
-        self.api.add_modules(self.app, BotModule())
+        self.api.add_views(self.app, BotModule())
 
         self.login_user(user)
         self.get("/bot", expected_status=403)

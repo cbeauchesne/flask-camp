@@ -201,22 +201,22 @@ class RestApi:
 
     def _init_url_rules(self, app):
         # basic page: home and healtcheck
-        self.add_modules(app, home_view, healthcheck_view)
+        self.add_views(app, home_view, healthcheck_view)
 
         # access to users
-        self.add_modules(app, users_view, user_view, current_user_view)
+        self.add_views(app, users_view, user_view, current_user_view)
 
         # related to user account
-        self.add_modules(app, user_login_view, email_validation_view, reset_password_view)
+        self.add_views(app, user_login_view, email_validation_view, reset_password_view)
 
         # related to documents
-        self.add_modules(app, documents_view, document_view)
-        self.add_modules(app, versions_view, version_view)
-        self.add_modules(app, merge_view)
+        self.add_views(app, documents_view, document_view)
+        self.add_views(app, versions_view, version_view)
+        self.add_views(app, merge_view)
 
         # others
-        self.add_modules(app, user_tags_view)
-        self.add_modules(app, logs_view)
+        self.add_views(app, user_tags_view)
+        self.add_views(app, logs_view)
 
     @property
     def user_roles(self):
@@ -288,7 +288,7 @@ class RestApi:
             self._schema_validator.validate(data, self._user_schema)
 
     # TODO rename add_endpoints
-    def add_modules(self, app, *modules, url_prefix=None):
+    def add_views(self, app, *modules, url_prefix=None):
         possible_user_roles = self.user_roles | {"anonymous", "authenticated"}
 
         url_prefix = url_prefix if url_prefix is not None else self._url_prefix

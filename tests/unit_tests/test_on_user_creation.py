@@ -64,7 +64,7 @@ class Test_BeforeUserCreation(BaseTest):
 
     def test_main(self):
 
-        self.api.add_modules(self.app, ProfileView())
+        self.api.add_views(self.app, ProfileView())
 
         self.create_user(expected_status=403)
         user = self.create_user(name="other_user", json={"captcha": 42}, expected_status=200).json["user"]

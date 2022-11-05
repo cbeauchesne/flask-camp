@@ -16,7 +16,7 @@ class Test_UrlPrefix(BaseTest):
             def get(self):
                 return "hello"
 
-        self.api.add_modules(self.app, Route(), url_prefix="")
+        self.api.add_views(self.app, Route(), url_prefix="")
 
         self.get("/v7/", expected_status=200)
         self.get("/hello", expected_status=200)
@@ -28,7 +28,7 @@ def test_not_leading_slash():
 
     with pytest.raises(ConfigurationError):
         api = RestApi()
-        api.add_modules(None, url_prefix="v7")
+        api.add_views(None, url_prefix="v7")
 
 
 def test_tailing_slash():
@@ -37,4 +37,4 @@ def test_tailing_slash():
 
     with pytest.raises(ConfigurationError):
         api = RestApi()
-        api.add_modules(None, None, url_prefix="/v7/")
+        api.add_views(None, None, url_prefix="/v7/")

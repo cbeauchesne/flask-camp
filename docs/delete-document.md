@@ -30,5 +30,5 @@ class CustomDelete():
 
 app = Flask(__name__)
 api = RestApi(app=app)
-api.add_modules(app, CustomDelete())
+api.add_views(app, CustomDelete())
 ```
