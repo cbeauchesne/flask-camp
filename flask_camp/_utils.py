@@ -53,7 +53,7 @@ class JsonResponse:
         self.content_type = "application/json"
         self.add_etag = add_etag
 
-    def build_flask_reponse(self):
+    def __call__(self, *args, **kwargs):
         result = Response(
             response=json.dumps(self.response),
             status=self.status,
@@ -65,4 +65,4 @@ class JsonResponse:
             result.add_etag()
             result.make_conditional(request)
 
-        return result
+        return result(*args, **kwargs)

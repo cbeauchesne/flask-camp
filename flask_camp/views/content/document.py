@@ -36,7 +36,7 @@ def get(document_id):
         response = JsonResponse(response={"status": "ok", "document": document_as_dict}, add_etag=True)
         current_api.after_get_document(response=response)
 
-    return response.build_flask_reponse()
+    return response
 
 
 @allow("authenticated")
