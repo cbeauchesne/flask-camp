@@ -24,6 +24,9 @@ class ClientInterface:
 
     ###########################################################################################
 
+    def healthcheck(self):
+        return self.get("/healthcheck")
+
     def create_user(self, name, email, password, data=None, **kwargs):
         json = {"user": {}} | kwargs.pop("json", {})
         json["user"]["name"] = name

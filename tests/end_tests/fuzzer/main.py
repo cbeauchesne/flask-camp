@@ -108,6 +108,7 @@ class FuzzerSession(ClientSession):
             (self.fuzz_get_document, 50),
             (self.fuzz_get_version, 5),
             (self.get_logs, 1),
+            (self.healthcheck, 1),
         ]
 
         if self.is_anonymous:
