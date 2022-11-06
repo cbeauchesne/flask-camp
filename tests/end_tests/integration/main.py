@@ -13,18 +13,18 @@ if __name__ == "__main__":
     user = ClientSession(domain="http://localhost:5000")
     user.setup_user("user")
 
-    doc = user.create_document().json()["document"]
-    admin.delete_document(doc)
+    doc = user.create_document({}, comment="create").json()["document"]
+    admin.delete_document(doc, comment="deletion")
 
-    doc = user.create_document().json()["document"]
-    user.protect_document(doc, expected_status=403)
-    moderator.protect_document(doc)
+    doc = user.create_document({}, comment="create").json()["document"]
+    user.protect_document(doc, comment="protect", expected_status=403)
+    moderator.protect_document(doc, comment="protect")
 
-    user.modify_document(doc, expected_status=403)
-    moderator.modify_document(doc, expected_status=200)
+    user.modify_document(doc, data={}, comment="modify", expected_status=403)  # why ?
+    moderator.modify_document(doc, data={}, comment="modify", expected_status=200)
 
-    doc_2 = user.create_document().json()["document"]
-    user.modify_document(doc_2, expected_status=200)
+    doc_2 = user.create_document(data={}, comment="protect").json()["document"]
+    user.modify_document(doc_2, data={}, comment="protect", expected_status=200)
 
     anonymous = ClientSession(domain="http://localhost:5000")
     anonymous.get_documents()

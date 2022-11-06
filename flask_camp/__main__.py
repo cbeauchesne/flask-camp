@@ -46,13 +46,13 @@ def main(args):
             check=True,
         )
 
-    elif args["init_db"]:
+    elif args["init_db"]:  # TODO : move this in flask CLI
         app, api = _create_api()
 
         with app.app_context():
             api.database.create_all()
 
-    elif args["add_admin"]:
+    elif args["add_admin"]:  # TODO : move this in flask CLI
         app, api = _create_api()
 
         with app.app_context():
