@@ -2,23 +2,16 @@ import time
 
 from flask import request
 from flask_login import current_user
-from werkzeug.exceptions import NotFound, Forbidden, Conflict, BadRequest
+from werkzeug.exceptions import NotFound, Forbidden, BadRequest
 
 from flask_camp._schemas import schema
+from flask_camp._services._security import allow
 from flask_camp._utils import get_cooked_document, cook, current_api, JsonResponse
 from flask_camp.models._document import Document, DocumentVersion
-from flask_camp._services._security import allow
+from flask_camp.exceptions import EditConflict
+
 
 rule = "/document/<int:document_id>"
-
-
-class EditConflict(Conflict):
-    def __init__(self, your_version, last_version):
-        super().__init__("A new version exists")
-        self.data = {
-            "last_version": last_version,
-            "your_version": your_version,
-        }
 
 
 @allow("anonymous", "authenticated", allow_blocked=True)
@@ -28,12 +21,12 @@ def get(document_id):
 
     if document_as_dict.get("redirect_to"):
         response = JsonResponse(
+            data={"status": "ok", "document": document_as_dict},
             headers={"Location": f"/document/{document_as_dict['redirect_to']}"},
-            response={"status": "ok", "document": document_as_dict},
             status=301,
         )
     else:
-        response = JsonResponse(response={"status": "ok", "document": document_as_dict}, add_etag=True)
+        response = JsonResponse(data={"status": "ok", "document": document_as_dict}, add_etag=True)
         current_api.after_get_document(response=response)
 
     return response
@@ -64,8 +57,6 @@ def post(document_id):
 
     if document.id != body["document"]["id"]:
         raise BadRequest("Id in body does not match id in URI")
-
-    current_api.validate_document_schemas(body["document"])
 
     version_id = body["document"]["version_id"]
     last_version_as_dict = document.as_dict()

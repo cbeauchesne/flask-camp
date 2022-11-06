@@ -54,8 +54,6 @@ def post():
     """Create an document"""
     body = request.get_json()
 
-    current_api.validate_document_schemas(body["document"])
-
     document = Document.create(
         comment=body["comment"],
         data=body["document"]["data"],

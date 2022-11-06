@@ -44,7 +44,6 @@ class RestApi:
         app=None,
         cooker=None,
         schemas_directory=None,
-        document_schemas=None,
         user_schema=None,
         user_roles="",
         rate_limit_cost_function=None,
@@ -91,7 +90,6 @@ class RestApi:
         else:
             self._schema_validator = None
 
-        self._document_schemas = [] if document_schemas is None else document_schemas
         self._user_schema = user_schema
         self._url_prefix = url_prefix
 
@@ -127,12 +125,8 @@ class RestApi:
 
         if self._schema_validator:
             self._schema_validator.assert_schema_exists(self._user_schema)
-            for filename in self._document_schemas:
-                self._schema_validator.assert_schema_exists(filename)
-        else:
-            if len(self._document_schemas) != 0:
-                raise ConfigurationError("You provide document_schemas wihtout schemas_directory")
 
+        else:
             if self._user_schema is not None:
                 raise ConfigurationError("You provide user_schema wihtout schemas_directory")
 
@@ -281,10 +275,6 @@ class RestApi:
             memory_cache.set_document(document_as_dict["id"], document_as_dict, result)
 
         return result
-
-    def validate_document_schemas(self, data):
-        if self._schema_validator is not None:
-            self._schema_validator.validate(data, *self._document_schemas)
 
     def validate_user_schema(self, data):
         if self._schema_validator is not None and self._user_schema is not None:

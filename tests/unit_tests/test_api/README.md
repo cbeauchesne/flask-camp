@@ -1,0 +1,1 @@
+Those test ensure that the public modules, methods, classes, methods and properties are stable

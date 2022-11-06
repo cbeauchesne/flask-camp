@@ -37,7 +37,7 @@ class JsonResponse:
 
     def __init__(
         self,
-        response,
+        data,
         status: t.Optional[t.Union[int, str, HTTPStatus]] = None,
         headers: t.Optional[
             t.Union[
@@ -47,7 +47,7 @@ class JsonResponse:
         ] = None,
         add_etag: bool = False,
     ) -> None:
-        self.response = response
+        self.data = data
         self.status = 200 if status is None else status
         self.headers = {} if headers is None else headers
         self.content_type = "application/json"
@@ -55,7 +55,7 @@ class JsonResponse:
 
     def __call__(self, *args, **kwargs):
         result = Response(
-            response=json.dumps(self.response),
+            response=json.dumps(self.data),
             status=self.status,
             headers=self.headers,
             content_type=self.content_type,
