@@ -11,7 +11,7 @@ authors = [
 ]
 description = "Full featured (but generic) headless API for wikis"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 
 classifiers = [
     "Programming Language :: Python :: 3",
