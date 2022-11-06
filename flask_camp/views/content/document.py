@@ -20,14 +20,14 @@ def get(document_id):
     document_as_dict = get_cooked_document(document_id)  # it handles not found
 
     if document_as_dict.get("redirect_to"):
-        response = JsonResponse(
+        return JsonResponse(
             data={"status": "ok", "document": document_as_dict},
             headers={"Location": f"/document/{document_as_dict['redirect_to']}"},
             status=301,
         )
-    else:
-        response = JsonResponse(data={"status": "ok", "document": document_as_dict}, add_etag=True)
-        current_api.after_get_document(response=response)
+
+    response = JsonResponse(data={"status": "ok", "document": document_as_dict}, add_etag=True)
+    current_api.after_get_document(response=response)
 
     return response
 
@@ -86,7 +86,7 @@ def post(document_id):
 
     document.clear_memory_cache()
 
-    return {"status": "ok", "document": cook(version.as_dict())}
+    return JsonResponse({"status": "ok", "document": cook(version.as_dict())})
 
 
 @allow("moderator")
@@ -111,7 +111,7 @@ def put(document_id):
 
         document.clear_memory_cache()
 
-    return {"status": "ok"}
+    return JsonResponse({"status": "ok"})
 
 
 @allow("admin")
@@ -133,7 +133,7 @@ def delete(document_id):
 
     document.clear_memory_cache()
 
-    return {"status": "ok"}
+    return JsonResponse({"status": "ok"})
 
 
 def _RACE_CONDITION_TESTING():

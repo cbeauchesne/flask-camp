@@ -5,7 +5,7 @@ from flask_camp._utils import current_api
 from flask_camp._services._security import allow
 from flask_camp.models._document import DocumentVersion
 from flask_camp.models._user import User
-from flask_camp._utils import cook
+from flask_camp._utils import cook, JsonResponse
 
 rule = "/documents/versions"
 
@@ -49,8 +49,10 @@ def get():
     count = query.count()
     versions = query.offset(offset).limit(limit)
 
-    return {
-        "status": "ok",
-        "count": count,
-        "versions": [cook(version.as_dict()) for version in versions],
-    }
+    return JsonResponse(
+        {
+            "status": "ok",
+            "count": count,
+            "versions": [cook(version.as_dict()) for version in versions],
+        }
+    )

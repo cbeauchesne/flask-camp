@@ -3,7 +3,7 @@ from sqlalchemy import select, func
 from werkzeug.exceptions import BadRequest
 
 from flask_camp._schemas import schema
-from flask_camp._utils import get_cooked_document, cook, current_api
+from flask_camp._utils import get_cooked_document, cook, current_api, JsonResponse
 from flask_camp._services._security import allow
 from flask_camp.models._document import Document
 
@@ -45,7 +45,7 @@ def get():
     document_ids = make_query(select(Document.id).limit(limit).offset(offset).order_by(Document.id.desc()))
 
     documents = [get_cooked_document(row[0]) for row in document_ids]
-    return {"status": "ok", "documents": documents, "count": list(count)[0][0]}
+    return JsonResponse({"status": "ok", "documents": documents, "count": list(count)[0][0]})
 
 
 @allow("authenticated")
@@ -65,4 +65,4 @@ def post():
 
     document.clear_memory_cache()
 
-    return {"status": "ok", "document": cook(document.last_version.as_dict())}
+    return JsonResponse({"status": "ok", "document": cook(document.last_version.as_dict())})

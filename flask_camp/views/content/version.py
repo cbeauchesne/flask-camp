@@ -2,9 +2,9 @@ from flask import request
 from werkzeug.exceptions import NotFound, BadRequest
 
 from flask_camp._schemas import schema
-from flask_camp._utils import cook, current_api
-from flask_camp.models._document import DocumentVersion, Document
 from flask_camp._services._security import allow
+from flask_camp._utils import cook, current_api, JsonResponse
+from flask_camp.models._document import DocumentVersion, Document
 
 rule = "/document/version<int:version_id>"
 
@@ -18,7 +18,7 @@ def get(version_id):
     if version is None:
         raise NotFound()
 
-    return {"status": "ok", "document": cook(version.as_dict())}
+    return JsonResponse({"status": "ok", "document": cook(version.as_dict())})
 
 
 @allow("moderator")
@@ -49,7 +49,7 @@ def put(version_id):
     if needs_update:
         version.document.clear_memory_cache()
 
-    return {"status": "ok"}
+    return JsonResponse({"status": "ok"})
 
 
 @allow("admin")
@@ -80,4 +80,4 @@ def delete(version_id):
     if needs_update:
         version.document.clear_memory_cache()
 
-    return {"status": "ok"}
+    return JsonResponse({"status": "ok"})

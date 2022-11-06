@@ -2,9 +2,9 @@ from flask import request
 from werkzeug.exceptions import NotFound, BadRequest
 
 from flask_camp._schemas import schema
-from flask_camp._utils import current_api
-from flask_camp.models._document import Document, DocumentVersion
 from flask_camp._services._security import allow
+from flask_camp._utils import current_api, JsonResponse
+from flask_camp.models._document import Document, DocumentVersion
 
 rule = "/documents/merge"
 
@@ -53,4 +53,4 @@ def put():
     document_destination.clear_memory_cache()
     document_to_merge.clear_memory_cache()
 
-    return {"status": "ok"}
+    return JsonResponse({"status": "ok"})
