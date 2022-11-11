@@ -13,6 +13,10 @@ class DocumentSearch(BaseModel):
     document_type = Column(String(16), index=True)
 
 
+def before_create_document(document, version):
+    on_document_save(document, None, version)
+
+
 def on_document_save(document, old_version, new_version):  # pylint: disable=unused-argument
     if new_version is None:  # document as been merged
         delete(DocumentSearch).where(DocumentSearch.id == document.id)
@@ -38,6 +42,7 @@ def update_search_query(query):
 
 class Test_CustomSearch(BaseTest):
     rest_api_kwargs = {
+        "before_create_document": before_create_document,
         "on_document_save": on_document_save,
         "update_search_query": update_search_query,
     }

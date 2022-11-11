@@ -45,13 +45,16 @@ def get():
     document_ids = make_query(select(Document.id).limit(limit).offset(offset).order_by(Document.id.desc()))
 
     documents = [get_cooked_document(row[0]) for row in document_ids]
-    return JsonResponse({"status": "ok", "documents": documents, "count": list(count)[0][0]})
+
+    response = JsonResponse({"status": "ok", "documents": documents, "count": list(count)[0][0]})
+    current_api.after_get_documents(response=response)
+    return response
 
 
 @allow("authenticated")
 @schema("create_document.json")
 def post():
-    """Create an document"""
+    """Create a document"""
     body = request.get_json()
 
     document = Document.create(
@@ -59,10 +62,12 @@ def post():
         data=body["document"]["data"],
     )
 
-    current_api.on_document_save(document=document, old_version=None, new_version=document.last_version)
+    current_api.before_create_document(document=document, version=document.last_version)
 
     current_api.database.session.commit()
 
     document.clear_memory_cache()
 
-    return JsonResponse({"status": "ok", "document": cook(document.last_version.as_dict())})
+    response = JsonResponse({"status": "ok", "document": cook(document.last_version.as_dict())})
+    current_api.after_create_document(response=response)
+    return response

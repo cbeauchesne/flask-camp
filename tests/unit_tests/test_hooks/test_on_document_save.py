@@ -69,8 +69,7 @@ class Test_UserCreation(BaseTest):
     def test_regular(self, moderator, admin):
         self.login_user(moderator)
 
-        with Hooks.expect_single_call(document=None, old_version=None, new_version=NOT_YET_KNOWN):
-            doc_v1 = self.create_document().json["document"]
+        doc_v1 = self.create_document().json["document"]
 
         with Hooks.expect_single_call(document=doc_v1, old_version=doc_v1, new_version=NOT_YET_KNOWN):
             doc_v2 = self.modify_document(doc_v1, data=42).json["document"]
@@ -103,14 +102,9 @@ class Test_UserCreation(BaseTest):
     def test_merge(self, moderator):
         self.login_user(moderator)
 
-        with Hooks.expect_single_call(document=None, old_version=None, new_version=NOT_YET_KNOWN):
-            doc_1 = self.create_document().json["document"]
-
-        with Hooks.expect_single_call(document=None, old_version=None, new_version=NOT_YET_KNOWN):
-            doc_2 = self.create_document().json["document"]
-
-        with Hooks.expect_single_call(document=None, old_version=None, new_version=NOT_YET_KNOWN):
-            doc_3 = self.create_document().json["document"]
+        doc_1 = self.create_document().json["document"]
+        doc_2 = self.create_document().json["document"]
+        doc_3 = self.create_document().json["document"]
 
         with Hooks.expect_single_call(document=doc_1, old_version=doc_1, new_version=None):
             self.merge_documents(doc_1, doc_2)

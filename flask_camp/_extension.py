@@ -48,6 +48,7 @@ class RestApi:
         user_roles="",
         rate_limit_cost_function=None,
         rate_limits_file=None,
+        before_create_document=None,
         on_document_save=None,
         on_document_delete=None,
         on_user_creation=None,
@@ -55,7 +56,9 @@ class RestApi:
         on_user_update=None,
         on_user_block=None,
         update_search_query=None,
+        after_create_document=None,
         after_get_document=None,
+        after_get_documents=None,
         url_prefix="",
     ):
         self.database = database
@@ -70,11 +73,14 @@ class RestApi:
         self.on_user_update = self._hook_function(on_user_update)
         self.on_user_block = self._hook_function(on_user_block)
 
+        self.before_create_document = self._hook_function(before_create_document)
         self.on_document_save = self._hook_function(on_document_save)
         self.on_document_delete = self._hook_function(on_document_delete)
         self.update_search_query = update_search_query if update_search_query is not None else lambda query: query
 
+        self.after_create_document = self._hook_function(after_create_document)
         self.after_get_document = self._hook_function(after_get_document)
+        self.after_get_documents = self._hook_function(after_get_documents)
 
         if rate_limits_file:
             with open(rate_limits_file, mode="r", encoding="utf-8") as f:

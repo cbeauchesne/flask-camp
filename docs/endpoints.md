@@ -7,7 +7,7 @@
 * `PUT /document/version<int:version_id>`: Modify a version of a document. The only possible modification is hide/unhide a version
 * `DELETE /document/version<int:version_id>`: Delete a version of a document (only for admins)
 * `GET /documents`: Get a list of documents
-* `POST /documents`: Create an document
+* `POST /documents`: Create a document
 * `PUT /documents/merge`: Merge two documents. Merged document will become a redirection, and will be no longer modifiable
     Other document will get all history from merged
 * `GET /documents/versions`: Get a list of versions
