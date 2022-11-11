@@ -62,7 +62,7 @@ def post():
         data=body["document"]["data"],
     )
 
-    current_api.before_create_document(document=document, version=document.last_version)
+    current_api.before_create_document(document=document)
 
     current_api.database.session.commit()
 
