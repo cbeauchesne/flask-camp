@@ -19,10 +19,10 @@ def get(document_id):
     """Get a document"""
     document_as_dict = get_cooked_document(document_id)  # it handles not found
 
-    if document_as_dict.get("redirect_to"):
+    if document_as_dict.get("redirects_to"):
         return JsonResponse(
             data={"status": "ok", "document": document_as_dict},
-            headers={"Location": f"/document/{document_as_dict['redirect_to']}"},
+            headers={"Location": f"/document/{document_as_dict['redirects_to']}"},
             status=301,
         )
 

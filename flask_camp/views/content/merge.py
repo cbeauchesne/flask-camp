@@ -31,7 +31,7 @@ def put():
     destination_old_version = document_destination.last_version
     merged_old_version = document_to_merge.last_version
 
-    document_to_merge.redirect_to = document_destination.id
+    document_to_merge.redirects_to = document_destination.id
     DocumentVersion.query.filter_by(document_id=document_to_merge.id).update({"document_id": document_destination.id})
     document_to_merge.last_version_id = None
     document_to_merge.last_version = None

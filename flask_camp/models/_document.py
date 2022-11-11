@@ -18,7 +18,7 @@ from flask_camp.models._user_tag import UserTag
 def _as_dict(document, version, include_hidden_data_for_staff=False):
 
     if document.is_redirection:
-        return {"id": document.id, "redirect_to": document.redirect_to}
+        return {"id": document.id, "redirects_to": document.redirects_to}
 
     result = {
         "id": document.id,
@@ -65,7 +65,7 @@ class Document(BaseModel):
         post_update=True,
     )
 
-    redirect_to = Column(Integer, ForeignKey("document.id"), index=True)
+    redirects_to = Column(Integer, ForeignKey("document.id"), index=True)
 
     associated_ids = Column(ARRAY(Integer), index=True)
 
@@ -117,7 +117,7 @@ class Document(BaseModel):
 
     @property
     def is_redirection(self):
-        return self.redirect_to is not None
+        return self.redirects_to is not None
 
     @classmethod
     def get(cls, with_for_update=False, **kwargs) -> Document:
