@@ -30,7 +30,7 @@ class Hooks:
         assert len(Hooks.calls) == 0, "I was expecting more calls"
 
     @staticmethod
-    def on_document_save(document, old_version, new_version):
+    def before_update_document(document, old_version, new_version):
 
         if len(Hooks.calls) == 0:
             raise Exception("I should not have been called")
@@ -64,7 +64,7 @@ class Hooks:
 
 
 class Test_UserCreation(BaseTest):
-    rest_api_kwargs = {"on_document_save": Hooks.on_document_save}
+    rest_api_kwargs = {"before_update_document": Hooks.before_update_document}
 
     def test_regular(self, moderator, admin):
         self.login_user(moderator)
@@ -74,7 +74,7 @@ class Test_UserCreation(BaseTest):
         with Hooks.expect_single_call(document=doc_v1, old_version=doc_v1, new_version=NOT_YET_KNOWN):
             doc_v2 = self.modify_document(doc_v1, data=42).json["document"]
 
-        # on_document_save is not called
+        # before_update_document is not called
         self.protect_document(doc_v1)
         self.unprotect_document(doc_v1)
 
@@ -98,21 +98,3 @@ class Test_UserCreation(BaseTest):
 
         with Hooks.expect_single_call(document=doc_v1, old_version=doc_v3, new_version=doc_v1):
             self.delete_version(doc_v3)
-
-    def test_merge(self, moderator):
-        self.login_user(moderator)
-
-        doc_1 = self.create_document().json["document"]
-        doc_2 = self.create_document().json["document"]
-        doc_3 = self.create_document().json["document"]
-
-        with Hooks.expect_single_call(document=doc_1, old_version=doc_1, new_version=None):
-            self.merge_documents(doc_1, doc_2)
-
-        with Hooks.expect(
-            [
-                (doc_2, doc_2, doc_3),  # destination, doc_3 is more recent
-                (doc_3, doc_3, None),  # merged document
-            ]
-        ):
-            self.merge_documents(doc_3, doc_2)

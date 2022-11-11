@@ -41,7 +41,9 @@ def put(version_id):
     needs_update = old_last_version.id != version.document.last_version_id
 
     if needs_update:
-        current_api.on_document_save(document=document, old_version=old_last_version, new_version=document.last_version)
+        current_api.before_update_document(
+            document=document, old_version=old_last_version, new_version=document.last_version
+        )
 
     current_api.add_log("hide_version" if hidden else "unhide_version", version=version, document=version.document)
     current_api.database.session.commit()
@@ -71,7 +73,9 @@ def delete(version_id):
     needs_update = old_last_version.id != version.document.last_version_id
 
     if needs_update:
-        current_api.on_document_save(document=document, old_version=old_last_version, new_version=document.last_version)
+        current_api.before_update_document(
+            document=document, old_version=old_last_version, new_version=document.last_version
+        )
 
     current_api.database.session.delete(version)
     current_api.add_log("delete_version", version=version, document=version.document)

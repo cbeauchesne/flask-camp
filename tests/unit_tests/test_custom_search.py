@@ -14,10 +14,10 @@ class DocumentSearch(BaseModel):
 
 
 def before_create_document(document, version):
-    on_document_save(document, None, version)
+    before_update_document(document, None, version)
 
 
-def on_document_save(document, old_version, new_version):  # pylint: disable=unused-argument
+def before_update_document(document, old_version, new_version):  # pylint: disable=unused-argument
     if new_version is None:  # document as been merged
         delete(DocumentSearch).where(DocumentSearch.id == document.id)
         return
@@ -43,7 +43,7 @@ def update_search_query(query):
 class Test_CustomSearch(BaseTest):
     rest_api_kwargs = {
         "before_create_document": before_create_document,
-        "on_document_save": on_document_save,
+        "before_update_document": before_update_document,
         "update_search_query": update_search_query,
     }
 

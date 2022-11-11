@@ -10,30 +10,47 @@ class Test_Hooks(BaseTest):
     rest_api_kwargs = {
         "before_create_document": hooks.before_create_document,
         "after_create_document": hooks.after_create_document,
+        "before_merge_documents": hooks.before_merge_documents,
+        "after_merge_documents": hooks.after_merge_documents,
         "after_get_document": hooks.after_get_document,
         "after_get_documents": hooks.after_get_documents,
+        "before_delete_document": hooks.before_delete_document,
+        "after_delete_document": hooks.after_delete_document,
     }
 
     def setup_method(self):
         super().setup_method()
         hooks.reset_mock()
 
-    def test_main(self, user):
+    def test_main(self, moderator, admin):
 
-        self.login_user(user)
+        self.login_user(moderator)
 
-        doc = self.create_document().json["document"]
+        doc1 = self.create_document().json["document"]
         self.assert_call(hooks.before_create_document, document=Document, version=DocumentVersion)
         self.assert_call(hooks.after_create_document, response=JsonResponse)
         hooks.reset_mock()
 
-        self.get_document(doc)
+        doc2 = self.create_document().json["document"]
+        hooks.reset_mock()
+
+        self.get_document(doc1)
         self.assert_call(hooks.after_get_document, response=JsonResponse)
         hooks.reset_mock()
 
         self.get_documents()
         self.assert_call(hooks.after_get_documents, response=JsonResponse)
         hooks.reset_mock()
+
+        self.merge_documents(doc1, doc2)
+        self.assert_call(hooks.before_merge_documents, document_to_merge=Document, document_destination=Document)
+        self.assert_call(hooks.after_merge_documents, response=JsonResponse)
+        # TODO test update called
+
+        self.login_user(admin)
+        self.delete_document(doc1)
+        self.assert_call(hooks.before_delete_document, document=Document)
+        self.assert_call(hooks.after_delete_document, response=JsonResponse)
 
     def assert_call(self, function, **kwargs):
         assert function.call_count == 1

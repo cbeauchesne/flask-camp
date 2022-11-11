@@ -30,7 +30,6 @@ def put():
         raise BadRequest()
 
     destination_old_version = document_destination.last_version
-    merged_old_version = document_to_merge.last_version
 
     document_to_merge.redirects_to = document_destination.id
     DocumentVersion.query.filter_by(document_id=document_to_merge.id).update({"document_id": document_destination.id})
@@ -39,13 +38,14 @@ def put():
     document_to_merge.last_version = None
     document_destination.update_last_version_id()
 
+    current_api.before_merge_documents(document_to_merge=document_to_merge, document_destination=document_destination)
+
     if destination_old_version.id != document_destination.last_version.id:
-        current_api.on_document_save(
+        current_api.before_update_document(
             document=document_destination,
             old_version=destination_old_version,
             new_version=document_destination.last_version,
         )
-    current_api.on_document_save(document=document_to_merge, old_version=merged_old_version, new_version=None)
 
     current_api.add_log(
         "merge", comment=data["comment"], document=document_destination, merged_document=document_to_merge
@@ -55,4 +55,6 @@ def put():
     document_destination.clear_memory_cache()
     document_to_merge.clear_memory_cache()
 
-    return JsonResponse({"status": "ok"})
+    response = JsonResponse({"status": "ok"})
+    current_api.after_merge_documents(response=response)
+    return response

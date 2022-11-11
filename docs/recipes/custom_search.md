@@ -1,8 +1,10 @@
 Out of the box, the REST API provide search with limit/offset paraemters, and user tags. You will probably need to extend this feature. Here is the recipe to achieve that.
 
 1. Define a database table that will store your search fields
-2. Add a `on_document_save` that will fill this table on each document save
-3. Add a `update_search_query` that will complete the SQL query for the `/documents` endpoint
+2. Add a `before_create_document`
+3. Add a `before_update_document` that will fill this table on each document save
+4. Add a `update_search_query` that will complete the SQL query for the `/documents` endpoint
+5. Add a `before_merge_document` to remove search index for merged document
 
 
 ```python
@@ -23,18 +25,19 @@ class DocumentSearch(BaseModel):
     document_type = Column(String(16), index=True)
 
 
-def on_document_save(document, old_version, new_version):
-    if new_version is None:  # document as been merged
-        delete(DocumentSearch).where(DocumentSearch.id == document.id)
-        return
+def before_create_document(document):
+    current_api.database.session.add(DocumentSearch(id=document.id))
+    fill_search(document, document.last_version)
 
+def before_merge_document(document_to_merge, document_destination):
+    delete(DocumentSearch).where(DocumentSearch.id == document_to_merge.id)
+
+def before_update_document(document, old_version, new_version):
     search_item = DocumentSearch.get(id=document.id)
-    if search_item is None:  # means the document is not yet created
-        search_item = DocumentSearch(id=document.id)
-        current_api.database.session.add(search_item)
+    fill_search(search_item, new_version)
 
-    if isinstance(new_version.data, dict):
-        search_item.document_type = new_version.data.get("type")
+def fill_search(search_item, version)
+    search_item.document_type = version.data.get("type")
 
 
 def update_search_query(query):
@@ -47,5 +50,5 @@ def update_search_query(query):
 
 
 app = Flask(__name__)
-api = RestApi(app=app, on_document_save=on_document_save, update_search_query=update_search_query)
+api = RestApi(app=app, before_update_document=before_update_document, update_search_query=update_search_query)
 ```

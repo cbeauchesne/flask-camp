@@ -48,17 +48,20 @@ class RestApi:
         user_roles="",
         rate_limit_cost_function=None,
         rate_limits_file=None,
-        before_create_document=None,
-        on_document_save=None,
-        on_document_delete=None,
         on_user_creation=None,
         on_user_validation=None,
         on_user_update=None,
         on_user_block=None,
-        update_search_query=None,
+        before_create_document=None,
         after_create_document=None,
         after_get_document=None,
         after_get_documents=None,
+        before_update_document=None,
+        before_merge_documents=None,
+        after_merge_documents=None,
+        before_delete_document=None,
+        after_delete_document=None,
+        update_search_query=None,
         url_prefix="",
     ):
         self.database = database
@@ -74,13 +77,20 @@ class RestApi:
         self.on_user_block = self._hook_function(on_user_block)
 
         self.before_create_document = self._hook_function(before_create_document)
-        self.on_document_save = self._hook_function(on_document_save)
-        self.on_document_delete = self._hook_function(on_document_delete)
-        self.update_search_query = update_search_query if update_search_query is not None else lambda query: query
-
         self.after_create_document = self._hook_function(after_create_document)
+
         self.after_get_document = self._hook_function(after_get_document)
         self.after_get_documents = self._hook_function(after_get_documents)
+
+        self.before_update_document = self._hook_function(before_update_document)
+
+        self.before_merge_documents = self._hook_function(before_merge_documents)
+        self.after_merge_documents = self._hook_function(after_merge_documents)
+
+        self.before_delete_document = self._hook_function(before_delete_document)
+        self.after_delete_document = self._hook_function(after_delete_document)
+
+        self.update_search_query = update_search_query if update_search_query is not None else lambda query: query
 
         if rate_limits_file:
             with open(rate_limits_file, mode="r", encoding="utf-8") as f:

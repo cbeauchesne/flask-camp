@@ -80,7 +80,7 @@ def post(document_id):
 
     current_api.database.session.flush()
 
-    current_api.on_document_save(document=document, old_version=old_version, new_version=version)
+    current_api.before_update_document(document=document, old_version=old_version, new_version=version)
 
     current_api.database.session.commit()
 
@@ -124,7 +124,7 @@ def delete(document_id):
     if not document:
         raise NotFound()
 
-    current_api.on_document_delete(document)
+    current_api.before_delete_document(document=document)
 
     current_api.database.session.delete(document)
 
@@ -133,7 +133,9 @@ def delete(document_id):
 
     document.clear_memory_cache()
 
-    return JsonResponse({"status": "ok"})
+    response = JsonResponse({"status": "ok"})
+    current_api.after_delete_document(response=response)
+    return response
 
 
 def _RACE_CONDITION_TESTING():
