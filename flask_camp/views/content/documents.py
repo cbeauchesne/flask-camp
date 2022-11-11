@@ -35,7 +35,7 @@ def get():
         tag_filters_args = {k: v for k, v in tag_filters_args.items() if v is not None}
 
         if len(tag_filters_args) != 0:
-            query = query.where(Document.user_tags.any(**tag_filters_args))
+            query = query.where(Document.tags.any(**tag_filters_args))
 
         query = current_api.update_search_query(query)
 

@@ -123,3 +123,16 @@ class Test_Merge(BaseTest):
 
         self.merge_documents(doc_1, doc_3, comment="nope", expected_status=400)
         self.merge_documents(doc_3, doc_1, comment="nope", expected_status=400)
+
+# class Test_Tags(BaseTest):
+#     def test_main(self, admin):
+#         self.login_user(admin)
+
+#         doc1 = self.create_document().json["document"]
+#         doc2 = self.create_document().json["document"]
+
+#         self.add_tag("toto", doc1)
+
+#         self.merge_documents(doc1, doc2)
+
+#         tags = self.get_tags

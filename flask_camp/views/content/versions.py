@@ -34,7 +34,7 @@ def get():
     query = current_api.database.session.query(DocumentVersion)
 
     if len(tag_filters_args) != 0:
-        query = query.filter(DocumentVersion.user_tags.any(**tag_filters_args))
+        query = query.filter(DocumentVersion.tags.any(**tag_filters_args))
 
     if document_id is not None:
         filters["document_id"] = document_id

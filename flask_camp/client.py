@@ -245,7 +245,7 @@ class ClientInterface:
         document_id = document if isinstance(document, int) else document["id"]
         return self.delete(f"/document/{document_id}", json={"comment": comment} | kwargs.pop("json", {}), **kwargs)
 
-    def get_user_tags(self, limit=None, offset=None, user=None, document=None, name=None, **kwargs):
+    def get_tags(self, limit=None, offset=None, user=None, document=None, name=None, **kwargs):
         params = {}
 
         if document is not None:
@@ -263,19 +263,19 @@ class ClientInterface:
         if limit is not None:
             params["offset"] = offset
 
-        return self.get("/user_tags", params=params | kwargs.pop("params", {}), **kwargs)
+        return self.get("/tags", params=params | kwargs.pop("params", {}), **kwargs)
 
-    def add_user_tag(self, name, document, value=None, **kwargs):
+    def add_tag(self, name, document, value=None, **kwargs):
         json = {"name": name, "document_id": self._get_document_id(document)}
 
         if value is not None:
             json["value"] = value
 
-        return self.post("/user_tags", json=json | kwargs.pop("json", {}), **kwargs)
+        return self.post("/tags", json=json | kwargs.pop("json", {}), **kwargs)
 
-    def remove_user_tag(self, name, document, **kwargs):
+    def remove_tag(self, name, document, **kwargs):
         return self.delete(
-            "/user_tags",
+            "/tags",
             json={
                 "name": name,
                 "document_id": self._get_document_id(document),

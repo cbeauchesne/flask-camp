@@ -49,7 +49,7 @@ class Test_Cooker(BaseTest):
         docs = self.get_versions().json["versions"]
         assert "cooked" in docs[0]
 
-        self.add_user_tag("star", doc)
+        self.add_tag("star", doc)
         docs = self.get_documents(tag_name="star").json["documents"]
         assert "cooked" in docs[0]
 

@@ -93,14 +93,14 @@ class FuzzerSession(ClientSession):
         chars = string.ascii_letters + "-_" + string.digits
         name = "".join(random.choices(chars, k=random.randint(1, 16)))
 
-        self.add_user_tag(name, doc)
+        self.add_tag(name, doc)
 
     def fuzz_remove_tag(self):
-        tags = self.get_user_tags(user=self.logged_user).json()["user_tags"]
+        tags = self.get_tags(user=self.logged_user).json()["tags"]
 
         if len(tags) != 0:
             tag = random.choice(tags)
-            self.remove_user_tag(tag["name"], tag["document_id"])
+            self.remove_tag(tag["name"], tag["document_id"])
 
     def possible_actions(self):
         result = [

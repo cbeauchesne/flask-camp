@@ -1,4 +1,4 @@
-from flask_camp.views.content import document, documents, merge, user_tags, version, versions
+from flask_camp.views.content import document, documents, merge, tags, version, versions
 from flask_camp.views.account import current_user, email_validation, reset_password, user, user_login, users
 from flask_camp.views import healthcheck, home, logs
 
@@ -19,10 +19,10 @@ def test_content():
     assert hasattr(merge, "put")
     # assert hasattr(merge, "delete")
 
-    assert hasattr(user_tags, "get")
-    assert hasattr(user_tags, "post")
-    # assert hasattr(user_tags, "put")
-    assert hasattr(user_tags, "delete")
+    assert hasattr(tags, "get")
+    assert hasattr(tags, "post")
+    # assert hasattr(tags, "put")
+    assert hasattr(tags, "delete")
 
     assert hasattr(version, "get")
     # assert hasattr(version, "post")

@@ -13,6 +13,9 @@
 * `GET /documents/versions`: Get a list of versions
 * `GET /healthcheck`: Ping? pong!
 * `GET /logs`: Return a list of logs
+* `GET /tags`: Get user tag list
+* `POST /tags`: create/modify an user tag
+* `DELETE /tags`: Delete an user tag
 * `GET /user/<int:user_id>`: Get an user
 * `PUT /user/<int:user_id>`: Modify an user
 * `GET /user/current`: Get the current authenticated user
@@ -21,8 +24,5 @@
 * `PUT /user/reset_password`: Send an email with a login token to this user
 * `GET /user/validate_email`: Resend validation mail to an user. Only admin can do this request
 * `PUT /user/validate_email`: Validate an user's email
-* `GET /user_tags`: Get user tag list
-* `POST /user_tags`: create/modify an user tag
-* `DELETE /user_tags`: Delete an user tag
 * `GET /users`: Get a list of users
 * `POST /users`: Create an user

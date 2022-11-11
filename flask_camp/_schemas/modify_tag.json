@@ -2,7 +2,7 @@
   "description": "POST request to create/modify an user tag",
   "type": "object",
   "properties": {
-    "name": { "$ref": "entities/user_tag_name.json" },
+    "name": { "$ref": "entities/tag_name.json" },
     "document_id": { "type": "integer" },
     "value": { "type": "string" }
   },

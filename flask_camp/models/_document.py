@@ -12,7 +12,7 @@ from werkzeug.exceptions import BadRequest
 from flask_camp._utils import current_api
 from flask_camp.models._base_model import BaseModel
 from flask_camp.models._user import User
-from flask_camp.models._user_tag import UserTag
+from flask_camp.models._tag import Tag
 
 
 def _as_dict(document, version, include_hidden_data_for_staff=False):
@@ -46,7 +46,7 @@ class Document(BaseModel):
 
     protected = Column(Boolean, nullable=False, default=False)
 
-    user_tags = relationship(UserTag, back_populates="document", lazy="select", cascade="all,delete")
+    tags = relationship(Tag, back_populates="document", lazy="select", cascade="all,delete")
 
     versions = relationship(
         lambda: DocumentVersion,
@@ -140,11 +140,11 @@ class DocumentVersion(BaseModel):
     hidden = Column(Boolean, default=False, nullable=False)
     _data = Column("data", String)
 
-    user_tags = relationship(
-        "UserTag",
+    tags = relationship(
+        "Tag",
         lazy="select",
         foreign_keys="DocumentVersion.document_id",
-        primaryjoin=document_id == UserTag.document_id,
+        primaryjoin=document_id == Tag.document_id,
         uselist=True,
         viewonly=True,
     )

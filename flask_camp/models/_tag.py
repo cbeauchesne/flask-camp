@@ -7,8 +7,8 @@ from flask_camp.models._base_model import BaseModel
 from flask_camp.models._user import User
 
 
-class UserTag(BaseModel):
-    __tablename__ = "user_tag"
+class Tag(BaseModel):
+    __tablename__ = "tag"
 
     id = Column(Integer, primary_key=True, index=True)
 
@@ -21,7 +21,7 @@ class UserTag(BaseModel):
     name = Column(String(16), index=True, nullable=False)
     value = Column(String(32), index=True)
 
-    __table_args__ = (UniqueConstraint("user_id", "document_id", "name", name="_user_tag_uc"),)
+    __table_args__ = (UniqueConstraint("user_id", "document_id", "name", name="_tag_uc"),)
 
     def as_dict(self):
         return {

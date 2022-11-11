@@ -2,7 +2,8 @@ import re
 
 import pytest
 
-from flask_camp import RestApi, SchemaValidator
+from flask_camp import RestApi
+from flask_camp.utils import SchemaValidator
 from flask_camp.exceptions import ConfigurationError
 from tests.unit_tests.utils import BaseTest
 

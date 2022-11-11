@@ -31,7 +31,7 @@ from .views.content import documents as documents_view
 from .views.content import version as version_view
 from .views.content import versions as versions_view
 from .views.content import merge as merge_view
-from .views.content import user_tags as user_tags_view
+from .views.content import tags as tags_view
 from .views import healthcheck as healthcheck_view
 from .views import home as home_view
 from .views import logs as logs_view
@@ -212,7 +212,7 @@ class RestApi:
         self.add_views(app, merge_view)
 
         # others
-        self.add_views(app, user_tags_view)
+        self.add_views(app, tags_view)
         self.add_views(app, logs_view)
 
     @property

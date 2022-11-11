@@ -50,8 +50,8 @@ class Test_UserBlock(BaseTest):
         self.get_document(doc, expected_status=200)
         self.get_documents(expected_status=200)
         self.get_logs(expected_status=200)
-        self.add_user_tag("test", doc, expected_status=200)
-        self.get_user_tags(expected_status=200)
+        self.add_tag("test", doc, expected_status=200)
+        self.get_tags(expected_status=200)
 
         self.create_document(expected_status=403)
         self.modify_document(doc, expected_status=403)

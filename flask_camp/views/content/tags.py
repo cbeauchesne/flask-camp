@@ -5,9 +5,9 @@ from werkzeug.exceptions import BadRequest, NotFound
 from flask_camp._schemas import schema
 from flask_camp._services._security import allow
 from flask_camp._utils import current_api, JsonResponse
-from flask_camp.models._user_tag import UserTag
+from flask_camp.models._tag import Tag
 
-rule = "/user_tags"
+rule = "/tags"
 
 
 def _build_filters(**kwargs):
@@ -30,25 +30,25 @@ def get():
         value=request.args.get("value", default=None, type=str),
     )
 
-    query = UserTag.query
+    query = Tag.query
 
     if len(filters) != 0:
         query = query.filter_by(**filters)
 
     count = query.count()
-    query = query.order_by(UserTag.id).offset(offset).limit(limit)
+    query = query.order_by(Tag.id).offset(offset).limit(limit)
 
     return JsonResponse(
         {
             "status": "ok",
             "count": count,
-            "user_tags": [tag.as_dict() for tag in query],
+            "tags": [tag.as_dict() for tag in query],
         }
     )
 
 
 @allow("authenticated", allow_blocked=True)
-@schema("modify_user_tag.json")
+@schema("modify_tag.json")
 def post():
     """create/modify an user tag"""
     data = request.get_json()
@@ -57,20 +57,20 @@ def post():
     name = data["name"]
     value = data.get("value", None)
 
-    tag = UserTag.get(name=name, document_id=document_id, user_id=current_user.id)
+    tag = Tag.get(name=name, document_id=document_id, user_id=current_user.id)
     if tag is None:
-        tag = UserTag(name=name, document_id=document_id, user_id=current_user.id)
+        tag = Tag(name=name, document_id=document_id, user_id=current_user.id)
         current_api.database.session.add(tag)
 
     tag.value = value
 
     current_api.database.session.commit()
 
-    return JsonResponse({"status": "ok", "user_tag": tag.as_dict()})
+    return JsonResponse({"status": "ok", "tag": tag.as_dict()})
 
 
 @allow("authenticated", allow_blocked=True)
-@schema("delete_user_tag.json")
+@schema("delete_tag.json")
 def delete():
     """Delete an user tag"""
     data = request.get_json()
@@ -78,7 +78,7 @@ def delete():
     document_id = data["document_id"]
     name = data["name"]
 
-    tag = UserTag.get(name=name, document_id=document_id, user_id=current_user.id)
+    tag = Tag.get(name=name, document_id=document_id, user_id=current_user.id)
 
     if not tag:
         raise NotFound()

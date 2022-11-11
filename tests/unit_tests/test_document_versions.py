@@ -41,17 +41,17 @@ class Test_DocumentVersions(BaseTest):
         history = r.json
         assert history["count"] == len(history["versions"]) == 2
 
-    def test_user_tag_filter(self, user, user_2):
+    def test_tag_filter(self, user, user_2):
         self.login_user(user)
         doc1 = self.create_document().json["document"]
         doc2 = self.create_document().json["document"]
-        self.add_user_tag("follow_list", doc1)
+        self.add_tag("follow_list", doc1)
         self.logout_user()
 
         self.login_user(user_2)
         doc3 = self.create_document().json["document"]
-        self.add_user_tag("follow_list", doc2)
-        self.add_user_tag("other", doc3)
+        self.add_tag("follow_list", doc2)
+        self.add_tag("other", doc3)
         self.logout_user()
 
         r = self.get_versions()

@@ -1,4 +1,4 @@
-from flask_camp._utils import JsonResponse
+from flask_camp.utils import JsonResponse
 from tests.unit_tests.utils import BaseTest
 
 
