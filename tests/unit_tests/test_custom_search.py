@@ -8,27 +8,31 @@ from tests.unit_tests.utils import BaseTest
 
 
 class DocumentSearch(BaseModel):
+    # Define a one-to-one relationship with document table
+    # ondelete is mandatory, as a deletion of the document must delete the search item
     id = Column(ForeignKey(Document.id, ondelete="CASCADE"), index=True, nullable=True, primary_key=True)
 
+    # We want to be able to search on a document type property
+    # index is very import, obviously
     document_type = Column(String(16), index=True)
 
 
-def before_create_document(document, version):
-    before_update_document(document, None, version)
+def before_create_document(document):
+    search_item = DocumentSearch(id=document.id)
+    current_api.database.session.add(search_item)
+    update_document_search(search_item, document.last_version)
 
 
 def before_update_document(document, old_version, new_version):  # pylint: disable=unused-argument
-    if new_version is None:  # document as been merged
-        delete(DocumentSearch).where(DocumentSearch.id == document.id)
-        return
+    update_document_search(DocumentSearch.get(id=document.id), new_version)
 
-    result = DocumentSearch.get(id=document.id)
-    if result is None:
-        result = DocumentSearch(id=document.id)
-        current_api.database.session.add(result)
 
-    if isinstance(new_version.data, dict):
-        result.document_type = new_version.data.get("type")
+def before_merge_documents(document_to_merge, document_destination):  # pylint: disable=unused-argument
+    delete(DocumentSearch).where(DocumentSearch.id == document_to_merge.id)
+
+
+def update_document_search(search_item, version):
+    search_item.document_type = version.data.get("type")
 
 
 def update_search_query(query):
@@ -44,6 +48,7 @@ class Test_CustomSearch(BaseTest):
     rest_api_kwargs = {
         "before_create_document": before_create_document,
         "before_update_document": before_update_document,
+        "before_merge_documents": before_merge_documents,
         "update_search_query": update_search_query,
     }
 

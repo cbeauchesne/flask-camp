@@ -18,7 +18,7 @@ from sqlalchemy import Column, String, ForeignKey
 class DocumentSearch(BaseModel):
     # Define a one-to-one relationship with document table
     # ondelete is mandatory, as a deletion of the document must delete the search item
-    id = Column(ForeignKey(Document.id, ondelete='CASCADE'), index=True, nullable=True, primary_key=True)
+    id = Column(ForeignKey(Document.id, ondelete="CASCADE"), index=True, nullable=True, primary_key=True)
 
     # We want to be able to search on a document type property
     # index is very import, obviously
@@ -26,17 +26,20 @@ class DocumentSearch(BaseModel):
 
 
 def before_create_document(document):
-    current_api.database.session.add(DocumentSearch(id=document.id))
-    fill_search(document, document.last_version)
+    search_item = DocumentSearch(id=document.id)
+    current_api.database.session.add(search_item)
+    update_document_search(search_item, document.last_version)
 
-def before_merge_document(document_to_merge, document_destination):
+
+def before_update_document(document, old_version, new_version):  # pylint: disable=unused-argument
+    update_document_search(DocumentSearch.get(id=document.id), new_version)
+
+
+def before_merge_documents(document_to_merge, document_destination):  # pylint: disable=unused-argument
     delete(DocumentSearch).where(DocumentSearch.id == document_to_merge.id)
 
-def before_update_document(document, old_version, new_version):
-    search_item = DocumentSearch.get(id=document.id)
-    fill_search(search_item, new_version)
 
-def fill_search(search_item, version)
+def update_document_search(search_item, version):
     search_item.document_type = version.data.get("type")
 
 
@@ -50,5 +53,10 @@ def update_search_query(query):
 
 
 app = Flask(__name__)
-api = RestApi(app=app, before_update_document=before_update_document, update_search_query=update_search_query)
+api = RestApi(
+    app=app,
+    before_create_document=before_create_document,
+    before_update_document=before_update_document,
+    before_merge_documents=before_merge_documents,
+    update_search_query=update_search_query)
 ```
