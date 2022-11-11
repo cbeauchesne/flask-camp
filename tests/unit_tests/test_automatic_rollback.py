@@ -5,14 +5,14 @@ from flask_camp.models import User
 from tests.unit_tests.utils import BaseTest
 
 
-def on_user_update(user):
+def before_update_user(user):
     user.name = "not the good name"
     raise BadRequest()
 
 
 class Test_AutomaticRollback(BaseTest):
     rest_api_kwargs = {
-        "on_user_update": on_user_update,
+        "before_update_user": before_update_user,
     }
 
     def test_main(self, user):

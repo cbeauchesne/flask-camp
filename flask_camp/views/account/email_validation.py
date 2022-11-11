@@ -44,9 +44,9 @@ def put():
     user.validate_email(data["token"])
 
     if is_activation:
-        current_api.on_user_validation(user)
+        current_api.before_validate_user(user)
     else:
-        current_api.on_user_update(user)
+        current_api.before_update_user(user)
 
     try:
         current_api.database.session.commit()

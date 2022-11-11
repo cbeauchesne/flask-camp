@@ -48,10 +48,10 @@ class RestApi:
         user_roles="",
         rate_limit_cost_function=None,
         rate_limits_file=None,
-        on_user_creation=None,
-        on_user_validation=None,
-        on_user_update=None,
-        on_user_block=None,
+        before_create_user=None,
+        before_validate_user=None,
+        before_update_user=None,
+        before_block_user=None,
         before_create_document=None,
         after_create_document=None,
         after_get_document=None,
@@ -71,10 +71,10 @@ class RestApi:
 
         self._rate_limit_cost_function = rate_limit_cost_function
 
-        self.on_user_creation = self._hook_function(on_user_creation)
-        self.on_user_validation = self._hook_function(on_user_validation)
-        self.on_user_update = self._hook_function(on_user_update)
-        self.on_user_block = self._hook_function(on_user_block)
+        self.before_create_user = self._hook_function(before_create_user)
+        self.before_validate_user = self._hook_function(before_validate_user)
+        self.before_update_user = self._hook_function(before_update_user)
+        self.before_block_user = self._hook_function(before_block_user)
 
         self.before_create_document = self._hook_function(before_create_document)
         self.after_create_document = self._hook_function(after_create_document)

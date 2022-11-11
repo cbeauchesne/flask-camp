@@ -5,7 +5,7 @@
 
 ## How-to
 
-Add a `on_user_validation` hook like this :
+Add a `before_validate_user` hook like this :
 
 ```python
 from flask import request
@@ -24,7 +24,7 @@ class ProfilePageLink(BaseModel):
 
 
 # add a hook theat will create the page and the link
-def on_user_validation(user):
+def before_validate_user(user):
 
     # create the profile page. This function adds the page in the session
     user_page = Document.create(comment="Creation of user page", data="Hello!", author=user)
@@ -46,7 +46,7 @@ class ProfileView:
         return get_document_view(list(result)[0][0])
 
 app = Flask(__name__)
-api = RestApi(app=app, on_user_validation=on_user_validation)
+api = RestApi(app=app, before_validate_user=before_validate_user)
 
 api.add_views(app, ProfileView())
 ```

@@ -8,10 +8,10 @@ hooks = MagicMock()
 
 class Test_OnUserUpdate(BaseTest):
     rest_api_kwargs = {
-        "on_user_creation": hooks.on_user_creation,
-        "on_user_validation": hooks.on_user_validation,
-        "on_user_update": hooks.on_user_update,
-        "on_user_block": hooks.on_user_block,
+        "before_create_user": hooks.before_create_user,
+        "before_validate_user": hooks.before_validate_user,
+        "before_update_user": hooks.before_update_user,
+        "before_block_user": hooks.before_block_user,
     }
 
     def test_main(self):
@@ -20,51 +20,51 @@ class Test_OnUserUpdate(BaseTest):
             user = self.create_user().json["user"]
             token = re.sub(r"^(.*email_token=)", "", outbox[0].body)
 
-        assert hooks.on_user_creation.called
-        assert not hooks.on_user_validation.called
-        assert not hooks.on_user_update.called
+        assert hooks.before_create_user.called
+        assert not hooks.before_validate_user.called
+        assert not hooks.before_update_user.called
 
         hooks.reset_mock()
         self.validate_email(user, token)
-        assert not hooks.on_user_creation.called
-        assert hooks.on_user_validation.called
-        assert not hooks.on_user_update.called
+        assert not hooks.before_create_user.called
+        assert hooks.before_validate_user.called
+        assert not hooks.before_update_user.called
 
         self.login_user(user)
 
         hooks.reset_mock()
         self.modify_user(user, password="password", new_password="password")
-        assert not hooks.on_user_creation.called
-        assert not hooks.on_user_validation.called
-        assert hooks.on_user_update.called
+        assert not hooks.before_create_user.called
+        assert not hooks.before_validate_user.called
+        assert hooks.before_update_user.called
 
         hooks.reset_mock()
         self.modify_user(user, data="12")
-        assert not hooks.on_user_creation.called
-        assert not hooks.on_user_validation.called
-        assert hooks.on_user_update.called
+        assert not hooks.before_create_user.called
+        assert not hooks.before_validate_user.called
+        assert hooks.before_update_user.called
 
         hooks.reset_mock()
         with self.api.mail.record_messages() as outbox:
             self.modify_user(user, password="password", email="new@mail.fr")
             token = re.sub(r"^(.*email_token=)", "", outbox[0].body)
 
-        assert not hooks.on_user_creation.called
-        assert not hooks.on_user_validation.called
-        assert hooks.on_user_update.called
+        assert not hooks.before_create_user.called
+        assert not hooks.before_validate_user.called
+        assert hooks.before_update_user.called
 
         hooks.reset_mock()
         self.validate_email(user, token)
-        assert not hooks.on_user_creation.called
-        assert not hooks.on_user_validation.called
-        assert hooks.on_user_update.called
+        assert not hooks.before_create_user.called
+        assert not hooks.before_validate_user.called
+        assert hooks.before_update_user.called
 
     def test_user_block(self, moderator, user):
         self.login_user(moderator)
 
         self.block_user(user)
-        assert hooks.on_user_block.called
+        assert hooks.before_block_user.called
 
         hooks.reset_mock()
         self.unblock_user(user)
-        assert hooks.on_user_block.called
+        assert hooks.before_block_user.called

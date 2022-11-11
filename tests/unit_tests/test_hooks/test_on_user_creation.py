@@ -22,7 +22,7 @@ class ProfilePageLink(BaseModel):
     user = relationship(User, cascade="all,delete")
 
 
-def on_user_creation(user):
+def before_create_user(user):
     """
     Two actions:
     1. user must provide a captcha
@@ -56,11 +56,11 @@ class ProfileView:
 class Test_Error:
     def test_error(self):
         with pytest.raises(ConfigurationError):
-            RestApi(on_user_creation={})
+            RestApi(before_create_user={})
 
 
 class Test_BeforeUserCreation(BaseTest):
-    rest_api_kwargs = {"on_user_creation": on_user_creation}
+    rest_api_kwargs = {"before_create_user": before_create_user}
 
     def test_main(self):
 
@@ -78,7 +78,7 @@ class Test_BeforeUserCreation(BaseTest):
         assert profile["data"]["user_id"] == user["id"]
 
     def test_cli(self):
-        # as on_user_creation requires request context, test that CLI does NOT call it
+        # as before_create_user requires request context, test that CLI does NOT call it
 
         self.cli_main({"add_admin": True, "<name>": "admin", "<email>": "admin@email.com", "<password>": "blah"})
         self.login_user("admin", password="blah", expected_status=200)

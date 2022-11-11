@@ -82,8 +82,8 @@ def put(user_id):
             user.set_email(email)
             user.send_email_change_mail()
 
-    # TODO : on_user_update: old and new version
-    current_api.on_user_update(user)
+    # TODO : before_update_user: old and new version
+    current_api.before_update_user(user)
 
     try:
         current_api.database.session.commit()
@@ -104,7 +104,7 @@ def _update_blocked(user, blocked):
     user.blocked = blocked
 
     current_api.add_log(action="block" if blocked else "unblock", target_user=user)
-    current_api.on_user_block(user)
+    current_api.before_block_user(user)
 
 
 def _update_name(user, name):
