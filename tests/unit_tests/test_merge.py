@@ -124,15 +124,19 @@ class Test_Merge(BaseTest):
         self.merge_documents(doc_1, doc_3, comment="nope", expected_status=400)
         self.merge_documents(doc_3, doc_1, comment="nope", expected_status=400)
 
-# class Test_Tags(BaseTest):
-#     def test_main(self, admin):
-#         self.login_user(admin)
 
-#         doc1 = self.create_document().json["document"]
-#         doc2 = self.create_document().json["document"]
+class Test_Tags(BaseTest):
+    def test_main(self, moderator):
+        self.login_user(moderator)
 
-#         self.add_tag("toto", doc1)
+        doc1 = self.create_document().json["document"]
+        doc2 = self.create_document().json["document"]
 
-#         self.merge_documents(doc1, doc2)
+        self.add_tag("toto", doc1)
 
-#         tags = self.get_tags
+        self.merge_documents(doc1, doc2)
+
+        tags = self.get_tags().json["tags"]
+
+        assert len(tags) == 1
+        assert tags[0]["document_id"] == doc2["id"]

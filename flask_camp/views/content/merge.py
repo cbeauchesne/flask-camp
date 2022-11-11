@@ -5,6 +5,7 @@ from flask_camp._schemas import schema
 from flask_camp._services._security import allow
 from flask_camp._utils import current_api, JsonResponse
 from flask_camp.models._document import Document, DocumentVersion
+from flask_camp.models._tag import Tag
 
 rule = "/documents/merge"
 
@@ -33,6 +34,7 @@ def put():
 
     document_to_merge.redirects_to = document_destination.id
     DocumentVersion.query.filter_by(document_id=document_to_merge.id).update({"document_id": document_destination.id})
+    Tag.query.filter_by(document_id=document_to_merge.id).update({"document_id": document_destination.id})
     document_to_merge.last_version_id = None
     document_to_merge.last_version = None
     document_destination.update_last_version_id()
