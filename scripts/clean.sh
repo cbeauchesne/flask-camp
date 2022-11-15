@@ -8,5 +8,6 @@ rm -rf prof
 rm -rf .coverage
 rm -rf flask_camp.egg-info
 rm -rf dist
+rm -rf build
 
 mkdir logs/

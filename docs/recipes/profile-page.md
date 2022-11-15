@@ -23,16 +23,6 @@ class ProfilePageLink(BaseModel):
     user = relationship(User, cascade="all,delete")
 
 
-# add a hook theat will create the page and the link
-def before_validate_user(user):
-
-    # create the profile page. This function adds the page in the session
-    user_page = Document.create(comment="Creation of user page", data="Hello!", author=user)
-
-    # create the link
-    current_api.database.session.add(ProfilePageLink(user=user, document=user_page))
-
-
 # expose an entry point that returns the profile page given the user name
 class ProfileView:
     rule = "/profile/<string:name>"
@@ -45,8 +35,20 @@ class ProfileView:
 
         return get_document_view(list(result)[0][0])
 
+
 app = Flask(__name__)
-api = RestApi(app=app, before_validate_user=before_validate_user)
+api = RestApi(app=app)
+
+
+@api.before_validate_user
+def before_validate_user(user):
+    """hook theat will create the page and the link"""
+
+    # create the profile page. This function adds the page in the session
+    user_page = Document.create(comment="Creation of user page", data="Hello!", author=user)
+
+    # create the link
+    current_api.database.session.add(ProfilePageLink(user=user, document=user_page))
 
 api.add_views(app, ProfileView())
 ```

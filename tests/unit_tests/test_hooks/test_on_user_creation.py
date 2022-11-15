@@ -56,11 +56,12 @@ class ProfileView:
 class Test_Error:
     def test_error(self):
         with pytest.raises(ConfigurationError):
-            RestApi(before_create_user={})
+            api = RestApi()
+            api.before_create_user({})
 
 
 class Test_BeforeUserCreation(BaseTest):
-    rest_api_kwargs = {"before_create_user": before_create_user}
+    rest_api_decorated = {"before_create_user": before_create_user}
 
     def test_main(self):
 

@@ -47,10 +47,13 @@ def update_search_query(query):
 
 class Test_CustomSearch(BaseTest):
     rest_api_kwargs = {
+        "update_search_query": update_search_query,
+    }
+
+    rest_api_decorated = {
         "before_create_document": before_create_document,
         "before_update_document": before_update_document,
         "before_merge_documents": before_merge_documents,
-        "update_search_query": update_search_query,
     }
 
     def test_main(self, admin):

@@ -7,7 +7,7 @@ hooks = MagicMock()
 
 
 class Test_Hooks(BaseTest):
-    rest_api_kwargs = {
+    rest_api_decorated = {
         "before_create_document": hooks.before_create_document,
         "after_create_document": hooks.after_create_document,
         "after_get_document": hooks.after_get_document,

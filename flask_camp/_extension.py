@@ -9,6 +9,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from werkzeug.exceptions import HTTPException, NotFound
 
+from ._event import Event
 from ._schemas import SchemaValidator
 from ._services._database import database
 from ._services._memory_cache import memory_cache
@@ -48,19 +49,6 @@ class RestApi:
         user_roles="",
         rate_limit_cost_function=None,
         rate_limits_file=None,
-        before_create_user=None,
-        before_validate_user=None,
-        before_update_user=None,
-        before_block_user=None,
-        before_create_document=None,
-        after_create_document=None,
-        after_get_document=None,
-        after_get_documents=None,
-        before_update_document=None,
-        before_merge_documents=None,
-        after_merge_documents=None,
-        before_delete_document=None,
-        after_delete_document=None,
         update_search_query=None,
         url_prefix="",
     ):
@@ -71,24 +59,20 @@ class RestApi:
 
         self._rate_limit_cost_function = rate_limit_cost_function
 
-        self.before_create_user = self._hook_function(before_create_user)
-        self.before_validate_user = self._hook_function(before_validate_user)
-        self.before_update_user = self._hook_function(before_update_user)
-        self.before_block_user = self._hook_function(before_block_user)
+        self.before_create_user = Event()
+        self.before_validate_user = Event()
+        self.before_update_user = Event()
+        self.before_block_user = Event()
 
-        self.before_create_document = self._hook_function(before_create_document)
-        self.after_create_document = self._hook_function(after_create_document)
-
-        self.after_get_document = self._hook_function(after_get_document)
-        self.after_get_documents = self._hook_function(after_get_documents)
-
-        self.before_update_document = self._hook_function(before_update_document)
-
-        self.before_merge_documents = self._hook_function(before_merge_documents)
-        self.after_merge_documents = self._hook_function(after_merge_documents)
-
-        self.before_delete_document = self._hook_function(before_delete_document)
-        self.after_delete_document = self._hook_function(after_delete_document)
+        self.before_create_document = Event()
+        self.after_create_document = Event()
+        self.after_get_document = Event()
+        self.after_get_documents = Event()
+        self.before_update_document = Event()
+        self.before_merge_documents = Event()
+        self.after_merge_documents = Event()
+        self.before_delete_document = Event()
+        self.after_delete_document = Event()
 
         self.update_search_query = update_search_query if update_search_query is not None else lambda query: query
 
@@ -158,14 +142,6 @@ class RestApi:
             user_roles = user_roles.split(",")
 
         return set(role.lower().strip() for role in user_roles if len(role.strip()) != 0)
-
-    @staticmethod
-    def _hook_function(function):
-
-        if function is not None and not callable(function):
-            raise ConfigurationError(f"Hook object is not callable: {function}")
-
-        return function if function else lambda *args, **kwargs: ...
 
     def _init_config(self, app):
         if app.config.get("MAIL_DEFAULT_SENDER", None) is None:

@@ -27,7 +27,7 @@ def get(document_id):
         )
 
     response = JsonResponse(data={"status": "ok", "document": document_as_dict}, add_etag=True)
-    current_api.after_get_document(response=response)
+    current_api.after_get_document.fire(response=response)
 
     return response
 
@@ -80,7 +80,7 @@ def post(document_id):
 
     current_api.database.session.flush()
 
-    current_api.before_update_document(document=document, old_version=old_version, new_version=version)
+    current_api.before_update_document.fire(document=document, old_version=old_version, new_version=version)
 
     current_api.database.session.commit()
 
@@ -124,7 +124,7 @@ def delete(document_id):
     if not document:
         raise NotFound()
 
-    current_api.before_delete_document(document=document)
+    current_api.before_delete_document.fire(document=document)
 
     current_api.database.session.delete(document)
 
@@ -134,7 +134,7 @@ def delete(document_id):
     document.clear_memory_cache()
 
     response = JsonResponse({"status": "ok"})
-    current_api.after_delete_document(response=response)
+    current_api.after_delete_document.fire(response=response)
     return response
 
 

@@ -12,6 +12,7 @@ from flask_camp.client import ClientInterface
 class BaseTest(ClientInterface):
     client = None
     rest_api_kwargs = {}
+    rest_api_decorated = {}
 
     @classmethod
     def setup_class(cls):
@@ -21,6 +22,10 @@ class BaseTest(ClientInterface):
         )
 
         cls.api = RestApi(app=cls.app, **cls.rest_api_kwargs)
+
+        for name, argument in cls.rest_api_decorated.items():
+            decorator = getattr(cls.api, name)
+            decorator(argument)
 
     def setup_method(self):
         with self.app.app_context():

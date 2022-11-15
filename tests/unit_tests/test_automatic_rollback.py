@@ -11,7 +11,7 @@ def before_update_user(user):
 
 
 class Test_AutomaticRollback(BaseTest):
-    rest_api_kwargs = {
+    rest_api_decorated = {
         "before_update_user": before_update_user,
     }
 

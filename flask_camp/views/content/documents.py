@@ -47,7 +47,7 @@ def get():
     documents = [get_cooked_document(row[0]) for row in document_ids]
 
     response = JsonResponse({"status": "ok", "documents": documents, "count": list(count)[0][0]})
-    current_api.after_get_documents(response=response)
+    current_api.after_get_documents.fire(response=response)
     return response
 
 
@@ -62,12 +62,12 @@ def post():
         data=body["document"]["data"],
     )
 
-    current_api.before_create_document(document=document)
+    current_api.before_create_document.fire(document=document)
 
     current_api.database.session.commit()
 
     document.clear_memory_cache()
 
     response = JsonResponse({"status": "ok", "document": cook(document.last_version.as_dict())})
-    current_api.after_create_document(response=response)
+    current_api.after_create_document.fire(response=response)
     return response

@@ -66,7 +66,7 @@ class Hooks:
 
 
 class Test_UserCreation(BaseTest):
-    rest_api_kwargs = {"before_update_document": Hooks.before_update_document}
+    rest_api_decorated = {"before_update_document": Hooks.before_update_document}
 
     def test_regular(self, moderator, admin):
         self.login_user(moderator)

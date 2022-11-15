@@ -38,10 +38,12 @@ def put():
     document_to_merge.last_version = None
     document_destination.update_last_version_id()
 
-    current_api.before_merge_documents(document_to_merge=document_to_merge, document_destination=document_destination)
+    current_api.before_merge_documents.fire(
+        document_to_merge=document_to_merge, document_destination=document_destination
+    )
 
     if destination_old_version.id != document_destination.last_version.id:
-        current_api.before_update_document(
+        current_api.before_update_document.fire(
             document=document_destination,
             old_version=destination_old_version,
             new_version=document_destination.last_version,
@@ -56,5 +58,5 @@ def put():
     document_to_merge.clear_memory_cache()
 
     response = JsonResponse({"status": "ok"})
-    current_api.after_merge_documents(response=response)
+    current_api.after_merge_documents.fire(response=response)
     return response

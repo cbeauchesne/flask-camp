@@ -19,7 +19,7 @@ def after_get_document(response: JsonResponse):
 
 
 class Test_AfterGetDocument(BaseTest):
-    rest_api_kwargs = {
+    rest_api_decorated = {
         "after_get_document": after_get_document,
     }
 

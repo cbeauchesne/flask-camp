@@ -7,7 +7,8 @@ hooks = MagicMock()
 
 
 class Test_OnUserUpdate(BaseTest):
-    rest_api_kwargs = {
+
+    rest_api_decorated = {
         "before_create_user": hooks.before_create_user,
         "before_validate_user": hooks.before_validate_user,
         "before_update_user": hooks.before_update_user,

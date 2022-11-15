@@ -49,7 +49,7 @@ def post():
         )
         current_api.database.session.add(user)
         current_api.database.session.flush()
-        current_api.before_create_user(user)
+        current_api.before_create_user.fire(user=user)
         current_api.database.session.commit()
     except IntegrityError as e:
         raise BadRequest("A user still exists with this name") from e
