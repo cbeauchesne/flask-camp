@@ -81,11 +81,9 @@ class FuzzerSession(ClientSession):
 
     def fuzz_merge_documents(self):
         document_to_merge = random.choice(self.known_documents)
-        document_destination = random.choice(self.known_documents)
+        target_document = random.choice(self.known_documents)
 
-        self.merge_documents(
-            document_to_merge, document_destination, comment="merge it!", expected_status=[200, 400, 403]
-        )
+        self.merge_documents(document_to_merge, target_document, comment="merge it!", expected_status=[200, 400, 403])
 
     def fuzz_add_tag(self):
         doc = random.choice(self.known_documents)

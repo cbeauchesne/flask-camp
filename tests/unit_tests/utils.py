@@ -224,8 +224,8 @@ class BaseTest(ClientInterface):
     def unprotect_document(self, document, comment="Default comment", **kwargs):
         return super().unprotect_document(document, comment, **kwargs)
 
-    def merge_documents(self, document_to_merge, document_destination, comment="Default comment", **kwargs):
-        return super().merge_documents(document_to_merge, document_destination, comment, **kwargs)
+    def merge_documents(self, document_to_merge, target_document, comment="Default comment", **kwargs):
+        return super().merge_documents(document_to_merge, target_document, comment, **kwargs)
 
     def delete_document(self, document, comment="Default comment", **kwargs):
         return super().delete_document(document, comment, **kwargs)

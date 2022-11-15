@@ -23,7 +23,7 @@ class Test_Merge(BaseTest):
         doc = self.get_document(v1).json["document"]
         assert doc["id"] == v1["id"]
 
-        self.merge_documents(document_to_merge=v1, document_destination=v2, comment="test")
+        self.merge_documents(document_to_merge=v1, target_document=v2, comment="test")
 
         versions = self.get_versions(document=v2).json["versions"]
         versions = self.get_versions().json["versions"]
@@ -57,15 +57,15 @@ class Test_Merge(BaseTest):
         v1 = self.create_document(data="v1").json["document"]
         v2 = self.create_document(data="v2").json["document"]
 
-        self.merge_documents(document_to_merge=v1, document_destination=v2, comment="test", expected_status=403)
+        self.merge_documents(document_to_merge=v1, target_document=v2, comment="test", expected_status=403)
 
     def test_common_doc(self, moderator):
         self.login_user(moderator)
 
         v1 = self.create_document(data="v1").json["document"]
 
-        self.merge_documents(document_to_merge=v1, document_destination=v1, comment="test", expected_status=400)
-        self.merge_documents(document_to_merge=v1, document_destination={"id": 42}, comment="test", expected_status=404)
+        self.merge_documents(document_to_merge=v1, target_document=v1, comment="test", expected_status=400)
+        self.merge_documents(document_to_merge=v1, target_document={"id": 42}, comment="test", expected_status=404)
 
     def test_no_comment(self, moderator):
         self.login_user(moderator)
@@ -73,7 +73,7 @@ class Test_Merge(BaseTest):
         doc_1 = self.create_document().json["document"]
         doc_2 = self.create_document().json["document"]
 
-        self.merge_documents(document_to_merge=doc_1, document_destination=doc_2, comment=None, expected_status=400)
+        self.merge_documents(document_to_merge=doc_1, target_document=doc_2, comment=None, expected_status=400)
 
     def test_do_not_see_merged_document(self, moderator):
         self.login_user(moderator)
@@ -81,7 +81,7 @@ class Test_Merge(BaseTest):
         doc_1 = self.create_document().json["document"]
         doc_2 = self.create_document().json["document"]
 
-        self.merge_documents(document_to_merge=doc_1, document_destination=doc_2, comment="merged")
+        self.merge_documents(document_to_merge=doc_1, target_document=doc_2, comment="merged")
 
         r = self.get_documents().json
 
@@ -94,7 +94,7 @@ class Test_Merge(BaseTest):
         doc_1 = self.create_document().json["document"]
         doc_2 = self.create_document().json["document"]
 
-        self.merge_documents(document_to_merge=doc_1, document_destination=doc_2, comment="merged")
+        self.merge_documents(document_to_merge=doc_1, target_document=doc_2, comment="merged")
 
         self.modify_document(doc_1, expected_status=400)
 
@@ -104,7 +104,7 @@ class Test_Merge(BaseTest):
         doc_1 = self.create_document(data={"namespace": "cook-me"}).json["document"]
         doc_2 = self.create_document(data={"namespace": "cook-me"}).json["document"]
 
-        self.merge_documents(document_to_merge=doc_1, document_destination=doc_2, comment="merged")
+        self.merge_documents(document_to_merge=doc_1, target_document=doc_2, comment="merged")
 
         doc_1 = self.get_document(doc_1, expected_status=301).json["document"]
         doc_2 = self.get_document(doc_2).json["document"]
@@ -123,6 +123,41 @@ class Test_Merge(BaseTest):
 
         self.merge_documents(doc_1, doc_3, comment="nope", expected_status=400)
         self.merge_documents(doc_3, doc_1, comment="nope", expected_status=400)
+
+    def test_wrong_requests(self, moderator):
+        self.login_user(moderator)
+
+        doc_1 = self.create_document().json["document"]
+        doc_2 = self.create_document().json["document"]
+
+        comment = {
+            "comment": "comment",
+        }
+
+        self.put("/documents/merge", json=comment, expected_status=400)
+        self.put("/documents/merge", json=comment | {"target_document_id": doc_1["id"]}, expected_status=400)
+        self.put("/documents/merge", json=comment | {"source_document_id": doc_1["id"]}, expected_status=400)
+        self.put(
+            "/documents/merge",
+            json=comment | {"target_document_id": doc_1["id"], "source_document_id": doc_1["id"]},
+            expected_status=400,
+        )
+        self.put(
+            "/documents/merge",
+            json=comment | {"target_document_id": 42, "source_document_id": doc_1["id"]},
+            expected_status=404,
+        )
+        self.put(
+            "/documents/merge",
+            json=comment | {"target_document_id": doc_1["id"], "source_document_id": 42},
+            expected_status=404,
+        )
+
+        self.put(
+            "/documents/merge",
+            json=comment | {"target_document_id": doc_1["id"], "source_document_id": str(doc_2["id"])},
+            expected_status=400,
+        )
 
 
 class Test_Tags(BaseTest):

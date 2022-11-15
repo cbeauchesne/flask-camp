@@ -28,8 +28,8 @@ def before_update_document(document, old_version, new_version):  # pylint: disab
     update_document_search(DocumentSearch.get(id=document.id), new_version)
 
 
-def before_merge_documents(document_to_merge, document_destination):  # pylint: disable=unused-argument
-    delete(DocumentSearch).where(DocumentSearch.id == document_to_merge.id)
+def before_merge_documents(source_document, target_document):  # pylint: disable=unused-argument
+    delete(DocumentSearch).where(DocumentSearch.id == source_document.id)
 
 
 def update_document_search(search_item, version):

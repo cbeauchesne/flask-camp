@@ -45,13 +45,13 @@ class Test_Hooks(BaseTest):
         hooks.reset_mock()
 
         self.merge_documents(doc1, doc2)
-        self.assert_call(hooks.before_merge_documents, document_to_merge=Document, document_destination=Document)
+        self.assert_call(hooks.before_merge_documents, source_document=Document, target_document=Document)
         self.assert_call(hooks.after_merge_documents, response=JsonResponse)
         assert hooks.before_update_document.call_count == 0
         hooks.reset_mock()
 
         self.merge_documents(doc3, doc2)
-        self.assert_call(hooks.before_merge_documents, document_to_merge=Document, document_destination=Document)
+        self.assert_call(hooks.before_merge_documents, source_document=Document, target_document=Document)
         self.assert_call(
             hooks.before_update_document, document=Document, old_version=DocumentVersion, new_version=DocumentVersion
         )

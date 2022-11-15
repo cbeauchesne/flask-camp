@@ -284,10 +284,10 @@ class ClientInterface:
             **kwargs,
         )
 
-    def merge_documents(self, document_to_merge, document_destination, comment, **kwargs):
+    def merge_documents(self, document_to_merge, target_document, comment, **kwargs):
         json = {
-            "document_to_merge": document_to_merge["id"],
-            "document_destination": document_destination["id"],
+            "source_document_id": document_to_merge["id"],
+            "target_document_id": target_document["id"],
             "comment": comment,
         } | kwargs.pop("params", {})
 

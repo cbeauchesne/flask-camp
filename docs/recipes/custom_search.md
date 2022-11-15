@@ -54,6 +54,6 @@ def before_update_document(document, old_version, new_version):  # pylint: disab
 
 
 @api.before_merge_documents
-def before_merge_documents(document_to_merge, document_destination):  # pylint: disable=unused-argument
-    delete(DocumentSearch).where(DocumentSearch.id == document_to_merge.id)
+def before_merge_documents(source_document, target_document):  # pylint: disable=unused-argument
+    delete(DocumentSearch).where(DocumentSearch.id == source_document.id)
 ```

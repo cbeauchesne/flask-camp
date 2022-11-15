@@ -17,45 +17,41 @@ def put():
     Other document will get all history from merged"""
 
     data = request.get_json()
-    document_to_merge = Document.get(id=data["document_to_merge"], with_for_update=True)
-    document_destination = Document.get(id=data["document_destination"], with_for_update=True)
+    source_document = Document.get(id=data["source_document_id"], with_for_update=True)
+    target_document = Document.get(id=data["target_document_id"], with_for_update=True)
 
-    if document_to_merge is None or document_destination is None:
+    if source_document is None or target_document is None:
         raise NotFound()
 
-    if document_to_merge.id == document_destination.id:
+    if source_document.id == target_document.id:
         raise BadRequest()
 
-    if document_destination.is_redirection or document_to_merge.is_redirection:
+    if target_document.is_redirection or source_document.is_redirection:
         raise BadRequest()
 
-    destination_old_version = document_destination.last_version
+    current_api.before_merge_documents.fire(source_document=source_document, target_document=target_document)
 
-    document_to_merge.redirects_to = document_destination.id
-    DocumentVersion.query.filter_by(document_id=document_to_merge.id).update({"document_id": document_destination.id})
-    Tag.query.filter_by(document_id=document_to_merge.id).update({"document_id": document_destination.id})
-    document_to_merge.last_version_id = None
-    document_to_merge.last_version = None
-    document_destination.update_last_version_id()
+    destination_old_version = target_document.last_version
 
-    current_api.before_merge_documents.fire(
-        document_to_merge=document_to_merge, document_destination=document_destination
-    )
+    source_document.redirects_to = target_document.id
+    DocumentVersion.query.filter_by(document_id=source_document.id).update({"document_id": target_document.id})
+    Tag.query.filter_by(document_id=source_document.id).update({"document_id": target_document.id})
+    source_document.last_version_id = None
+    source_document.last_version = None
+    target_document.update_last_version_id()
 
-    if destination_old_version.id != document_destination.last_version.id:
+    if destination_old_version.id != target_document.last_version.id:
         current_api.before_update_document.fire(
-            document=document_destination,
+            document=target_document,
             old_version=destination_old_version,
-            new_version=document_destination.last_version,
+            new_version=target_document.last_version,
         )
 
-    current_api.add_log(
-        "merge", comment=data["comment"], document=document_destination, merged_document=document_to_merge
-    )
+    current_api.add_log("merge", comment=data["comment"], document=target_document, merged_document=source_document)
     current_api.database.session.commit()
 
-    document_destination.clear_memory_cache()
-    document_to_merge.clear_memory_cache()
+    target_document.clear_memory_cache()
+    source_document.clear_memory_cache()
 
     response = JsonResponse({"status": "ok"})
     current_api.after_merge_documents.fire(response=response)
