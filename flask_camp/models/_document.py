@@ -90,18 +90,18 @@ class Document(BaseModel):
 
         return result
 
-    def update_last_version_id(self, forbidden_id=None):
+    def update_last_version_id(self):
         """call this when a version has been hidden or deleted"""
         query = DocumentVersion.query
 
-        if forbidden_id is not None:
-            query = query.filter(DocumentVersion.id != forbidden_id)
-
-        query = query.filter_by(document_id=self.id, hidden=False).order_by(DocumentVersion.id.desc())
+        query = query.filter_by(document_id=self.id).order_by(DocumentVersion.id.desc())
         self.last_version = query.first()
 
         if self.last_version is None:
             raise BadRequest("There is no visible version associated with this document")
+
+        if self.last_version.hidden:
+            raise BadRequest("The last version of a document cannot be hidden")
 
         self.last_version_id = self.last_version.id
 

@@ -51,6 +51,7 @@ class Test_Logs(BaseTest):
 
         doc = self.create_document().json["document"]
         doc_v2 = self.modify_document(doc, data="v2").json["document"]
+        self.modify_document(doc_v2, data="v3")
 
         self.protect_document(doc, comment="needs protection")
         self.unprotect_document(doc, comment="ok!")

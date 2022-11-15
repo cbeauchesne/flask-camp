@@ -1,5 +1,6 @@
 from flask import request
 from sqlalchemy import Column, String, ForeignKey, delete
+import pytest
 
 from flask_camp import current_api
 from flask_camp.models import BaseModel, Document
@@ -53,6 +54,27 @@ class Test_CustomSearch(BaseTest):
     }
 
     def test_main(self, admin):
+        self.login_user(admin)
+        self.modify_user(admin, roles=["moderator", "admin"], comment="I'am god")
+
+        doc_1 = self.create_document(data={"type": "x"}).json["document"]
+        doc_2 = self.create_document(data={"type": ""}).json["document"]
+
+        documents = self.get_documents(params={"t": "x"}).json["documents"]
+        assert len(documents) == 1
+        assert documents[0]["id"] == doc_1["id"]
+
+        self.delete_document(doc_1)
+        documents = self.get_documents(params={"t": "x"}).json["documents"]
+        assert len(documents) == 0
+
+        self.modify_document(doc_2, data={"type": "x"})
+        documents = self.get_documents(params={"t": "x"}).json["documents"]
+        assert len(documents) == 1
+        assert documents[0]["id"] == doc_2["id"]
+
+    @pytest.mark.xfail(reason="Can't delete/hide last version")
+    def test_main_woth_delete_last_version(self, admin):
         self.login_user(admin)
         self.modify_user(admin, roles=["moderator", "admin"], comment="I'am god")
 

@@ -1,5 +1,7 @@
 from contextlib import contextmanager
 
+import pytest
+
 from tests.unit_tests.utils import BaseTest
 
 NOT_YET_KNOWN = {}
@@ -82,19 +84,32 @@ class Test_UserCreation(BaseTest):
         self.hide_version(doc_v1)
         self.unhide_version(doc_v1)
 
-        with Hooks.expect_single_call(document=doc_v1, old_version=doc_v2, new_version=doc_v1):
-            self.hide_version(doc_v2)
-
-        with Hooks.expect_single_call(document=doc_v1, old_version=doc_v1, new_version=doc_v2):
-            self.unhide_version(doc_v2)
-
         with Hooks.expect_single_call(document=doc_v1, old_version=doc_v2, new_version=NOT_YET_KNOWN):
-            doc_v3 = self.modify_document(doc_v2, data=43).json["document"]
+            self.modify_document(doc_v2, data=43)
 
         self.login_user(admin)
 
         # not the last version, no call
         self.delete_version(doc_v2)
 
-        with Hooks.expect_single_call(document=doc_v1, old_version=doc_v3, new_version=doc_v1):
-            self.delete_version(doc_v3)
+    @pytest.mark.xfail(reason="Not yet possible to delete/hide last version")
+    def test_hide_last_version(self, moderator):
+        self.login_user(moderator)
+
+        doc_v1 = self.create_document().json["document"]
+
+        with Hooks.expect_single_call(document=doc_v1, old_version=doc_v1, new_version=NOT_YET_KNOWN):
+            doc_v2 = self.modify_document(doc_v1, data=42).json["document"]
+
+        # hide not the last version => no call
+        self.hide_version(doc_v1)
+        self.unhide_version(doc_v1)
+
+        with Hooks.expect_single_call(document=doc_v1, old_version=doc_v2, new_version=doc_v1):
+            self.hide_version(doc_v2)
+
+        with Hooks.expect_single_call(document=doc_v1, old_version=doc_v1, new_version=doc_v2):
+            self.unhide_version(doc_v2)
+
+        with Hooks.expect_single_call(document=doc_v1, old_version=doc_v2, new_version=doc_v1):
+            self.delete_version(doc_v2)

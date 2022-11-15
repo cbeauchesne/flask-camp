@@ -1,10 +1,11 @@
 from flask import request
-from werkzeug.exceptions import NotFound, BadRequest
+from werkzeug.exceptions import NotFound
 
 from flask_camp._schemas import schema
 from flask_camp._services._security import allow
 from flask_camp._utils import cook, current_api, JsonResponse
-from flask_camp.models._document import DocumentVersion, Document
+from flask_camp.exceptions import CantHideLastVersion, CantDeleteLastVersion
+from flask_camp.models import DocumentVersion
 
 rule = "/document/version<int:version_id>"
 
@@ -30,26 +31,14 @@ def put(version_id):
     if version is None:
         raise NotFound()
 
-    old_last_version = version.document.last_version
-    hidden = request.get_json()["version"]["hidden"]
-    version.hidden = hidden
-    current_api.database.session.flush()
+    version.hidden = request.get_json()["version"]["hidden"]
 
-    document = Document.get(id=version.document_id, with_for_update=True)
-    document.update_last_version_id()
+    if version.hidden and version.document.last_version_id == version.id:
+        raise CantHideLastVersion()
 
-    needs_update = old_last_version.id != version.document.last_version_id
-
-    if needs_update:
-        current_api.before_update_document(
-            document=document, old_version=old_last_version, new_version=document.last_version
-        )
-
-    current_api.add_log("hide_version" if hidden else "unhide_version", version=version, document=version.document)
+    action = "hide_version" if version.hidden else "unhide_version"
+    current_api.add_log(action, version=version, document=version.document)
     current_api.database.session.commit()
-
-    if needs_update:
-        version.document.clear_memory_cache()
 
     return JsonResponse({"status": "ok"})
 
@@ -63,25 +52,11 @@ def delete(version_id):
     if version is None:
         raise NotFound()
 
-    if DocumentVersion.query.filter_by(document_id=version.document_id).count() <= 1:
-        raise BadRequest("Can't delete last version of a document")
+    if version.id == version.document.last_version_id:
+        raise CantDeleteLastVersion()
 
-    old_last_version = version.document.last_version
-    document = Document.get(id=version.document_id, with_for_update=True)
-
-    document.update_last_version_id(forbidden_id=version.id)
-    needs_update = old_last_version.id != version.document.last_version_id
-
-    if needs_update:
-        current_api.before_update_document(
-            document=document, old_version=old_last_version, new_version=document.last_version
-        )
-
-    current_api.database.session.delete(version)
     current_api.add_log("delete_version", version=version, document=version.document)
+    current_api.database.session.delete(version)
     current_api.database.session.commit()
-
-    if needs_update:
-        version.document.clear_memory_cache()
 
     return JsonResponse({"status": "ok"})

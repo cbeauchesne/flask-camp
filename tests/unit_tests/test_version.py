@@ -58,7 +58,7 @@ class Test_DeleteVersion(BaseTest):
 
         v0 = self.create_document().json["document"]
         r = self.delete_version(v0, expected_status=400)
-        assert r.json["description"] == "Can't delete last version of a document"
+        assert r.json["description"] == "The last version of a document cannot be deleted"
 
     def test_rights(self, user):
         self.login_user(user)

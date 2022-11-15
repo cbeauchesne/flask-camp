@@ -1,4 +1,4 @@
-from werkzeug.exceptions import Conflict
+from werkzeug.exceptions import Conflict, BadRequest
 
 
 class ConfigurationError(Exception):
@@ -12,3 +12,13 @@ class EditConflict(Conflict):
             "last_version": last_version,
             "your_version": your_version,
         }
+
+
+class CantHideLastVersion(BadRequest):
+    def __init__(self) -> None:
+        super().__init__("The last version of a document cannot be hidden")
+
+
+class CantDeleteLastVersion(BadRequest):
+    def __init__(self) -> None:
+        super().__init__("The last version of a document cannot be deleted")
