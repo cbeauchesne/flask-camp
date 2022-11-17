@@ -3,6 +3,7 @@ import json
 from types import ModuleType
 import warnings
 
+import click
 from flask import request
 from flask_login import LoginManager
 from flask_limiter import Limiter
@@ -105,6 +106,8 @@ class RestApi:
 
         self._configuration_checks()
 
+        self._init_cli(app)
+
         if app.debug:  # pragma: no cover
             with app.app_context():
                 self.database.create_all()
@@ -190,6 +193,23 @@ class RestApi:
         # others
         self.add_views(app, tags_view)
         self.add_views(app, logs_view)
+
+    def _init_cli(self, app):
+        @app.cli.command("init-db")
+        def init_db():
+            with app.app_context():
+                self.database.create_all()
+
+        @app.cli.command("add-admin")
+        @click.argument("name")
+        @click.argument("password")
+        @click.argument("email")
+        def add_admin(name, password, email):
+            with app.app_context():
+                user = UserModel.create(name=name, roles=["admin"], password=password, email=email)
+                user.validate_email(user._email_token)
+                self.database.session.add(user)
+                self.database.session.commit()
 
     @property
     def user_roles(self):

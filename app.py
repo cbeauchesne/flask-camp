@@ -13,7 +13,3 @@ handler.setLevel(logging.ERROR)
 app.logger.addHandler(handler)  # pylint: disable=no-member
 
 api = RestApi(app=app)
-
-if __name__ == "__main__":
-    with app.app_context():
-        api.database.create_all()

@@ -12,17 +12,17 @@ TARGET=fuzzer
 rm -rf logs/*
 touch logs/errors.log
 
-docker compose -f flask_camp/docker-compose.yml up --remove-orphans --force-recreate --wait --scale app=3 -d
+docker compose up --remove-orphans --force-recreate --wait --scale app=3 -d
 
-# calling this script directly will create the DB
-docker compose -f flask_camp/docker-compose.yml exec app python app.py
+docker compose exec app flask init-db
+docker compose exec app flask add-admin admin password admin@example.com
 
 PYTHONPATH=. python tests/end_tests/$TARGET/main.py
 
-docker compose -f flask_camp/docker-compose.yml logs haproxy > logs/haproxy.log
-docker compose -f flask_camp/docker-compose.yml logs redis > logs/redis.log
-docker compose -f flask_camp/docker-compose.yml logs app > logs/app.log
+docker compose logs haproxy > logs/haproxy.log
+docker compose logs redis > logs/redis.log
+docker compose logs app > logs/app.log
 
-docker compose -f flask_camp/docker-compose.yml down
+docker compose  down
 
 python tests/end_tests/fuzzer/pretty.py

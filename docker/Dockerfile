@@ -8,6 +8,6 @@ RUN pip install -e .
 
 RUN apt-get update && apt-get install -y nginx
 RUN pip install uwsgi
-COPY flask_camp/docker/nginx.conf /etc/nginx/sites-enabled/default
+COPY docker/nginx.conf /etc/nginx/sites-enabled/default
 
-CMD ["/bin/bash", "flask_camp/docker/start.sh"]
+CMD ["/bin/bash", "docker/start.sh"]

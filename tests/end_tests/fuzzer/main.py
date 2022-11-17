@@ -9,7 +9,6 @@ import time
 import docker
 
 from tests.end_tests.utils import ClientSession
-from flask_camp.__main__ import main as cli_main
 
 
 class FuzzerSession(ClientSession):
@@ -180,17 +179,6 @@ def main():
     docker_stats = []
 
     sessions = [FuzzerSession(session_count) for _ in range(session_count)]
-
-    cli_main(
-        {
-            "dev_env": False,
-            "add_admin": True,
-            "init_db": False,
-            "<name>": "admin",
-            "<password>": "password",
-            "<email>": "admin@example.com",
-        }
-    )
 
     for i, session in enumerate(sessions):
         session.setup_user(f"user_{i}")

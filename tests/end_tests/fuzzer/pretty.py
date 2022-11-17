@@ -69,7 +69,7 @@ def _build_container_graph(source, containers, x_range=None):
     mem_values = []
     for i, container in enumerate(containers):
 
-        mem_source = f"/flask_camp-{container}_mem"
+        mem_source = f"/flask-camp-{container}_mem"
         mem_values += source.data[mem_source]
 
         graph.line(

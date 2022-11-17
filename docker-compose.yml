@@ -13,14 +13,13 @@ services:
 
   app:
     build:
-      context: ../
-      dockerfile: flask_camp/docker/Dockerfile
+      dockerfile: docker/Dockerfile
     # user: www-data  # TODO
     volumes:
-      - .:/app/flask_camp:ro
-      # - ./flask_camp/docker/:/app/docker:ro
-      - ./logs/errors.log:/app/logs/errors.log
-      - ../app.py:/app/app.py:ro
+      - ./flask_camp:/app/flask_camp:ro
+      - ./docker:/app/docker:ro
+      - ./app.py:/app/app.py:ro
+      - ./logs:/app/logs
     environment:
       - FLASK_SQLALCHEMY_DATABASE_URI=postgresql://flask_camp_user:flask_camp_user@pg:5432/flask_camp
       - FLASK_SECRET_KEY
@@ -34,11 +33,11 @@ services:
       interval: 1s
       retries: 25
 
-    # depends_on:
-    #   pg:
-    #     condition: service_healthy
-    #   redis:
-    #     condition: service_healthy
+    depends_on:
+      pg:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     expose:
       - 5000
 

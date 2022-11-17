@@ -1,11 +1,9 @@
-from collections import defaultdict
 import json
 import re
 
 from flask import Flask
 
 from flask_camp import RestApi
-from flask_camp.__main__ import main
 from flask_camp.client import ClientInterface
 
 
@@ -253,8 +251,3 @@ class BaseTest(ClientInterface):
 
     def rename_user(self, user, name, comment="Default comment", **kwargs):
         return super().rename_user(user, name, comment, **kwargs)
-
-    @staticmethod
-    def cli_main(args):
-        args = defaultdict(lambda: False, **args)
-        main(args)
