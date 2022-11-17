@@ -38,8 +38,6 @@ def post():
 
     data = request.get_json()["user"]
 
-    current_api.validate_user_schema(data)
-
     try:
         user = User.create(
             name=data["name"],

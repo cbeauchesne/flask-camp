@@ -10,7 +10,6 @@ from flask_limiter.util import get_remote_address
 from werkzeug.exceptions import HTTPException, NotFound
 
 from ._event import Event
-from ._schemas import SchemaValidator
 from ._services._database import database
 from ._services._memory_cache import memory_cache
 from ._services._security import check_rights, allow
@@ -44,8 +43,6 @@ class RestApi:
         self,
         app=None,
         cooker=None,
-        schemas_directory=None,
-        user_schema=None,
         user_roles="",
         rate_limit_cost_function=None,
         rate_limits_file=None,
@@ -85,12 +82,6 @@ class RestApi:
         self._user_roles = {"admin", "moderator"} | self._parse_user_roles(user_roles)
         self._cooker = cooker
 
-        if schemas_directory:
-            self._schema_validator = SchemaValidator(schemas_directory)
-        else:
-            self._schema_validator = None
-
-        self._user_schema = user_schema
         self._url_prefix = url_prefix
 
         self.allow = allow
@@ -122,13 +113,6 @@ class RestApi:
         # post configuration checks
         if self._cooker is not None and not callable(self._cooker):
             raise ConfigurationError(f"cooker is not callable: {self._cooker}")
-
-        if self._schema_validator:
-            self._schema_validator.assert_schema_exists(self._user_schema)
-
-        else:
-            if self._user_schema is not None:
-                raise ConfigurationError("You provide user_schema wihtout schemas_directory")
 
         for role in ("anonymous", "authenticated"):
             if role in self._user_roles:
@@ -268,11 +252,6 @@ class RestApi:
 
         return result
 
-    def validate_user_schema(self, data):
-        if self._schema_validator is not None and self._user_schema is not None:
-            self._schema_validator.validate(data, self._user_schema)
-
-    # TODO rename add_endpoints
     def add_views(self, app, *modules, url_prefix=None):
         possible_user_roles = self.user_roles | {"anonymous", "authenticated"}
 

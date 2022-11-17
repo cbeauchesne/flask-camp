@@ -47,8 +47,6 @@ def put(user_id):
         if "comment" not in data:
             raise BadRequest("comment is missing")
 
-    current_api.validate_user_schema(data["user"])
-
     user = UserModel.get(id=user_id)
 
     if user is None:
