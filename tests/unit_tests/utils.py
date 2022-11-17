@@ -113,9 +113,10 @@ class BaseTest(ClientInterface):
         print("Document is:")
         print(json.dumps(document, indent=4))
 
-        expected_count = 10 if "cooked" in document else 9
+        expected_count = 11 if "cooked" in document else 10
         assert len(document) == expected_count, list(document.keys())
         assert "data" in document
+        assert "metadata" in document
         assert isinstance(document["id"], int)
         assert isinstance(document["comment"], str)
         assert isinstance(document["version_id"], int)

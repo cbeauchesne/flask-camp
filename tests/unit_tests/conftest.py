@@ -3,11 +3,17 @@ import sys
 
 from flask import Flask
 import pytest
+import werkzeug
 
 from flask_camp import RestApi
 from flask_camp.models import User
 from flask_camp.views import home
 
+
+# by default, this value is very hich (260k). it slows a lot the test session
+# monkey patch it to one speed up the test by 30%
+
+werkzeug.security.DEFAULT_PBKDF2_ITERATIONS = 1
 
 tested_app = Flask(__name__, static_folder=None)
 tested_app.config.update({"TESTING": True, "SECRET_KEY": "not very secret", "SQLALCHEMY_TRACK_MODIFICATIONS": False})

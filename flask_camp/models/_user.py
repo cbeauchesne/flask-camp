@@ -1,12 +1,10 @@
 from datetime import datetime, timedelta
-import json
 import secrets
 
 from flask import current_app
 from flask_login import current_user
 from sqlalchemy import Column, String, Boolean, DateTime, Integer
-from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.orm import reconstructor
+from sqlalchemy.dialects.postgresql import ARRAY, JSON
 from sqlalchemy.sql import func
 from werkzeug.exceptions import BadRequest, Forbidden, Unauthorized
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -51,22 +49,13 @@ class User(BaseModel):  # pylint: disable=too-many-instance-attributes
     _login_token = Column("login_token", String(64))
     _login_token_expiration_date = Column("login_token_expiration_date", DateTime)
 
-    _data = Column("data", String, default="{}", nullable=False)
+    data = Column(JSON, default=dict, nullable=False)
 
     roles = Column(ARRAY(String(16)), index=True, default=[])
 
     blocked = Column(Boolean, default=False, nullable=False)
 
     creation_date = Column(DateTime(timezone=True), server_default=func.now())
-
-    def __init__(self, data=None, **kwargs):
-        data = {} if data is None else data
-        super().__init__(_data=json.dumps(data), **kwargs)
-        self._init_from_database()
-
-    @reconstructor
-    def _init_from_database(self):
-        self._raw_data = json.loads(self._data)
 
     @staticmethod
     def sanitize_name(name):
@@ -81,15 +70,6 @@ class User(BaseModel):  # pylint: disable=too-many-instance-attributes
         user.data = data
 
         return user
-
-    @property
-    def data(self):
-        return self._raw_data
-
-    @data.setter
-    def data(self, value):
-        self._raw_data = value
-        self._data = json.dumps(value)
 
     def __repr__(self):
         return f"User(id={repr(self.id)}, name={repr(self.name)})"

@@ -5,14 +5,6 @@ from flask_camp.models import DocumentVersion
 from tests.unit_tests.utils import BaseTest
 
 
-def test_data():
-    version = DocumentVersion(data=None)
-    assert version._data == "null"
-
-    version.data = {"hello": "world"}
-    assert version._data == '{"hello": "world"}'
-
-
 class Test_Document(BaseTest):
     def test_do_delete_all_versions(self, user):
         self.login_user(user)

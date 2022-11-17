@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import json
-
 from flask_login import current_user
 from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, select
-from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.orm import relationship, reconstructor
+from sqlalchemy.dialects.postgresql import ARRAY, JSON
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from werkzeug.exceptions import BadRequest
 
@@ -29,6 +27,7 @@ def _as_dict(document, version, include_hidden_data_for_staff=False):
         "user": None if version.user is None else version.user.as_dict(),
         "last_version_id": document.last_version_id,
         "version_id": version.id,
+        "metadata": document.data,
     }
 
     if not version.hidden:
@@ -68,6 +67,8 @@ class Document(BaseModel):
     redirects_to = Column(Integer, ForeignKey("document.id"), index=True)
 
     associated_ids = Column(ARRAY(Integer), index=True)
+
+    data = Column(JSON)
 
     @classmethod
     def create(cls, comment, data, author=None):
@@ -138,7 +139,7 @@ class DocumentVersion(BaseModel):
     comment = Column(String)
 
     hidden = Column(Boolean, default=False, nullable=False)
-    _data = Column("data", String)
+    data = Column(JSON)
 
     tags = relationship(
         "Tag",
@@ -149,25 +150,8 @@ class DocumentVersion(BaseModel):
         viewonly=True,
     )
 
-    def __init__(self, data, **kwargs):
-        super().__init__(_data=json.dumps(data), **kwargs)
-        self._init_from_database()
-
-    @reconstructor
-    def _init_from_database(self):
-        self._raw_data = json.loads(self._data)
-
     def as_dict(self):
         return _as_dict(self.document, self, include_hidden_data_for_staff=True)
-
-    @property
-    def data(self):
-        return self._raw_data
-
-    @data.setter
-    def data(self, value):
-        self._raw_data = value
-        self._data = json.dumps(value)
 
     @classmethod
     def get(cls, with_for_update=False, **kwargs) -> DocumentVersion:

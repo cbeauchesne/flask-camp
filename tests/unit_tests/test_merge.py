@@ -175,3 +175,31 @@ class Test_Tags(BaseTest):
 
         assert len(tags) == 1
         assert tags[0]["document_id"] == doc2["id"]
+
+
+def cooker_2(document, get_document):  # pylint: disable=unused-argument
+    data = document.get("data")
+    document["cooked"] = {}
+    for document_id in data:
+        document["cooked"][document_id] = get_document(document_id)
+
+
+class Test_Cooker(BaseTest):
+    rest_api_kwargs = {"cooker": cooker_2}
+
+    def test_main(self, moderator):
+        self.login_user(moderator)
+
+        doc1 = self.create_document(data=[]).json["document"]
+        doc2 = self.create_document(data=[]).json["document"]
+        doc3 = self.create_document(data=[doc1["id"]]).json["document"]
+
+        doc3 = self.get_document(doc3).json["document"]
+        assert doc3["cooked"][str(doc1["id"])]["id"] == doc1["id"]
+
+        self.merge_documents(doc1, doc2)
+
+        doc3 = self.get_document(doc3).json["document"]
+        associated_doc = doc3["cooked"][str(doc1["id"])]
+        assert associated_doc["id"] == doc1["id"]
+        assert associated_doc["redirects_to"] == doc2["id"]
